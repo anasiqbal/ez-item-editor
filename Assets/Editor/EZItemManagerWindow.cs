@@ -2,14 +2,14 @@
 using UnityEditor;
 using System.Collections;
 
-public class EZItemManager : EditorWindow
+public class EZItemManagerWindow : EditorWindow
 {
     private const string menuItemLocation = "Assets/EZ Item Manager";
 
     [MenuItem(menuItemLocation)]
     private static void showEditor()
     {
-        EditorWindow.GetWindow<EZItemManager>(false, "EZ Item Manager");
+        EditorWindow.GetWindow<EZItemManagerWindow>(false, "EZ Item Manager");
     }
 
     [MenuItem(menuItemLocation, true)]
