@@ -8,6 +8,8 @@ public class EZItemManagerWindow : EditorWindow
     private const string menuItemLocation = "Assets/EZ Item Manager";
     private static Dictionary<string, object> itemDictionary;
 
+    private static Dictionary<string, bool> foldoutState = new Dictionary<string, bool>();
+
     [MenuItem(menuItemLocation)]
     private static void showEditor()
     {
@@ -32,9 +34,24 @@ public class EZItemManagerWindow : EditorWindow
 
         TestMe();
 
-        foreach (object item in itemDictionary.Values)
+        foreach (KeyValuePair<string, object> item in itemDictionary)
         {
-            DrawItem(item);
+            EditorGUILayout.BeginHorizontal();
+
+            bool currentFoldoutState;
+            if (!foldoutState.TryGetValue(item.Key, out currentFoldoutState))
+                currentFoldoutState = false;
+
+            bool newFoldoutState = EditorGUILayout.Foldout(currentFoldoutState, string.Format("Item #{0}", item.Key));
+            if (foldoutState.ContainsKey(item.Key))
+                foldoutState [item.Key] = newFoldoutState;
+            else
+                foldoutState.Add(item.Key, newFoldoutState);
+
+            EditorGUILayout.EndHorizontal();
+
+            if (currentFoldoutState)
+                DrawItem(item.Value);
         }
     }
 
@@ -52,10 +69,6 @@ public class EZItemManagerWindow : EditorWindow
     private static void DrawItem(object data)
     {
         EditorGUILayout.BeginVertical();
-
-        EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField("An Item");
-        EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.BeginHorizontal();
         GUILayout.FlexibleSpace();
