@@ -4,19 +4,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-public class EZItemManagerWindow : EditorWindow
+public class EZItemManagerWindow : EZManagerWindowBase
 {
-    private const string menuItemLocation = "Assets/EZ Item Manager";
-    private static Dictionary<string, object> itemDictionary;
-
-    private static Dictionary<string, bool> foldoutState = new Dictionary<string, bool>();
+    private const string menuItemLocation = rootMenuLocation + "/EZ Item Manager";
 
     [MenuItem(menuItemLocation)]
     private static void showEditor()
     {
         EditorWindow.GetWindow<EZItemManagerWindow>(false, "EZ Item Manager");
-
-        itemDictionary = EZItemManager.AllItems;
     }
 
     [MenuItem(menuItemLocation, true)]
@@ -25,35 +20,34 @@ public class EZItemManagerWindow : EditorWindow
         return true;
     }
 
-    void OnGUI()
+    protected override void OnGUI()
     {
-        DrawHeader();
+        base.OnGUI();
 
-        if (itemDictionary == null)
-            itemDictionary = EZItemManager.AllItems;
-
-        foreach (KeyValuePair<string, object> item in itemDictionary)
+        EditorGUILayout.BeginVertical();
+        
+        EditorGUILayout.BeginHorizontal();
+        GUILayout.Label("Template:", GUILayout.Width(80));
+        int index = EditorGUILayout.Popup(0, EZItemManager.ItemTemplates.Keys.ToArray(), GUILayout.Width(100));
+        if (GUILayout.Button("Create Item"))
+            Create(index);
+        GUILayout.FlexibleSpace();
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("All Items");
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.EndVertical();
+        
+        foreach (KeyValuePair<string, object> item in EZItemManager.AllItems)
         {
-            EditorGUILayout.BeginHorizontal();
-
-            bool currentFoldoutState;
-            if (!foldoutState.TryGetValue(item.Key, out currentFoldoutState))
-                currentFoldoutState = false;
-
-            bool newFoldoutState = EditorGUILayout.Foldout(currentFoldoutState, string.Format("Item #{0}", item.Key));
-            if (foldoutState.ContainsKey(item.Key))
-                foldoutState [item.Key] = newFoldoutState;
-            else
-                foldoutState.Add(item.Key, newFoldoutState);
-
-            EditorGUILayout.EndHorizontal();
-
-            if (currentFoldoutState)
-                DrawItem(item.Value);
+            if (DrawFoldout(string.Format("Item #{0}", item.Key), item.Key))
+                DrawEntry(item.Value);
         }
     }
 
-    private static void DrawItem(object data)
+    protected override void DrawEntry(object data)
     {
         EditorGUILayout.BeginVertical();
 
@@ -66,74 +60,17 @@ public class EZItemManagerWindow : EditorWindow
         EditorGUILayout.EndVertical();
     }
 
-    private static void DrawHeader()
-    {
-        EditorGUILayout.BeginVertical();
-
-        EditorGUILayout.BeginHorizontal();
-        GUILayout.FlexibleSpace();
-
-        if (GUILayout.Button("Load Items"))
-            LoadItems();
-
-        GUILayout.FlexibleSpace();
-
-        if (GUILayout.Button("Save Items"))
-            SaveItems();
-
-        GUILayout.FlexibleSpace();
-
-        if (GUILayout.Button("Create Template"))
-            CreateTemplate();
-
-        GUILayout.FlexibleSpace();
-
-        EditorGUILayout.EndHorizontal();
-
-        EditorGUILayout.EndVertical();
-
-        GUILayout.Box("", new GUILayoutOption[]
-            {
-            GUILayout.ExpandWidth(true),
-            GUILayout.Height(1)
-        });
-        EditorGUILayout.Separator();
-
-        EditorGUILayout.BeginVertical();
-
-        EditorGUILayout.BeginHorizontal();
-        GUILayout.Label("Template:", GUILayout.Width(80));
-        int index = EditorGUILayout.Popup(0, EZItemManager.ItemTemplates.Keys.ToArray(), GUILayout.Width(100));
-        if (GUILayout.Button("Create Item"))
-            CreateItem(index);
-        GUILayout.FlexibleSpace();
-        EditorGUILayout.EndHorizontal();
-
-        EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField("All Items");
-        EditorGUILayout.EndHorizontal();
-
-        EditorGUILayout.EndVertical();
-    }
-
-    private static void LoadItems()
+    protected override void Load()
     {
         EZItemManager.Load();
-        itemDictionary = EZItemManager.AllItems;
     }
 
-    private static void SaveItems()
+    protected override void Save()
     {
         EZItemManager.Save();
-        itemDictionary = EZItemManager.AllItems;
     }
 
-    private static void CreateTemplate()
-    {
-        EditorWindow.GetWindow<EZTemplateManagerWindow>(false, "EZ Item Template Manager");
-    }
-
-    private static void CreateItem(int templateIndex)
+    protected override void Create(object data)
     {
 
     }

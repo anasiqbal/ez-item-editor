@@ -3,19 +3,15 @@ using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 
-public class EZTemplateManagerWindow : EditorWindow {
+public class EZTemplateManagerWindow : EZManagerWindowBase {
 
-    private const string menuItemLocation = "Assets/EZ Item Template Manager";
-    private static Dictionary<string, object> templateDictionary;
-
-    private static Dictionary<string, bool> foldoutState = new Dictionary<string, bool>();
+    private const string menuItemLocation = rootMenuLocation + "/EZ Template Manager";
     private static string newTemplateName = "";
     
     [MenuItem(menuItemLocation)]
     private static void showEditor()
     {
-        EditorWindow.GetWindow<EZTemplateManagerWindow>(false, "EZ Item Template Manager");
-        templateDictionary = EZItemManager.ItemTemplates;
+        EditorWindow.GetWindow<EZTemplateManagerWindow>(false, "EZ Template Manager");
     }
     
     [MenuItem(menuItemLocation, true)]
@@ -24,69 +20,17 @@ public class EZTemplateManagerWindow : EditorWindow {
         return true;
     }
     
-    void OnGUI()
+    protected override void OnGUI()
     {
-        DrawHeader();
+        base.OnGUI();
 
-        if (templateDictionary == null)
-            templateDictionary = EZItemManager.ItemTemplates;
-
-        foreach(KeyValuePair<string, object> template in templateDictionary)
-        {
-            EditorGUILayout.BeginHorizontal();
-            
-            bool currentFoldoutState;
-            if (!foldoutState.TryGetValue(template.Key, out currentFoldoutState))
-                currentFoldoutState = false;
-            
-            bool newFoldoutState = EditorGUILayout.Foldout(currentFoldoutState, string.Format("Template: {0}", template.Key));
-            if (foldoutState.ContainsKey(template.Key))
-                foldoutState [template.Key] = newFoldoutState;
-            else
-                foldoutState.Add(template.Key, newFoldoutState);
-            
-            EditorGUILayout.EndHorizontal();
-            
-            if (currentFoldoutState)
-                DrawTemplate(template.Value);
-        }
-    }
-
-    private void DrawHeader()
-    {
-        EditorGUILayout.BeginVertical();
-        
-        EditorGUILayout.BeginHorizontal();
-        GUILayout.FlexibleSpace();
-        
-        if (GUILayout.Button("Load Templates"))
-            LoadTemplates();
-        
-        GUILayout.FlexibleSpace();
-        
-        if (GUILayout.Button("Save Templates"))
-            SaveTemplates();
-
-        GUILayout.FlexibleSpace();
-        
-        EditorGUILayout.EndHorizontal();
-        
-        EditorGUILayout.EndVertical();
-        
-        GUILayout.Box("", new GUILayoutOption[]
-                      {
-            GUILayout.ExpandWidth(true),
-            GUILayout.Height(1)
-        });
-        EditorGUILayout.Separator();
-        
         EditorGUILayout.BeginVertical();
         
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.LabelField("Template Name:", GUILayout.Width(100));
         newTemplateName = EditorGUILayout.TextField(newTemplateName);
         if (GUILayout.Button("Create New Template"))
-            CreateTemplate(newTemplateName);
+            Create(newTemplateName);
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
         
@@ -95,9 +39,15 @@ public class EZTemplateManagerWindow : EditorWindow {
         EditorGUILayout.EndHorizontal();
         
         EditorGUILayout.EndVertical();
+
+        foreach(KeyValuePair<string, object> template in EZItemManager.ItemTemplates)
+        {   
+            if (DrawFoldout(string.Format("Template: {0}", template.Key), template.Key))
+                DrawEntry(template.Value);
+        }
     }
 
-    private void DrawTemplate(object data)
+    protected override void DrawEntry(object data)
     {
         EditorGUILayout.BeginVertical();
         
@@ -110,19 +60,18 @@ public class EZTemplateManagerWindow : EditorWindow {
         EditorGUILayout.EndVertical();
     }
 
-    private void LoadTemplates()
+    protected override void Load()
     {
         EZItemManager.Load();
-        templateDictionary = EZItemManager.ItemTemplates;
     }
 
-    private void SaveTemplates()
+    protected override void Save()
     {
 
     }
 
-    private void CreateTemplate(string name)
+    protected override void Create(object data)
     {
-        EZItemManager.AddTemplate(name, "This was a new template....");
+        EZItemManager.AddTemplate(data as string, "This was a new template....");
     }
 }

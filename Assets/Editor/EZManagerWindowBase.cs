@@ -1,0 +1,67 @@
+﻿using UnityEngine;
+using UnityEditor;
+using System.Collections;
+using System.Collections.Generic;
+
+public abstract class EZManagerWindowBase : EditorWindow {
+
+    protected const string rootMenuLocation = "Assets/EZ Item Manager";
+    protected Dictionary<string, bool> foldoutState = new Dictionary<string, bool>();
+      
+    protected virtual void OnGUI()
+    {
+        DrawHeader();
+    }
+
+    protected virtual void DrawHeader()
+    {
+        EditorGUILayout.BeginVertical();
+        EditorGUILayout.BeginHorizontal();
+
+        GUILayout.FlexibleSpace();
+        
+        if (GUILayout.Button("Load"))
+            Load();
+        
+        GUILayout.FlexibleSpace();
+        
+        if (GUILayout.Button("Save"))
+            Save();
+        
+        GUILayout.FlexibleSpace();
+        
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.EndVertical();
+        
+        GUILayout.Box("", new GUILayoutOption[]
+                      {
+            GUILayout.ExpandWidth(true),
+            GUILayout.Height(1)
+        });
+        EditorGUILayout.Separator();
+    }
+
+    protected virtual bool DrawFoldout(string label, string key)
+    {
+        EditorGUILayout.BeginHorizontal();
+        
+        bool currentFoldoutState;
+        if (!foldoutState.TryGetValue(key, out currentFoldoutState))
+            currentFoldoutState = false;
+        
+        bool newFoldoutState = EditorGUILayout.Foldout(currentFoldoutState, label);
+        if (foldoutState.ContainsKey(key))
+            foldoutState [key] = newFoldoutState;
+        else
+            foldoutState.Add(key, newFoldoutState);
+        
+        EditorGUILayout.EndHorizontal();
+
+        return newFoldoutState;
+    }
+
+    protected abstract void Load();
+    protected abstract void Save();
+    protected abstract void Create(object data);
+    protected abstract void DrawEntry(object data);
+}
