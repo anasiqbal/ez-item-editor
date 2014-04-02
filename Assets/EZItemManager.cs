@@ -20,8 +20,8 @@ public class EZItemManager
         }
     }
 
-    private static List<string> _itemTemplates;
-    public static List<string> ItemTemplates
+    private static Dictionary<string, object> _itemTemplates;
+    public static Dictionary<string, object> ItemTemplates
     {
         private set
         {
@@ -31,7 +31,7 @@ public class EZItemManager
         get
         { 
             if (_itemTemplates == null) 
-                _itemTemplates = new List<string>();
+                _itemTemplates = new Dictionary<string, object>();
             return _itemTemplates;
         } 
     }
@@ -48,10 +48,10 @@ public class EZItemManager
         AddItem("2", "Item details go here....");
         AddItem("3", "Item details go here....");
 
-        ItemTemplates = new List<string>();
-        AddTemplate("Generic Item");
-        AddTemplate("Character");
-        AddTemplate("Ability");
+        ItemTemplates = new Dictionary<string, object>();
+        AddTemplate("Generic Item", "Template details go here....");
+        AddTemplate("Character", "Template details go here....");
+        AddTemplate("Ability", "Template details go here....");
     }
 
     public static void AddItem(string key, object data)
@@ -59,8 +59,8 @@ public class EZItemManager
         AllItems.Add(key, data);
     }
 
-    public static void AddTemplate(string name)
+    public static void AddTemplate(string name, object data = null)
     {
-        _itemTemplates.Add(name);
+        _itemTemplates.Add(name, data);
     }
 }

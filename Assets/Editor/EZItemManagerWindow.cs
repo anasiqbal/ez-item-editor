@@ -2,6 +2,7 @@
 using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public class EZItemManagerWindow : EditorWindow
 {
@@ -102,7 +103,7 @@ public class EZItemManagerWindow : EditorWindow
 
         EditorGUILayout.BeginHorizontal();
         GUILayout.Label("Template:", GUILayout.Width(80));
-        int index = EditorGUILayout.Popup(0, EZItemManager.ItemTemplates.ToArray(), GUILayout.Width(100));
+        int index = EditorGUILayout.Popup(0, EZItemManager.ItemTemplates.Keys.ToArray(), GUILayout.Width(100));
         if (GUILayout.Button("Create Item"))
             CreateItem(index);
         GUILayout.FlexibleSpace();
@@ -129,7 +130,7 @@ public class EZItemManagerWindow : EditorWindow
 
     private static void CreateTemplate()
     {
-
+        EditorWindow.GetWindow<EZTemplateManagerWindow>(false, "EZ Item Template Manager");
     }
 
     private static void CreateItem(int templateIndex)
