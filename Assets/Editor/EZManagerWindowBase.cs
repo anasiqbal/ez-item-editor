@@ -63,5 +63,5 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected abstract void Load();
     protected abstract void Save();
     protected abstract void Create(object data);
-    protected abstract void DrawEntry(object data);
+    protected abstract void DrawEntry(string key, object data);
 }

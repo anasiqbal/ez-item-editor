@@ -43,11 +43,11 @@ public class EZItemManagerWindow : EZManagerWindowBase
         foreach (KeyValuePair<string, object> item in EZItemManager.AllItems)
         {
             if (DrawFoldout(string.Format("Item #{0}", item.Key), item.Key))
-                DrawEntry(item.Value);
+                DrawEntry(item.Key, item.Value);
         }
     }
 
-    protected override void DrawEntry(object data)
+    protected override void DrawEntry(string key, object data)
     {
         EditorGUILayout.BeginVertical();
 

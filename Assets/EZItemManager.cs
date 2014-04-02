@@ -1,6 +1,15 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+
+[Flags]
+public enum BasicFieldType
+{
+    Int = 0,
+    Float = 1,
+    String = 2
+}
 
 public class EZItemManager
 {
@@ -49,9 +58,6 @@ public class EZItemManager
         AddItem("3", "Item details go here....");
 
         ItemTemplates = new Dictionary<string, object>();
-        AddTemplate("Generic Item", "Template details go here....");
-        AddTemplate("Character", "Template details go here....");
-        AddTemplate("Ability", "Template details go here....");
     }
 
     public static void AddItem(string key, object data)
