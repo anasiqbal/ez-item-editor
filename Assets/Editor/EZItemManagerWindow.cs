@@ -62,12 +62,12 @@ public class EZItemManagerWindow : EZManagerWindowBase
 
     protected override void Load()
     {
-        EZItemManager.Load();
+        EZItemManager.LoadItems();
     }
 
     protected override void Save()
     {
-        EZItemManager.Save();
+        EZItemManager.SaveItems();
     }
 
     protected override void Create(object data)

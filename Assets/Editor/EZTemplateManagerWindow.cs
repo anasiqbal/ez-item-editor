@@ -160,8 +160,8 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
 
         data.TryGetValue(key, out currentValue);
 
-        newValue = EditorGUILayout.IntField((int)currentValue, GUILayout.Width(50));
-        if (newValue != (int)currentValue)
+        newValue = EditorGUILayout.IntField(Convert.ToInt32(currentValue), GUILayout.Width(50));
+        if (newValue != Convert.ToInt32(currentValue))
             data[key] = newValue;
     }
 
@@ -221,12 +221,12 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
     #region Load, Save, and Create Template Methods
     protected override void Load()
     {
-        EZItemManager.Load();
+        EZItemManager.LoadTemplates();
     }
 
     protected override void Save()
     {
-
+        EZItemManager.SaveTemplates();
     }
 
     protected override void Create(object data)

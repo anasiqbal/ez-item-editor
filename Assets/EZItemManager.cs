@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using System;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using MiniJSON;
 
 [Flags]
 public enum BasicFieldType
@@ -13,6 +15,8 @@ public enum BasicFieldType
 
 public class EZItemManager
 {
+    #region Item Dictionary
+    private static string itemFilePath = Application.dataPath + "/ezitems.json";
     private static Dictionary<string, object> _allItems;
     public static Dictionary<string, object> AllItems
     { 
@@ -28,7 +32,10 @@ public class EZItemManager
             return _allItems;
         }
     }
+    #endregion
 
+    #region Template Dictionary
+    private static string templateFilePath = Application.dataPath + "/eztemplates.json";
     private static Dictionary<string, object> _itemTemplates;
     public static Dictionary<string, object> ItemTemplates
     {
@@ -44,22 +51,67 @@ public class EZItemManager
             return _itemTemplates;
         } 
     }
+    #endregion
 
-    public static void Save()
+    #region Save/Load Methods
+    public static void SaveItems()
     {
+        try
+        {
+            string rawJson = Json.Serialize(AllItems);
+            string prettyJson = JsonHelper.FormatJson(rawJson);
 
+            File.WriteAllText(itemFilePath, prettyJson);
+        }
+        catch(Exception ex)
+        {
+            Debug.LogException(ex);
+        }
     }
 
-    public static void Load()
+    public static void SaveTemplates()
     {
-        AllItems = new Dictionary<string, object>();
-        AddItem("1", "Item details go here....");
-        AddItem("2", "Item details go here....");
-        AddItem("3", "Item details go here....");
+        try
+        {
+            string rawJson = Json.Serialize(ItemTemplates);
+            string prettyJson = JsonHelper.FormatJson(rawJson);
 
-        ItemTemplates = new Dictionary<string, object>();
+            File.WriteAllText(templateFilePath, prettyJson);
+        }
+        catch(Exception ex)
+        {
+            Debug.LogException(ex);
+        }
     }
 
+    public static void LoadItems()
+    {
+        try
+        {
+            string json = File.ReadAllText(itemFilePath);
+            AllItems = Json.Deserialize(json) as Dictionary<string, object>;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogException(ex);
+        }
+    }
+
+    public static void LoadTemplates()
+    {
+        try
+        {
+            string json = File.ReadAllText(templateFilePath);
+            ItemTemplates = Json.Deserialize(json) as Dictionary<string, object>;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogException(ex);
+        }
+    }
+    #endregion
+
+    #region Add Methods
     public static void AddItem(string key, object data)
     {
         AllItems.Add(key, data);
@@ -69,4 +121,5 @@ public class EZItemManager
     {
         _itemTemplates.Add(name, data);
     }
+    #endregion
 }
