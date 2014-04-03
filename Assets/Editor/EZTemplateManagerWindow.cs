@@ -27,7 +27,8 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
     {
         return true;
     }
-    
+
+    #region OnGUI Method
     protected override void OnGUI()
     {
         base.OnGUI();
@@ -54,7 +55,9 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
                 DrawEntry(template.Key, template.Value);
         }
     }
+    #endregion
 
+    #region DrawAddFieldSection Method
     private void DrawAddFieldSection(string key, object data)
     {
         EditorGUILayout.BeginHorizontal();
@@ -68,7 +71,7 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
         newFieldName = EditorGUILayout.TextField(newFieldName);
 
         if (GUILayout.Button("Add Field"))
-            AddBasicField(basicFieldTypeSelected, key, data, newFieldName);
+            AddBasicField(basicFieldTypeSelected, key, data as Dictionary<string, object>, newFieldName);
 
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
@@ -79,17 +82,25 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
 
         EditorGUILayout.LabelField("Custom Field Type:", GUILayout.Width(110));
 
-        string[] customTypes = EZItemManager.ItemTemplates.Keys.ToArray();
+        List<string> customTypeList = EZItemManager.ItemTemplates.Keys.ToList();
+        customTypeList.Remove(key);
+
+        string[] customTypes = customTypeList.ToArray();
         customTemplateTypeSelected = EditorGUILayout.Popup(customTemplateTypeSelected, customTypes);
 
-        if (GUILayout.Button("Add Custom Field") && customTypes[customTemplateTypeSelected] != key)
-            AddCustomField(customTemplateTypeSelected, key, data);
+        EditorGUILayout.LabelField("Field Name:", GUILayout.Width(70));
+        newFieldName = EditorGUILayout.TextField(newFieldName);
+
+        if (GUILayout.Button("Add Custom Field"))
+            AddCustomField(customTypes[customTemplateTypeSelected], key, data as Dictionary<string, object>, newFieldName);
 
         GUILayout.FlexibleSpace();
 
         EditorGUILayout.EndHorizontal();
     }
+    #endregion
 
+    #region DrawEntry Method
     protected override void DrawEntry(string key, object data)
     {
         Dictionary<string, object> entry = data as Dictionary<string, object>;
@@ -102,25 +113,31 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
                 continue;
 
             string fieldType = entry[entry_key].ToString();
+            if (Enum.IsDefined(typeof(BasicFieldType), fieldType))
+                fieldType = fieldType.ToLower();
 
             EditorGUILayout.BeginHorizontal();
 
             GUILayout.Space(20);
 
-            EditorGUILayout.LabelField(fieldType.ToLower(), GUILayout.Width(50));
+            EditorGUILayout.LabelField(fieldType, GUILayout.Width(50));
             EditorGUILayout.LabelField(entry_key, GUILayout.Width(100));
             EditorGUILayout.LabelField("Default Value:", GUILayout.Width(80));
 
             switch(fieldType)
             {
-                case "Int":
+                case "int":
                     DrawInt(entry_key, entry);
                     break;
-                case "Float":
+                case "float":
                     DrawFloat(entry_key, entry);
                     break;
-                case "String":
+                case "string":
                     DrawString(entry_key, entry);
+                    break;
+
+                default:
+                    DrawCustom(entry_key, entry, false);
                     break;
             }
 
@@ -151,11 +168,11 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
         EditorGUILayout.Separator();
         EditorGUILayout.EndVertical();
     }
+    #endregion
 
     #region Add Field Methods
-    private void AddBasicField(BasicFieldType type, string key, object data, string fieldName)
+    private void AddBasicField(BasicFieldType type, string key, Dictionary<string, object> entry, string fieldName)
     {
-        Dictionary<string, object> entry = data as Dictionary<string, object>;
         entry.Add(fieldName, type);
 
         switch(type)
@@ -171,9 +188,10 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
         }
     }
 
-    private void AddCustomField(int templateIndex, string key, object data)
+    private void AddCustomField(string customType, string key, Dictionary<string, object> entry, string fieldName)
     {
-
+        entry.Add(fieldName, customType);
+        entry.Add(string.Format("{0}_{1}", EZConstants.ValuePrefix, fieldName), "null");
     }
     #endregion
 

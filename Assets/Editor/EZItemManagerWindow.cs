@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +27,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
         return true;
     }
 
+    #region OnGUI Method
     protected override void OnGUI()
     {
         if (templateKeys == null || templateKeys.Length != EZItemManager.ItemTemplates.Keys.Count)
@@ -76,7 +78,9 @@ public class EZItemManagerWindow : EZManagerWindowBase
         }
         deletedItems.Clear();
     }
+    #endregion
 
+    #region DrawEntry Method
     protected override void DrawEntry(string key, object data)
     {
         Dictionary<string, object> entry = data as Dictionary<string, object>;
@@ -89,25 +93,34 @@ public class EZItemManagerWindow : EZManagerWindowBase
                 continue;
             
             string fieldType = entry[entry_key].ToString();
+            if (Enum.IsDefined(typeof(BasicFieldType), fieldType))
+                fieldType = fieldType.ToLower();
             
             EditorGUILayout.BeginHorizontal();
             
             GUILayout.Space(20);
             
-            EditorGUILayout.LabelField(fieldType.ToLower(), GUILayout.Width(50));
+            EditorGUILayout.LabelField(fieldType, GUILayout.Width(50));
             EditorGUILayout.LabelField(entry_key, GUILayout.Width(100));
             EditorGUILayout.LabelField("Value:", GUILayout.Width(40));
             
             switch(fieldType)
             {
-                case "Int":
+                case "int":
                     DrawInt(entry_key, entry);
                     break;
-                case "Float":
+                case "float":
                     DrawFloat(entry_key, entry);
                     break;
-                case "String":
+                case "string":
                     DrawString(entry_key, entry);
+                    break;
+
+                default:
+                    List<string> itemKeys = EZItemManager.AllItems.Keys.ToList();
+                    itemKeys.Remove(key);
+                    itemKeys.Add("null");
+                    DrawCustom(entry_key, entry, true, itemKeys);
                     break;
             }
             
@@ -131,7 +144,9 @@ public class EZItemManagerWindow : EZManagerWindowBase
         EditorGUILayout.Separator();
         EditorGUILayout.EndVertical();
     }
+    #endregion
 
+    #region Load/Save/Create Item Methods
     protected override void Load()
     {
         EZItemManager.LoadItems();
@@ -161,4 +176,5 @@ public class EZItemManagerWindow : EZManagerWindowBase
         else
             Debug.LogError("Template data not found: " + templateKey);
     }
+    #endregion
 }

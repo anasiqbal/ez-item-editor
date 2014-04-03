@@ -136,6 +136,28 @@ public abstract class EZManagerWindowBase : EditorWindow {
         if (newValue != (string)currentValue)
             data[key] = newValue;
     }
+
+    protected virtual void DrawCustom(string fieldName, Dictionary<string, object> data, bool canEdit, List<string> possibleValues = null)
+    {
+        object currentValue;
+        int newIndex;
+        int currentIndex;
+        string key = string.Format("{0}_{1}", EZConstants.ValuePrefix, fieldName);
+
+        data.TryGetValue(key, out currentValue);
+
+        if (canEdit && possibleValues != null)
+        {
+            currentIndex = possibleValues.IndexOf(currentValue as string);
+            newIndex = EditorGUILayout.Popup(currentIndex, possibleValues.ToArray());
+            if (newIndex != currentIndex)            
+                data[key] = possibleValues[newIndex];
+        }
+        else
+        {
+            EditorGUILayout.LabelField("null");
+        }
+    }
     #endregion
 
     #region Abstract methods
