@@ -8,6 +8,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
 
     protected const string rootMenuLocation = "Assets/EZ Item Manager";
     protected Dictionary<string, bool> foldoutState = new Dictionary<string, bool>();
+    protected bool currentFoldoutAllState = false;
       
     protected virtual void OnGUI()
     {
@@ -42,6 +43,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
         EditorGUILayout.Separator();
     }
 
+    #region Foldout Methods
     protected virtual bool DrawFoldout(string label, string key)
     {
         EditorGUILayout.BeginHorizontal();
@@ -51,15 +53,49 @@ public abstract class EZManagerWindowBase : EditorWindow {
             currentFoldoutState = false;
         
         bool newFoldoutState = EditorGUILayout.Foldout(currentFoldoutState, label);
-        if (foldoutState.ContainsKey(key))
-            foldoutState [key] = newFoldoutState;
-        else
-            foldoutState.Add(key, newFoldoutState);
+        SetFoldout(newFoldoutState, key);
         
         EditorGUILayout.EndHorizontal();
 
         return newFoldoutState;
     }
+
+    protected virtual void DrawExpandCollapseAllFoldout(string[] forKeys)
+    {
+        string label;
+        if (currentFoldoutAllState)
+            label = "Collapse All";
+        else
+            label = "Expand All";
+
+        bool newFoldAllState = EditorGUILayout.Foldout(currentFoldoutAllState, label);
+        if (newFoldAllState != currentFoldoutAllState) {
+            SetAllFoldouts(newFoldAllState, forKeys);
+            currentFoldoutAllState = newFoldAllState;
+        }
+    }
+
+    protected virtual void SetAllFoldouts(bool state, string[] forKeys)
+    {
+        if (!state)
+            foldoutState.Clear();
+        else
+        {
+            foreach(string key in forKeys)
+            {
+                SetFoldout(state, key);
+            }
+        }
+    }
+
+    protected virtual void SetFoldout(bool state, string forKey)
+    {
+        if (foldoutState.ContainsKey(forKey))
+            foldoutState[forKey] = state;
+        else
+            foldoutState.Add(forKey, state);
+    }
+    #endregion
 
     #region Draw Field Methods
     protected virtual void DrawInt(string fieldName, Dictionary<string, object> data)

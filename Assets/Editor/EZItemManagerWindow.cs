@@ -58,7 +58,9 @@ public class EZItemManagerWindow : EZManagerWindowBase
         EditorGUILayout.EndHorizontal();
         
         GUILayout.Space(10);
-        
+
+        DrawExpandCollapseAllFoldout(EZItemManager.AllItems.Keys.ToArray());
+
         EditorGUILayout.EndVertical();
         
         foreach (KeyValuePair<string, object> item in EZItemManager.AllItems)

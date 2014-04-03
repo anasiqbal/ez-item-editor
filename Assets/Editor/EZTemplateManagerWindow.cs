@@ -44,6 +44,8 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
 
         GUILayout.Space(10);
 
+        DrawExpandCollapseAllFoldout(EZItemManager.ItemTemplates.Keys.ToArray());
+
         EditorGUILayout.EndVertical();
 
         foreach(KeyValuePair<string, object> template in EZItemManager.ItemTemplates)
