@@ -12,6 +12,8 @@ public class EZItemManagerWindow : EZManagerWindowBase
     private string newItemName = "";
     private int templateIndex = 0;
 
+    private List<string> deletedItems = new List<string>();
+
     [MenuItem(menuItemLocation)]
     private static void showEditor()
     {
@@ -64,14 +66,21 @@ public class EZItemManagerWindow : EZManagerWindowBase
             if (DrawFoldout(string.Format("Item: {0}", item.Key), item.Key))
                 DrawEntry(item.Key, item.Value);
         }
+        
+        //Remove any items that were deleted
+        foreach(string deletedkey in deletedItems)
+        {
+            EZItemManager.RemoveItem(deletedkey);
+        }
+        deletedItems.Clear();
     }
 
     protected override void DrawEntry(string key, object data)
     {
-        EditorGUILayout.BeginVertical();
-        
         Dictionary<string, object> entry = data as Dictionary<string, object>;
-        
+
+        EditorGUILayout.BeginVertical();
+
         foreach(string entry_key in entry.Keys.ToArray())
         {
             if (entry_key.StartsWith(EZConstants.ValuePrefix))
@@ -105,6 +114,12 @@ public class EZItemManagerWindow : EZManagerWindowBase
         }
 
         GUILayout.Space(20);
+
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Delete"))
+            deletedItems.Add(key);
+        GUILayout.FlexibleSpace();
+        EditorGUILayout.EndHorizontal();
                   
         GUILayout.Box("", new GUILayoutOption[]
                       {

@@ -111,10 +111,15 @@ public class EZItemManager
     }
     #endregion
 
-    #region Add Methods
+    #region Add/Remove Methods
     public static void AddItem(string key, object data)
     {
         AllItems.Add(key, data);
+    }
+
+    public static void RemoveItem(string key)
+    {
+        AllItems.Remove(key);
     }
 
     public static void AddTemplate(string name, object data = null)

@@ -13,6 +13,8 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
     private BasicFieldType basicFieldTypeSelected = BasicFieldType.Int;
     private int customTemplateTypeSelected = 0;
     private string newFieldName = "";
+
+    private List<string> deletedFields = new List<string>();
     
     [MenuItem(menuItemLocation)]
     private static void showEditor()
@@ -88,11 +90,9 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
 
     protected override void DrawEntry(string key, object data)
     {
-        List<string> deletedKeys = new List<string>();
+        Dictionary<string, object> entry = data as Dictionary<string, object>;
 
         EditorGUILayout.BeginVertical();
-
-        Dictionary<string, object> entry = data as Dictionary<string, object>;
 
         foreach(string entry_key in entry.Keys.ToArray())
         {
@@ -123,27 +123,26 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
             }
 
             if (GUILayout.Button("Delete"))
-                deletedKeys.Add(entry_key);
+                deletedFields.Add(entry_key);
 
             GUILayout.FlexibleSpace();
             EditorGUILayout.EndHorizontal();
         }
 
         // Remove any fields that were deleted above
-        foreach(string entry_key in deletedKeys)
+        foreach(string deletedKey in deletedFields)
         {
-            entry.Remove(entry_key);
-            entry.Remove(string.Format("{0}_{1}", EZConstants.ValuePrefix, entry_key));
-
-            Debug.Log("Deleted: "+entry_key);
+            entry.Remove(deletedKey);
+            entry.Remove(string.Format("{0}_{1}", EZConstants.ValuePrefix, deletedKey));
         }
+        deletedFields.Clear();
 
         GUILayout.Space(20);
 
         DrawAddFieldSection(key, data);
 
         GUILayout.Box("", new GUILayoutOption[]
-                      {
+        {
             GUILayout.ExpandWidth(true),
             GUILayout.Height(1)
         });

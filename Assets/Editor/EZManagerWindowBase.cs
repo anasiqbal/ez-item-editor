@@ -102,8 +102,10 @@ public abstract class EZManagerWindowBase : EditorWindow {
     }
     #endregion
 
+    #region Abstract methods
     protected abstract void Load();
     protected abstract void Save();
     protected abstract void Create(object data);
     protected abstract void DrawEntry(string key, object data);
+    #endregion
 }
