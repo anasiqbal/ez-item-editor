@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -59,6 +60,47 @@ public abstract class EZManagerWindowBase : EditorWindow {
 
         return newFoldoutState;
     }
+
+    #region Draw Field Methods
+    protected virtual void DrawInt(string fieldName, Dictionary<string, object> data)
+    {
+        object currentValue;
+        int newValue;
+        string key = string.Format("{0}_{1}", EZConstants.ValuePrefix, fieldName);
+        
+        data.TryGetValue(key, out currentValue);
+        
+        newValue = EditorGUILayout.IntField(Convert.ToInt32(currentValue), GUILayout.Width(50));
+        if (newValue != Convert.ToInt32(currentValue))
+            data[key] = newValue;
+    }
+    
+    protected virtual void DrawFloat(string fieldName, Dictionary<string, object> data)
+    {
+        object currentValue;
+        float newValue;
+        string key = string.Format("{0}_{1}", EZConstants.ValuePrefix, fieldName);
+        
+        data.TryGetValue(key, out currentValue);
+        
+        newValue = EditorGUILayout.FloatField(Convert.ToSingle(currentValue), GUILayout.Width(50));
+        if (newValue != Convert.ToSingle(currentValue))
+            data[key] = newValue;
+    }
+    
+    protected virtual void DrawString(string fieldName, Dictionary<string, object> data)
+    {
+        object currentValue;
+        string newValue;
+        string key = string.Format("{0}_{1}", EZConstants.ValuePrefix, fieldName);
+        
+        data.TryGetValue(key, out currentValue);
+        
+        newValue = EditorGUILayout.TextField(currentValue as string, GUILayout.Width(100));
+        if (newValue != (string)currentValue)
+            data[key] = newValue;
+    }
+    #endregion
 
     protected abstract void Load();
     protected abstract void Save();

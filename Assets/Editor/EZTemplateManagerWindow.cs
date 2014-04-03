@@ -96,7 +96,7 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
 
         foreach(string entry_key in entry.Keys.ToArray())
         {
-            if (entry_key.StartsWith(EZConstants.DefaultPrefix))
+            if (entry_key.StartsWith(EZConstants.ValuePrefix))
                 continue;
 
             string fieldType = entry[entry_key].ToString();
@@ -133,7 +133,7 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
         foreach(string entry_key in deletedKeys)
         {
             entry.Remove(entry_key);
-            entry.Remove(string.Format("{0}_{1}", EZConstants.DefaultPrefix, entry_key));
+            entry.Remove(string.Format("{0}_{1}", EZConstants.ValuePrefix, entry_key));
 
             Debug.Log("Deleted: "+entry_key);
         }
@@ -151,47 +151,6 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
         EditorGUILayout.EndVertical();
     }
 
-    #region Draw Field Methods
-    void DrawInt(string fieldName, Dictionary<string, object> data)
-    {
-        object currentValue;
-        int newValue;
-        string key = string.Format("{0}_{1}", EZConstants.DefaultPrefix, fieldName);
-
-        data.TryGetValue(key, out currentValue);
-
-        newValue = EditorGUILayout.IntField(Convert.ToInt32(currentValue), GUILayout.Width(50));
-        if (newValue != Convert.ToInt32(currentValue))
-            data[key] = newValue;
-    }
-
-    void DrawFloat(string fieldName, Dictionary<string, object> data)
-    {
-        object currentValue;
-        float newValue;
-        string key = string.Format("{0}_{1}", EZConstants.DefaultPrefix, fieldName);
-        
-        data.TryGetValue(key, out currentValue);
-        
-        newValue = EditorGUILayout.FloatField(Convert.ToSingle(currentValue), GUILayout.Width(50));
-        if (newValue != Convert.ToSingle(currentValue))
-            data[key] = newValue;
-    }
-
-    void DrawString(string fieldName, Dictionary<string, object> data)
-    {
-        object currentValue;
-        string newValue;
-        string key = string.Format("{0}_{1}", EZConstants.DefaultPrefix, fieldName);
-        
-        data.TryGetValue(key, out currentValue);
-        
-        newValue = EditorGUILayout.TextField(currentValue as string, GUILayout.Width(100));
-        if (newValue != (string)currentValue)
-            data[key] = newValue;
-    }
-    #endregion
-
     #region Add Field Methods
     private void AddBasicField(BasicFieldType type, string key, object data, string fieldName)
     {
@@ -202,11 +161,11 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
         {
             case BasicFieldType.Int:
             case BasicFieldType.Float:
-                entry.Add(string.Format("{0}_{1}", EZConstants.DefaultPrefix, fieldName), 0);
+                entry.Add(string.Format("{0}_{1}", EZConstants.ValuePrefix, fieldName), 0);
                 break;
 
             case BasicFieldType.String:
-                entry.Add(string.Format("{0}_{1}", EZConstants.DefaultPrefix, fieldName), "");
+                entry.Add(string.Format("{0}_{1}", EZConstants.ValuePrefix, fieldName), "");
                 break;
         }
     }
@@ -216,7 +175,6 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
 
     }
     #endregion
-
 
     #region Load, Save, and Create Template Methods
     protected override void Load()

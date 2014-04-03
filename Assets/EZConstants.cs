@@ -2,5 +2,5 @@
 using System.Collections;
 
 public class EZConstants {
-    public const string DefaultPrefix = "_ezDefault";
+    public const string ValuePrefix = "_ezValue";
 }
