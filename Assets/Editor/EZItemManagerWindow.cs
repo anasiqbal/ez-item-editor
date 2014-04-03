@@ -67,8 +67,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
         
         foreach (KeyValuePair<string, object> item in EZItemManager.AllItems)
         {
-            if (DrawFoldout(string.Format("Item: {0}", item.Key), item.Key))
-                DrawEntry(item.Key, item.Value);
+            DrawEntry(item.Key, item.Value);
         }
         
         //Remove any items that were deleted
@@ -84,65 +83,92 @@ public class EZItemManagerWindow : EZManagerWindowBase
     protected override void DrawEntry(string key, object data)
     {
         Dictionary<string, object> entry = data as Dictionary<string, object>;
-
-        EditorGUILayout.BeginVertical();
-
-        foreach(string entry_key in entry.Keys.ToArray())
+        string templateType = "<unknown>";
+        object temp;
+        
+        if (entry.TryGetValue(EZConstants.TemplateKey, out temp))
+            templateType = temp as string;
+        
+        if (DrawFoldout(string.Format("{0}: {1}", templateType, key), key))
         {
-            if (entry_key.StartsWith(EZConstants.ValuePrefix))
-                continue;
-            
-            string fieldType = entry[entry_key].ToString();
-            if (Enum.IsDefined(typeof(BasicFieldType), fieldType))
-                fieldType = fieldType.ToLower();
-            
-            EditorGUILayout.BeginHorizontal();
-            
-            GUILayout.Space(20);
-            
-            EditorGUILayout.LabelField(fieldType, GUILayout.Width(50));
-            EditorGUILayout.LabelField(entry_key, GUILayout.Width(100));
-            EditorGUILayout.LabelField("Value:", GUILayout.Width(40));
-            
-            switch(fieldType)
-            {
-                case "int":
-                    DrawInt(entry_key, entry);
-                    break;
-                case "float":
-                    DrawFloat(entry_key, entry);
-                    break;
-                case "string":
-                    DrawString(entry_key, entry);
-                    break;
+            EditorGUILayout.BeginVertical();
 
-                default:
-                    List<string> itemKeys = EZItemManager.AllItems.Keys.ToList();
-                    itemKeys.Remove(key);
-                    itemKeys.Add("null");
-                    DrawCustom(entry_key, entry, true, itemKeys);
-                    break;
+            foreach(string entry_key in entry.Keys.ToArray())
+            {
+                if (entry_key.Contains(EZConstants.ValuePrefix) ||
+                    entry_key.Contains(EZConstants.TemplateKey))
+                    continue;
+                
+                string fieldType = entry[entry_key].ToString();
+                if (Enum.IsDefined(typeof(BasicFieldType), fieldType))
+                    fieldType = fieldType.ToLower();
+                
+                EditorGUILayout.BeginHorizontal();
+                
+                GUILayout.Space(20);
+                
+                EditorGUILayout.LabelField(fieldType, GUILayout.Width(50));
+                EditorGUILayout.LabelField(entry_key, GUILayout.Width(100));
+                EditorGUILayout.LabelField("Value:", GUILayout.Width(40));
+                
+                switch(fieldType)
+                {
+                    case "int":
+                        DrawInt(entry_key, entry);
+                        break;
+                    case "float":
+                        DrawFloat(entry_key, entry);
+                        break;
+                    case "string":
+                        DrawString(entry_key, entry);
+                        break;
+
+                    default:
+                    {
+                        List<string> itemKeys = new List<string>();
+                        itemKeys.Add("null");
+
+                        // Build a list of possible custom field values
+                        // All items that match the template type of the custom field type
+                        // will be added to the selection list
+                        foreach(KeyValuePair<string, object> item in EZItemManager.AllItems)
+                        {
+                            string itemType = "<unknown>";
+                            Dictionary<string, object> itemData = item.Value as Dictionary<string, object>;
+
+                            if (itemData.TryGetValue(EZConstants.TemplateKey, out temp))
+                                itemType = temp as string;
+
+                            if (item.Key.Equals(key) || !itemType.Equals(fieldType))
+                                continue;
+
+                            itemKeys.Add(item.Key);
+                        }
+                        DrawCustom(entry_key, entry, true, itemKeys);
+                        break;
+                    }
+                }
+                
+                GUILayout.FlexibleSpace();
+                EditorGUILayout.EndHorizontal();
             }
-            
+
+            GUILayout.Space(20);
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Delete"))
+                deletedItems.Add(key);
             GUILayout.FlexibleSpace();
             EditorGUILayout.EndHorizontal();
+                      
+            GUILayout.Box("", new GUILayoutOption[]
+                          {
+                GUILayout.ExpandWidth(true),
+                GUILayout.Height(1)
+            });
+            EditorGUILayout.Separator();
+            EditorGUILayout.EndVertical();
         }
-
-        GUILayout.Space(20);
-
-        EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Delete"))
-            deletedItems.Add(key);
-        GUILayout.FlexibleSpace();
-        EditorGUILayout.EndHorizontal();
-                  
-        GUILayout.Box("", new GUILayoutOption[]
-                      {
-            GUILayout.ExpandWidth(true),
-            GUILayout.Height(1)
-        });
-        EditorGUILayout.Separator();
-        EditorGUILayout.EndVertical();
     }
     #endregion
 
@@ -170,7 +196,10 @@ public class EZItemManagerWindow : EZManagerWindowBase
         if (EZItemManager.ItemTemplates.TryGetValue(templateKey, out temp))
         {
             templateData = temp as Dictionary<string, object>;
-            EZItemManager.AddItem(itemName, new Dictionary<string, object>(templateData));
+            Dictionary<string, object> itemData = new Dictionary<string, object>(templateData);
+            itemData.Add(EZConstants.TemplateKey, templateKey);
+
+            EZItemManager.AddItem(itemName, itemData);
             foldoutState[itemName] = true;
         }
         else
