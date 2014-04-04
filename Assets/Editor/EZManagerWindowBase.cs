@@ -7,10 +7,10 @@ using System.Collections.Generic;
 public abstract class EZManagerWindowBase : EditorWindow {
 
     protected const string rootMenuLocation = "Assets/EZ Item Manager";
-    protected Dictionary<string, bool> foldoutState = new Dictionary<string, bool>();
-    protected bool currentFoldoutAllState = false;
 
+    protected HashSet<string> entryFoldoutState = new HashSet<string>();
     protected HashSet<string> listFieldFoldoutState = new HashSet<string>();
+    protected bool currentFoldoutAllState = false;
 
     protected int newListCount = 0;
       
@@ -52,10 +52,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
     {
         EditorGUILayout.BeginHorizontal();
         
-        bool currentFoldoutState;
-        if (!foldoutState.TryGetValue(key, out currentFoldoutState))
-            currentFoldoutState = false;
-        
+        bool currentFoldoutState = entryFoldoutState.Contains(key);
         bool newFoldoutState = EditorGUILayout.Foldout(currentFoldoutState, label);
         SetFoldout(newFoldoutState, key);
         
@@ -82,7 +79,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected virtual void SetAllFoldouts(bool state, string[] forKeys)
     {
         if (!state)
-            foldoutState.Clear();
+            entryFoldoutState.Clear();
         else
         {
             foreach(string key in forKeys)
@@ -94,10 +91,10 @@ public abstract class EZManagerWindowBase : EditorWindow {
 
     protected virtual void SetFoldout(bool state, string forKey)
     {
-        if (foldoutState.ContainsKey(forKey))
-            foldoutState[forKey] = state;
+        if (state)
+            entryFoldoutState.Add(forKey);
         else
-            foldoutState.Add(forKey, state);
+            entryFoldoutState.Remove(forKey);
     }
     #endregion
 

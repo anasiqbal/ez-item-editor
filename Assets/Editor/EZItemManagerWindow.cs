@@ -301,7 +301,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
             itemData.Add(EZConstants.TemplateKey, templateKey);
 
             EZItemManager.AddItem(itemName, itemData);
-            foldoutState[itemName] = true;
+            SetFoldout(true, itemName);
         }
         else
             Debug.LogError("Template data not found: " + templateKey);

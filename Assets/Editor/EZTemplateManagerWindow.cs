@@ -332,7 +332,7 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
     {
         string key = data as string;
         EZItemManager.AddTemplate(key, new Dictionary<string, object>());
-        foldoutState[key] = true;
+        SetFoldout(true, key);
     }
     #endregion
 }
