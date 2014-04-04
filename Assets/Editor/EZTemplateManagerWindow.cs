@@ -55,8 +55,7 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
 
         foreach(KeyValuePair<string, object> template in EZItemManager.ItemTemplates)
         {   
-            if (DrawFoldout(string.Format("Template: {0}", template.Key), template.Key))
-                DrawEntry(template.Key, template.Value);
+            DrawEntry(template.Key, template.Value);
         }
     }
     #endregion
@@ -114,39 +113,47 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
     {
         Dictionary<string, object> entry = data as Dictionary<string, object>;
 
-        EditorGUILayout.BeginVertical();
+        // Return if the template keys don't contain the filter text
+        if (!key.ToLower().Contains(filterText.ToLower()))
+            return;
 
-        foreach(string entry_key in entry.Keys.ToArray())
+        // Start drawing below
+        if (DrawFoldout(string.Format("Template: {0}", key), key))
         {
-            if (entry_key.StartsWith(EZConstants.ValuePrefix) ||
-                entry_key.StartsWith(EZConstants.IsListPrefix))
-                continue;
+            EditorGUILayout.BeginVertical();
 
-            if (entry.ContainsKey(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, entry_key)))
-                DrawListField(key, entry_key, entry);
-            else
-                DrawSingleField(entry_key, entry);
+            foreach(string entry_key in entry.Keys.ToArray())
+            {
+                if (entry_key.StartsWith(EZConstants.ValuePrefix) ||
+                    entry_key.StartsWith(EZConstants.IsListPrefix))
+                    continue;
+
+                if (entry.ContainsKey(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, entry_key)))
+                    DrawListField(key, entry_key, entry);
+                else
+                    DrawSingleField(entry_key, entry);
+            }
+
+            // Remove any fields that were deleted above
+            foreach(string deletedKey in deletedFields)
+            {
+                entry.Remove(deletedKey);
+                entry.Remove(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, deletedKey));
+            }
+            deletedFields.Clear();
+
+            GUILayout.Space(20);
+
+            DrawAddFieldSection(key, data);
+
+            GUILayout.Box("", new GUILayoutOption[]
+            {
+                GUILayout.ExpandWidth(true),
+                GUILayout.Height(1)
+            });
+            EditorGUILayout.Separator();
+            EditorGUILayout.EndVertical();
         }
-
-        // Remove any fields that were deleted above
-        foreach(string deletedKey in deletedFields)
-        {
-            entry.Remove(deletedKey);
-            entry.Remove(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, deletedKey));
-        }
-        deletedFields.Clear();
-
-        GUILayout.Space(20);
-
-        DrawAddFieldSection(key, data);
-
-        GUILayout.Box("", new GUILayoutOption[]
-        {
-            GUILayout.ExpandWidth(true),
-            GUILayout.Height(1)
-        });
-        EditorGUILayout.Separator();
-        EditorGUILayout.EndVertical();
     }
 
     void DrawSingleField(string entry_key, Dictionary<string, object> entry)

@@ -13,6 +13,9 @@ public class EZItemManagerWindow : EZManagerWindowBase
     private string newItemName = "";
     private int templateIndex = 0;
 
+    private string[] filterTemplateKeys = null;
+    private int filterTemplateIndex = 0;
+
     private List<string> deletedItems = new List<string>();
 
     [MenuItem(menuItemLocation)]
@@ -31,7 +34,14 @@ public class EZItemManagerWindow : EZManagerWindowBase
     protected override void OnGUI()
     {
         if (templateKeys == null || templateKeys.Length != EZItemManager.ItemTemplates.Keys.Count)
+        {
             templateKeys = EZItemManager.ItemTemplates.Keys.ToArray();
+
+            List<string> temp = EZItemManager.ItemTemplates.Keys.ToList();
+            temp.Add("_All");
+            temp.Sort();
+            filterTemplateKeys = temp.ToArray();
+        }
 
         base.OnGUI();
 
@@ -79,6 +89,21 @@ public class EZItemManagerWindow : EZManagerWindowBase
     }
     #endregion
 
+    #region Draw Filter/Search Override
+    protected override void DrawFilterSection()
+    {
+        base.DrawFilterSection();
+        
+        // Filter dropdown
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("Filter By Template Type:", GUILayout.Width(140));
+        filterTemplateIndex = EditorGUILayout.Popup(filterTemplateIndex, filterTemplateKeys, GUILayout.Width(100));
+        
+        GUILayout.FlexibleSpace();
+        EditorGUILayout.EndHorizontal();
+    }
+    #endregion
+
     #region DrawEntry Method
     protected override void DrawEntry(string key, object data)
     {
@@ -88,7 +113,18 @@ public class EZItemManagerWindow : EZManagerWindowBase
         
         if (entry.TryGetValue(EZConstants.TemplateKey, out temp))
             templateType = temp as string;
-        
+
+        // Return if we don't match any of the filters
+        if (filterTemplateIndex != -1 &&
+            filterTemplateIndex < filterTemplateKeys.Length &&
+            !filterTemplateKeys[filterTemplateIndex].Equals("_All") &&
+            !templateType.Equals(filterTemplateKeys[filterTemplateIndex]))
+            return;
+
+        if (!key.ToLower().Contains(filterText.ToLower()))
+            return;
+
+        // Start drawing below
         if (DrawFoldout(string.Format("{0}: {1}", templateType, key), key))
         {
             EditorGUILayout.BeginVertical();

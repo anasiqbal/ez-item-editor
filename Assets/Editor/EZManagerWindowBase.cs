@@ -13,6 +13,8 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected bool currentFoldoutAllState = false;
 
     protected Dictionary<string, int> newListCountDict = new Dictionary<string, int>();
+
+    protected string filterText;
       
     protected virtual void OnGUI()
     {
@@ -37,6 +39,11 @@ public abstract class EZManagerWindowBase : EditorWindow {
         GUILayout.FlexibleSpace();
         
         EditorGUILayout.EndHorizontal();
+
+        GUILayout.Space(15);
+
+        DrawFilterSection();
+
         EditorGUILayout.EndVertical();
         
         GUILayout.Box("", new GUILayoutOption[]
@@ -259,6 +266,22 @@ public abstract class EZManagerWindowBase : EditorWindow {
     }
     #endregion
 
+    #region Filter/Sorting Methods
+    protected virtual void DrawFilterSection()
+    {
+        // Text search
+        EditorGUILayout.BeginHorizontal();
+        //GUILayout.FlexibleSpace();
+
+        EditorGUILayout.LabelField("Search By Key:", GUILayout.Width(80));
+        filterText = EditorGUILayout.TextField(filterText);
+
+        GUILayout.FlexibleSpace();
+        EditorGUILayout.EndHorizontal();
+    }
+    #endregion
+
+    #region List Helper Methods
     protected virtual void ResizeList(List<object> list, int size, object defaultValue)
     {
         // Remove from the end until the size matches what we want
@@ -272,6 +295,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             }
         }
     }
+    #endregion
 
     #region Abstract methods
     protected abstract void Load();
