@@ -196,10 +196,25 @@ public class EZItemManagerWindow : EZManagerWindowBase
             
             GUILayout.Space(120);
             EditorGUILayout.LabelField("Count:", GUILayout.Width(40));
-            
+
+            int newListCount;
+            string listCountKey = string.Format(EZConstants.MetaDataFormat, template_key, entry_key);
+            if (newListCountDict.ContainsKey(listCountKey))
+            {
+                newListCount = newListCountDict[listCountKey];
+            }
+            else
+            {
+                newListCount = list.Count;
+                newListCountDict.Add(listCountKey, newListCount);
+            }
             newListCount = EditorGUILayout.IntField(newListCount, GUILayout.Width(40));
+            newListCountDict[listCountKey] = newListCount;
             if (newListCount != list.Count && GUILayout.Button("Resize"))            
+            {
                 ResizeList(list, newListCount, 0);
+                newListCountDict[listCountKey] = newListCount;
+            }
             
             GUILayout.Space(20);
             

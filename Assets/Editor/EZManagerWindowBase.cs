@@ -12,7 +12,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected HashSet<string> listFieldFoldoutState = new HashSet<string>();
     protected bool currentFoldoutAllState = false;
 
-    protected int newListCount = 0;
+    protected Dictionary<string, int> newListCountDict = new Dictionary<string, int>();
       
     protected virtual void OnGUI()
     {

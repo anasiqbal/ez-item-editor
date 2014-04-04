@@ -12,8 +12,11 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
     private string newTemplateName = "";
     private BasicFieldType basicFieldTypeSelected = BasicFieldType.Int;
     private int customTemplateTypeSelected = 0;
-    private string newFieldName = "";
-    private bool isList = false;
+
+    private string newBasicFieldName = "";
+    private bool isBasicList = false;
+    private string newCustomFieldName = "";
+    private bool isCustomList = false;
     
     private List<string> deletedFields = new List<string>();
     
@@ -69,13 +72,13 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
         basicFieldTypeSelected = (BasicFieldType)EditorGUILayout.EnumPopup(basicFieldTypeSelected, GUILayout.Width(50));
 
         EditorGUILayout.LabelField("Field Name:", GUILayout.Width(70));
-        newFieldName = EditorGUILayout.TextField(newFieldName);
+        newBasicFieldName = EditorGUILayout.TextField(newBasicFieldName);
 
         EditorGUILayout.LabelField("Is List:", GUILayout.Width(50));
-        isList = EditorGUILayout.Toggle(isList, GUILayout.Width(15));
+        isBasicList = EditorGUILayout.Toggle(isBasicList, GUILayout.Width(15));
 
         if (GUILayout.Button("Add Field"))
-            AddBasicField(basicFieldTypeSelected, key, data as Dictionary<string, object>, newFieldName, isList);
+            AddBasicField(basicFieldTypeSelected, key, data as Dictionary<string, object>, newBasicFieldName, isBasicList);
 
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
@@ -93,13 +96,13 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
         customTemplateTypeSelected = EditorGUILayout.Popup(customTemplateTypeSelected, customTypes, GUILayout.Width(80));
 
         EditorGUILayout.LabelField("Field Name:", GUILayout.Width(70));
-        newFieldName = EditorGUILayout.TextField(newFieldName);
+        newCustomFieldName = EditorGUILayout.TextField(newCustomFieldName);
 
         EditorGUILayout.LabelField("Is List:", GUILayout.Width(50));
-        isList = EditorGUILayout.Toggle(isList, GUILayout.Width(15));
+        isCustomList = EditorGUILayout.Toggle(isCustomList, GUILayout.Width(15));
 
         if (GUILayout.Button("Add Custom Field"))
-            AddCustomField(customTypes[customTemplateTypeSelected], key, data as Dictionary<string, object>, newFieldName, isList);
+            AddCustomField(customTypes[customTemplateTypeSelected], key, data as Dictionary<string, object>, newCustomFieldName, isCustomList);
 
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
@@ -219,9 +222,25 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
             GUILayout.Space(120);
             EditorGUILayout.LabelField("Count:", GUILayout.Width(40));
 
+            int newListCount;
+            string listCountKey = string.Format(EZConstants.MetaDataFormat, template_key, entry_key);
+            if (newListCountDict.ContainsKey(listCountKey))
+            {
+                newListCount = newListCountDict[listCountKey];
+            }
+            else
+            {
+                newListCount = list.Count;
+                newListCountDict.Add(listCountKey, newListCount);
+            }
+
             newListCount = EditorGUILayout.IntField(newListCount, GUILayout.Width(40));
+            newListCountDict[listCountKey] = newListCount;
+
             if (newListCount != list.Count && GUILayout.Button("Resize"))            
+            {
                 ResizeList(list, newListCount, 0);
+            }
                  
             GUILayout.Space(20);
             if (GUILayout.Button("Delete"))
