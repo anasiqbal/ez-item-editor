@@ -335,7 +335,7 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
 
         if (isList)
         {
-            entry.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName), new List<string>());
+            entry.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName), new List<object>());
             entry.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, fieldName), true);
         }
         else

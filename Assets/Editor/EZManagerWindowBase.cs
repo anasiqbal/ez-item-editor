@@ -271,7 +271,6 @@ public abstract class EZManagerWindowBase : EditorWindow {
     {
         // Text search
         EditorGUILayout.BeginHorizontal();
-        //GUILayout.FlexibleSpace();
 
         EditorGUILayout.LabelField("Search By Key:", GUILayout.Width(80));
         filterText = EditorGUILayout.TextField(filterText);
