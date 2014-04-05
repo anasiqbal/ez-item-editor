@@ -137,8 +137,7 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
             // Remove any fields that were deleted above
             foreach(string deletedKey in deletedFields)
             {
-                entry.Remove(deletedKey);
-                entry.Remove(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, deletedKey));
+                RemoveField(entry, key, deletedKey);
             }
             deletedFields.Clear();
 
@@ -296,7 +295,7 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
     }
     #endregion
 
-    #region Add Field Methods
+    #region Add/Remove Field Methods
     private void AddBasicField(BasicFieldType type, string key, Dictionary<string, object> entry, string fieldName, bool isList)
     {
         entry.Add(fieldName, type);
@@ -340,6 +339,14 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
         }
         else
             entry.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName), "null");
+    }
+
+    private void RemoveField(Dictionary<string, object> entry, string templateKey, string deletedKey)
+    {
+        entry.Remove(deletedKey);
+        entry.Remove(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, deletedKey));
+        entry.Remove(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, deletedKey));
+        newListCountDict.Remove(string.Format(EZConstants.MetaDataFormat, templateKey, deletedKey));
     }
     #endregion
 
