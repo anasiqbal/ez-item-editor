@@ -114,14 +114,19 @@ public class EZItemManagerWindow : EZManagerWindowBase
         if (entry.TryGetValue(EZConstants.TemplateKey, out temp))
             templateType = temp as string;
 
-        // Return if we don't match any of the filters
+        // Return if we don't match any of the filter types
         if (filterTemplateIndex != -1 &&
             filterTemplateIndex < filterTemplateKeys.Length &&
             !filterTemplateKeys[filterTemplateIndex].Equals("_All") &&
             !templateType.Equals(filterTemplateKeys[filterTemplateIndex]))
             return;
 
-        if (!key.ToLower().Contains(filterText.ToLower()))
+        bool templateKeyMatch = templateType.ToLower().Contains(filterText.ToLower());
+        bool fieldKeyMatch = !EZItemManager.ShouldFilterByField(templateType, filterText);
+        
+        // Return if the template keys don't contain the filter text or
+        // if the template fields don't contain the filter text
+        if (!templateKeyMatch && !fieldKeyMatch)
             return;
 
         // Start drawing below

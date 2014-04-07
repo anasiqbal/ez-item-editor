@@ -145,8 +145,12 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
     #region DrawEntry Methods
     protected override void DrawEntry(string templateKey, Dictionary<string, object> templateData)
     {
-        // Return if the template keys don't contain the filter text
-        if (!templateKey.ToLower().Contains(filterText.ToLower()))
+        bool templateKeyMatch = templateKey.ToLower().Contains(filterText.ToLower());
+        bool fieldKeyMatch = !EZItemManager.ShouldFilterByField(templateKey, filterText);
+
+        // Return if the template keys don't contain the filter text or
+        // if the template fields don't contain the filter text
+        if (!templateKeyMatch && !fieldKeyMatch)
             return;
 
         // Start drawing below
@@ -358,6 +362,9 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
                 }
             }
         }
+
+        // Let the manager know we added a field
+        EZItemManager.AddBasicField(type, templateKey, templateData, newFieldName, isList);
     }
 
     private void AddCustomField(string customType, string templateKey, Dictionary<string, object> templateData, string newFieldName, bool isList)
@@ -371,6 +378,9 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
         }
         else
             templateData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName), "null");
+
+        // Let the manager know we added a field
+        EZItemManager.AddCustomField(customType, templateKey, templateData, newFieldName, isList);
     }
 
     private void RemoveField(string templateKey, Dictionary<string, object> templateData, string deletedFieldKey)
@@ -379,6 +389,9 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
         templateData.Remove(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, deletedFieldKey));
         templateData.Remove(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, deletedFieldKey));
         newListCountDict.Remove(string.Format(EZConstants.MetaDataFormat, templateKey, deletedFieldKey));
+
+        // Let the manager know we removed a field
+        EZItemManager.RemoveField(templateKey, templateData, deletedFieldKey);
     }
     #endregion
 

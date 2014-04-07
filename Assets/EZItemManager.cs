@@ -53,6 +53,21 @@ public class EZItemManager
     }
     #endregion
 
+    #region Lists for sorting and lookups
+    // Key: field name, List: contains the template keys that contain that field name
+    private static Dictionary<string, List<string>> _listByFieldName;
+    private static Dictionary<string, List<string>> ListByFieldName
+    {
+        set { _listByFieldName = value; }
+        get
+        {
+            if (_listByFieldName == null)
+                _listByFieldName = new Dictionary<string, List<string>>();
+            return _listByFieldName;
+        }
+    }
+    #endregion
+
     #region Save/Load Methods
     public static void SaveItems()
     {
@@ -90,7 +105,9 @@ public class EZItemManager
         {
             string json = File.ReadAllText(itemFilePath);
             Dictionary<string, object> data = Json.Deserialize(json) as Dictionary<string, object>;
-            AllItems = new Dictionary<string, Dictionary<string, object>>();
+
+            AllItems.Clear();
+
             foreach(KeyValuePair<string, object> pair in data)
             {
                 AllItems.Add(pair.Key, pair.Value as Dictionary<string, object>);
@@ -108,10 +125,16 @@ public class EZItemManager
         {
             string json = File.ReadAllText(templateFilePath);
             Dictionary<string, object> data = Json.Deserialize(json) as Dictionary<string, object>;
-            ItemTemplates = new Dictionary<string, Dictionary<string, object>>();
+
+            ItemTemplates.Clear();
+            ListByFieldName.Clear();
+
             foreach(KeyValuePair<string, object> pair in data)
             {
-                ItemTemplates.Add(pair.Key, pair.Value as Dictionary<string, object>);
+                Dictionary<string, object> templateData = pair.Value as Dictionary<string, object>;
+                ItemTemplates.Add(pair.Key, templateData);
+
+                BuildSortingAndLookupListFor(pair.Key, templateData);
             }
         }
         catch (Exception ex)
@@ -134,7 +157,85 @@ public class EZItemManager
 
     public static void AddTemplate(string name, Dictionary<string, object> data = null)
     {
-        _itemTemplates.Add(name, data);
+        ItemTemplates.Add(name, data);
+        BuildSortingAndLookupListFor(name, data);
+    }
+
+    public static void AddBasicField(BasicFieldType type, string templateKey, Dictionary<string, object> templateData, string newFieldName, bool isList)
+    {
+        AddField(newFieldName, templateKey, templateData);
+    }
+
+    public static void AddCustomField(string customType, string templateKey, Dictionary<string, object> templateData, string newFieldName, bool isList)
+    {
+        AddField(newFieldName, templateKey, templateData);
+    }
+
+    private static void AddField(string fieldName, string templateKey, Dictionary<string, object> templateData)
+    {
+        // Add the template key to the listbyfieldname List
+        AddFieldToListByFieldName(fieldName, templateKey);
+    }
+
+    private static void AddFieldToListByFieldName(string fieldKey, string templateKey)
+    {
+        List<string> templateKeyList;
+        if (ListByFieldName.TryGetValue(fieldKey, out templateKeyList))
+        {
+            templateKeyList.Add(templateKey);
+        }
+        else
+        {
+            templateKeyList = new List<string>();
+            templateKeyList.Add(templateKey);
+            ListByFieldName.Add(fieldKey, templateKeyList);
+        }
+    }
+
+    public static void RemoveField(string templateKey, Dictionary<string, object> templateData, string deletedFieldKey)
+    {
+        // Remove the template key from the listbyfieldname List
+        List<string> templateKeyList;
+        if(ListByFieldName.TryGetValue(deletedFieldKey, out templateKeyList))
+        {
+            templateKeyList.Remove(templateKey);
+            if (templateKeyList.Count == 0)
+                ListByFieldName.Remove(deletedFieldKey);
+        }
+    }
+    #endregion
+
+    #region Filter Methods
+    private static void BuildSortingAndLookupListFor(string templateKey, Dictionary<string, object> templateData)
+    {
+        // Parse and add to list by field name
+        foreach(KeyValuePair<string, object> field in templateData)
+        {
+            // Skip over any metadata
+            if (field.Key.StartsWith(EZConstants.ValuePrefix) ||
+                field.Key.StartsWith(EZConstants.IsListPrefix))
+                continue;
+
+            AddFieldToListByFieldName(field.Key, templateKey);
+        }
+    }
+
+    // Returns false if any fields in the given template start with the given field name
+    // Returns true otherwise
+    public static bool ShouldFilterByField(string templateKey, string fieldName)
+    {
+        List<string> templateKeyList = null;
+        foreach(KeyValuePair<string, List<string>> pair in ListByFieldName)
+        {
+            if (pair.Key.Contains(fieldName))
+            {
+                templateKeyList = pair.Value;
+                if (templateKeyList.Contains(templateKey))
+                    return false;
+            }
+        }
+
+        return true;
     }
     #endregion
 }
