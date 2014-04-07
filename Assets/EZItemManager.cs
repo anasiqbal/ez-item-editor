@@ -66,6 +66,103 @@ public class EZItemManager
             return _listByFieldName;
         }
     }
+
+#if UNITY_EDITOR
+    public static List<string> ItemFieldKeysOfType(string itemKey, string fieldType)
+    {
+        return FieldKeysOfType(itemKey, fieldType, AllItems);
+    }
+
+    public static List<string> ItemCustomFieldKeys(string itemKey)
+    {
+        return CustomFieldKeys(itemKey, AllItems);
+    }
+
+    public static List<string> TemplateFieldKeysOfType(string templateKey, string fieldType)
+    {
+        return FieldKeysOfType(templateKey, fieldType, ItemTemplates);
+    }
+
+    public static List<string> TemplateCustomFieldKeys(string templateKey)
+    {
+        return CustomFieldKeys(templateKey, ItemTemplates);
+    }
+
+    private static List<string> FieldKeysOfType(string key, string fieldType, Dictionary<string, Dictionary<string, object>> dict, bool onlyLists = false)
+    {
+        List<string> fieldKeys = new List<string>();
+        Dictionary<string, object> data;
+
+        if (dict.TryGetValue(key, out data))
+        {
+            foreach(KeyValuePair<string, object> field in data)
+            {
+                if (field.Key.StartsWith(EZConstants.IsListPrefix) ||
+                    field.Key.StartsWith(EZConstants.ValuePrefix) ||
+                    field.Key.StartsWith(EZConstants.TemplateKey))
+                    continue;
+
+                if (field.Value.ToString().ToLower().Equals(fieldType.ToLower()) && (data.ContainsKey(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, field.Key)) == onlyLists))
+                    fieldKeys.Add(field.Key);
+            }
+        }
+
+        return fieldKeys;
+    }
+
+    private static List<string> CustomFieldKeys(string key, Dictionary<string, Dictionary<string, object>> dict, bool onlyLists = false)
+    {
+        List<string> fieldKeys = new List<string>();
+        Dictionary<string, object> data;
+        
+        if (dict.TryGetValue(key, out data))
+        {
+            foreach(KeyValuePair<string, object> field in data)
+            {
+                if (field.Key.StartsWith(EZConstants.IsListPrefix) ||
+                    field.Key.StartsWith(EZConstants.ValuePrefix)||
+                    field.Key.StartsWith(EZConstants.TemplateKey))
+                    continue;
+
+                if (!Enum.IsDefined(typeof(BasicFieldType), field.Value) && (data.ContainsKey(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, field.Key)) == onlyLists))
+                    fieldKeys.Add(field.Key);
+            }
+        }
+
+        return fieldKeys;
+    }
+
+
+    public static List<string> ItemListFieldKeysOfType(string itemKey, string fieldType)
+    {
+        return ListFieldKeysOfType(itemKey, fieldType, AllItems);
+    }
+
+    public static List<string> TemplateListFieldKeysOfType(string templateKey, string fieldType)
+    {
+        return ListFieldKeysOfType(templateKey, fieldType, ItemTemplates);
+    }
+
+    public static List<string> ItemCustomListFields(string itemKey)
+    {
+        return ListCustomFieldKeys(itemKey, AllItems);
+    }
+
+    public static List<string> TemplateCustomListFields(string templateKey)
+    {
+        return ListCustomFieldKeys(templateKey, ItemTemplates);
+    }
+
+    private static List<string> ListFieldKeysOfType(string key, string fieldType, Dictionary<string, Dictionary<string, object>> dict)
+    {
+        return FieldKeysOfType(key, fieldType, dict, true);
+    }
+
+    private static List<string> ListCustomFieldKeys(string key, Dictionary<string, Dictionary<string, object>> dict)
+    {
+        return CustomFieldKeys(key, dict, true);
+    }
+#endif
     #endregion
 
     #region Save/Load Methods

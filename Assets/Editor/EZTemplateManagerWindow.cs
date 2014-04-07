@@ -156,18 +156,66 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
         // Start drawing below
         if (DrawFoldout(string.Format("Template: {0}", templateKey), templateKey))
         {
+            bool shouldDrawSpace = false;
+            bool didDrawSpaceForSection = false;
             EditorGUILayout.BeginVertical();
 
-            foreach(string fieldKey in templateData.Keys.ToArray())
+            // Draw the basic types
+            foreach(BasicFieldType fieldType in Enum.GetValues(typeof(BasicFieldType)))
             {
-                if (fieldKey.StartsWith(EZConstants.ValuePrefix) ||
-                    fieldKey.StartsWith(EZConstants.IsListPrefix))
-                    continue;
+                List<string> fieldKeys = EZItemManager.TemplateFieldKeysOfType(templateKey, fieldType.ToString());
 
-                if (templateData.ContainsKey(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, fieldKey)))
-                    DrawListField(templateKey, templateData, fieldKey);
-                else
+                foreach(string fieldKey in fieldKeys)
+                {
                     DrawSingleField(fieldKey, templateData);
+                    shouldDrawSpace = true;
+                }
+            }
+
+            // Draw the custom types
+            foreach(string fieldKey in EZItemManager.TemplateCustomFieldKeys(templateKey))
+            {
+                if (shouldDrawSpace && !didDrawSpaceForSection)
+                {
+                    GUILayout.Space(10);
+                    didDrawSpaceForSection = true;
+                }
+                
+                shouldDrawSpace = true;
+                DrawSingleField(fieldKey, templateData);
+            }
+            didDrawSpaceForSection = false;
+
+            // Draw the lists
+            foreach(BasicFieldType fieldType in Enum.GetValues(typeof(BasicFieldType)))
+            {
+                List<string> fieldKeys = EZItemManager.TemplateListFieldKeysOfType(templateKey, fieldType.ToString());
+                
+                foreach(string fieldKey in fieldKeys)
+                {
+                    if (shouldDrawSpace && !didDrawSpaceForSection)
+                    {
+                        GUILayout.Space(10);
+                        didDrawSpaceForSection = true;
+                    }
+
+                    shouldDrawSpace = true;
+                    DrawListField(templateKey, templateData, fieldKey);
+                }
+            }
+            didDrawSpaceForSection = false;
+
+            // Draw the custom lists
+            foreach(string fieldKey in EZItemManager.TemplateCustomListFields(templateKey))
+            {
+                if (shouldDrawSpace && !didDrawSpaceForSection)
+                {
+                    GUILayout.Space(10);
+                    didDrawSpaceForSection = true;
+                }
+
+                shouldDrawSpace = true;
+                DrawListField(templateKey, templateData, fieldKey);
             }
 
             // Remove any fields that were deleted above

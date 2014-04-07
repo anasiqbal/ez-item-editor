@@ -107,11 +107,10 @@ public class EZItemManagerWindow : EZManagerWindowBase
     #region DrawEntry Method
     protected override void DrawEntry(string key, Dictionary<string, object> data)
     {
-        Dictionary<string, object> entry = data as Dictionary<string, object>;
         string templateType = "<unknown>";
         object temp;
         
-        if (entry.TryGetValue(EZConstants.TemplateKey, out temp))
+        if (data.TryGetValue(EZConstants.TemplateKey, out temp))
             templateType = temp as string;
 
         // Return if we don't match any of the filter types
@@ -132,19 +131,65 @@ public class EZItemManagerWindow : EZManagerWindowBase
         // Start drawing below
         if (DrawFoldout(string.Format("{0}: {1}", templateType, key), key))
         {
-            EditorGUILayout.BeginVertical();
+            bool shouldDrawSpace = false;
+            bool didDrawSpaceForSection = false;
 
-            foreach(string entry_key in entry.Keys.ToArray())
+            EditorGUILayout.BeginVertical();
+            
+            // Draw the basic types
+            foreach(BasicFieldType fieldType in Enum.GetValues(typeof(BasicFieldType)))
             {
-                if (entry_key.StartsWith(EZConstants.ValuePrefix) ||
-                    entry_key.StartsWith(EZConstants.IsListPrefix) ||
-                    entry_key.StartsWith(EZConstants.TemplateKey))
-                    continue;
+                List<string> fieldKeys = EZItemManager.ItemFieldKeysOfType(key, fieldType.ToString());                
+                foreach(string fieldKey in fieldKeys)
+                {
+                    DrawSingleField(templateType, fieldKey, data);
+                    shouldDrawSpace = true;
+                }
+            }
+            
+            // Draw the custom types
+            foreach(string fieldKey in EZItemManager.ItemCustomFieldKeys(key))
+            {
+                if (shouldDrawSpace && !didDrawSpaceForSection)
+                {
+                    GUILayout.Space(10);
+                    didDrawSpaceForSection = true;
+                }
                 
-                if (entry.ContainsKey(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, entry_key)))
-                    DrawListField(key, entry_key, entry);
-                else
-                    DrawSingleField(key, entry_key, entry);
+                shouldDrawSpace = true;
+                DrawSingleField(templateType, fieldKey, data);
+            }
+            didDrawSpaceForSection = false;
+            
+            // Draw the lists
+            foreach(BasicFieldType fieldType in Enum.GetValues(typeof(BasicFieldType)))
+            {
+                List<string> fieldKeys = EZItemManager.ItemListFieldKeysOfType(key, fieldType.ToString());                
+                foreach(string fieldKey in fieldKeys)
+                {
+                    if (shouldDrawSpace && !didDrawSpaceForSection)
+                    {
+                        GUILayout.Space(10);
+                        didDrawSpaceForSection = true;
+                    }
+                    
+                    shouldDrawSpace = true;
+                    DrawListField(templateType, fieldKey, data);
+                }
+            }
+            didDrawSpaceForSection = false;
+            
+            // Draw the custom lists
+            foreach(string fieldKey in EZItemManager.ItemCustomListFields(key))
+            {
+                if (shouldDrawSpace && !didDrawSpaceForSection)
+                {
+                    GUILayout.Space(10);
+                    didDrawSpaceForSection = true;
+                }
+                
+                shouldDrawSpace = true;
+                DrawListField(templateType, fieldKey, data);
             }
 
             GUILayout.Space(20);
@@ -165,9 +210,9 @@ public class EZItemManagerWindow : EZManagerWindowBase
         }
     }
 
-    void DrawSingleField(string key, string entry_key, Dictionary<string, object> entry)
+    void DrawSingleField(string templateKey, string fieldKey, Dictionary<string, object> itemData)
     {
-        string fieldType = entry[entry_key].ToString();
+        string fieldType = itemData[fieldKey].ToString();
         if (Enum.IsDefined(typeof(BasicFieldType), fieldType))
             fieldType = fieldType.ToLower();
         
@@ -176,25 +221,25 @@ public class EZItemManagerWindow : EZManagerWindowBase
         GUILayout.Space(EZConstants.IndentSize);
         
         EditorGUILayout.LabelField(fieldType, GUILayout.Width(50));
-        EditorGUILayout.LabelField(entry_key, GUILayout.Width(100));
+        EditorGUILayout.LabelField(fieldKey, GUILayout.Width(100));
         EditorGUILayout.LabelField("Value:", GUILayout.Width(40));
         
         switch(fieldType)
         {
             case "int":
-                DrawInt(entry_key, entry);
+                DrawInt(fieldKey, itemData);
                 break;
             case "float":
-                DrawFloat(entry_key, entry);
+                DrawFloat(fieldKey, itemData);
                 break;
             case "string":
-                DrawString(entry_key, entry);
+                DrawString(fieldKey, itemData);
                 break;
                 
             default:
             {
-                List<string> itemKeys = GetPossibleCustomValues(key, fieldType);
-                DrawCustom(entry_key, entry, true, itemKeys);
+                List<string> itemKeys = GetPossibleCustomValues(templateKey, fieldType);
+                DrawCustom(fieldKey, itemData, true, itemKeys);
                 break;
             }
         }
@@ -203,15 +248,15 @@ public class EZItemManagerWindow : EZManagerWindowBase
         EditorGUILayout.EndHorizontal();
     }
 
-    void DrawListField(string template_key, string entry_key, Dictionary<string, object> entry)
+    void DrawListField(string templateKey, string fieldKey, Dictionary<string, object> itemData)
     {
         try
         {
-            string foldoutKey = string.Format(EZConstants.MetaDataFormat, template_key, entry_key);
+            string foldoutKey = string.Format(EZConstants.MetaDataFormat, templateKey, fieldKey);
             bool newFoldoutState;
             bool currentFoldoutState = listFieldFoldoutState.Contains(foldoutKey);
             
-            string fieldType = entry[entry_key].ToString();
+            string fieldType = itemData[fieldKey].ToString();
             if (Enum.IsDefined(typeof(BasicFieldType), fieldType))
                 fieldType = fieldType.ToLower();
             
@@ -220,7 +265,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
             EditorGUILayout.BeginHorizontal();
             GUILayout.Space(EZConstants.IndentSize);
             
-            newFoldoutState = EditorGUILayout.Foldout(currentFoldoutState, string.Format("List<{0}>   {1}", fieldType, entry_key));
+            newFoldoutState = EditorGUILayout.Foldout(currentFoldoutState, string.Format("List<{0}>   {1}", fieldType, fieldKey));
             if (newFoldoutState != currentFoldoutState)
             {
                 if (newFoldoutState)
@@ -232,14 +277,14 @@ public class EZItemManagerWindow : EZManagerWindowBase
             object temp = null;
             List<object> list = null;
             
-            if (entry.TryGetValue(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, entry_key), out temp))
+            if (itemData.TryGetValue(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldKey), out temp))
                 list = temp as List<object>;
             
             GUILayout.Space(120);
             EditorGUILayout.LabelField("Count:", GUILayout.Width(40));
 
             int newListCount;
-            string listCountKey = string.Format(EZConstants.MetaDataFormat, template_key, entry_key);
+            string listCountKey = string.Format(EZConstants.MetaDataFormat, templateKey, fieldKey);
             if (newListCountDict.ContainsKey(listCountKey))
             {
                 newListCount = newListCountDict[listCountKey];
@@ -284,7 +329,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
                             break;
                             
                         default:
-                            List<string> itemKeys = GetPossibleCustomValues(template_key, fieldType);
+                            List<string> itemKeys = GetPossibleCustomValues(templateKey, fieldType);
                             DrawListCustom(i, list[i] as string, list, true, itemKeys);
                             break;
                     }
@@ -302,7 +347,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
         }
     }
 
-    List<string> GetPossibleCustomValues(string key, string fieldType)
+    List<string> GetPossibleCustomValues(string fieldKey, string fieldType)
     {
         object temp;
         List<string> itemKeys = new List<string>();
@@ -319,7 +364,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
             if (itemData.TryGetValue(EZConstants.TemplateKey, out temp))
                 itemType = temp as string;
             
-            if (item.Key.Equals(key) || !itemType.Equals(fieldType))
+            if (item.Key.Equals(fieldKey) || !itemType.Equals(fieldType))
                 continue;
             
             itemKeys.Add(item.Key);
