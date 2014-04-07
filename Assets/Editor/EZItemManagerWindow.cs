@@ -75,7 +75,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
 
         EditorGUILayout.EndVertical();
         
-        foreach (KeyValuePair<string, object> item in EZItemManager.AllItems)
+        foreach (KeyValuePair<string, Dictionary<string, object>> item in EZItemManager.AllItems)
         {
             DrawEntry(item.Key, item.Value);
         }
@@ -105,7 +105,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
     #endregion
 
     #region DrawEntry Method
-    protected override void DrawEntry(string key, object data)
+    protected override void DrawEntry(string key, Dictionary<string, object> data)
     {
         Dictionary<string, object> entry = data as Dictionary<string, object>;
         string templateType = "<unknown>";
@@ -306,7 +306,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
         // Build a list of possible custom field values
         // All items that match the template type of the custom field type
         // will be added to the selection list
-        foreach(KeyValuePair<string, object> item in EZItemManager.AllItems)
+        foreach(KeyValuePair<string, Dictionary<string, object>> item in EZItemManager.AllItems)
         {
             string itemType = "<unknown>";
             Dictionary<string, object> itemData = item.Value as Dictionary<string, object>;
@@ -342,12 +342,9 @@ public class EZItemManagerWindow : EZManagerWindowBase
         string templateKey = args[0] as string;
         string itemName = args[1] as string;
 
-        object temp = null;
-        Dictionary<string, object> templateData = null;
-       
-        if (EZItemManager.ItemTemplates.TryGetValue(templateKey, out temp))
+        Dictionary<string, object> templateData = null;       
+        if (EZItemManager.ItemTemplates.TryGetValue(templateKey, out templateData))
         {
-            templateData = temp as Dictionary<string, object>;
             Dictionary<string, object> itemData = new Dictionary<string, object>(templateData);
             itemData.Add(EZConstants.TemplateKey, templateKey);
 

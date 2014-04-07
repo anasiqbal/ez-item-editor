@@ -14,7 +14,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
 
     protected Dictionary<string, int> newListCountDict = new Dictionary<string, int>();
 
-    protected string filterText;
+    protected string filterText = "";
       
     protected virtual void OnGUI()
     {
@@ -300,6 +300,6 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected abstract void Load();
     protected abstract void Save();
     protected abstract void Create(object data);
-    protected abstract void DrawEntry(string key, object data);
+    protected abstract void DrawEntry(string key, Dictionary<string, object> data);
     #endregion
 }

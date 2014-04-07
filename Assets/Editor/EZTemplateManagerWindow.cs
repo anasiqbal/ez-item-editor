@@ -13,10 +13,10 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
     private BasicFieldType basicFieldTypeSelected = BasicFieldType.Int;
     private int customTemplateTypeSelected = 0;
 
-    private string newBasicFieldName = "";
-    private bool isBasicList = false;
-    private string newCustomFieldName = "";
-    private bool isCustomList = false;
+    private Dictionary<string, string> newBasicFieldName = new Dictionary<string, string>();
+    private HashSet<string> isBasicList = new HashSet<string>();
+    private Dictionary<string, string> newCustomFieldName = new Dictionary<string, string>();
+    private HashSet<string> isCustomList = new HashSet<string>();
     
     private List<string> deletedFields = new List<string>();
     
@@ -53,7 +53,7 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
 
         EditorGUILayout.EndVertical();
 
-        foreach(KeyValuePair<string, object> template in EZItemManager.ItemTemplates)
+        foreach(KeyValuePair<string, Dictionary<string, object>> template in EZItemManager.ItemTemplates)
         {   
             DrawEntry(template.Key, template.Value);
         }
@@ -61,23 +61,40 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
     #endregion
 
     #region DrawAddFieldSection Method
-    private void DrawAddFieldSection(string key, object data)
+    private void DrawAddFieldSection(string templateKey, Dictionary<string, object> templateData)
     {
         // Basic Field Type Group
         EditorGUILayout.BeginHorizontal();
         GUILayout.Space(EZConstants.IndentSize);
-
+       
         EditorGUILayout.LabelField("Basic Field Type:", GUILayout.Width(90));
         basicFieldTypeSelected = (BasicFieldType)EditorGUILayout.EnumPopup(basicFieldTypeSelected, GUILayout.Width(50));
 
-        EditorGUILayout.LabelField("Field Name:", GUILayout.Width(70));
-        newBasicFieldName = EditorGUILayout.TextField(newBasicFieldName);
+        // Basic field type name field
+        string newBasicFieldNameText = "";
+        if (!newBasicFieldName.TryGetValue(templateKey, out newBasicFieldNameText))
+        {
+            newBasicFieldName.Add(templateKey, "");
+            newBasicFieldNameText = "";
+        }
 
+        EditorGUILayout.LabelField("Field Name:", GUILayout.Width(70));
+        newBasicFieldNameText = EditorGUILayout.TextField(newBasicFieldNameText);
+        if (!newBasicFieldNameText.Equals(newBasicFieldName[templateKey]))
+            newBasicFieldName[templateKey] = newBasicFieldNameText;
+
+        // Basic field type isList checkbox
+        bool isBasicListTemp = isBasicList.Contains(templateKey);
         EditorGUILayout.LabelField("Is List:", GUILayout.Width(50));
-        isBasicList = EditorGUILayout.Toggle(isBasicList, GUILayout.Width(15));
+        isBasicListTemp = EditorGUILayout.Toggle(isBasicListTemp, GUILayout.Width(15));
+
+        if (isBasicListTemp && !isBasicList.Contains(templateKey))
+            isBasicList.Add(templateKey);
+        else if (!isBasicListTemp && isBasicList.Contains(templateKey))
+            isBasicList.Remove(templateKey);
 
         if (GUILayout.Button("Add Field"))
-            AddBasicField(basicFieldTypeSelected, key, data as Dictionary<string, object>, newBasicFieldName, isBasicList);
+            AddBasicField(basicFieldTypeSelected, templateKey, templateData, newBasicFieldNameText, isBasicListTemp);
 
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
@@ -89,19 +106,36 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
         EditorGUILayout.LabelField("Custom Field Type:", GUILayout.Width(105));
 
         List<string> customTypeList = EZItemManager.ItemTemplates.Keys.ToList();
-        customTypeList.Remove(key);
+        customTypeList.Remove(templateKey);
 
         string[] customTypes = customTypeList.ToArray();
         customTemplateTypeSelected = EditorGUILayout.Popup(customTemplateTypeSelected, customTypes, GUILayout.Width(80));
 
-        EditorGUILayout.LabelField("Field Name:", GUILayout.Width(70));
-        newCustomFieldName = EditorGUILayout.TextField(newCustomFieldName);
+        // Custom field type name field
+        string newCustomFieldNameText = "";
+        if (!newCustomFieldName.TryGetValue(templateKey, out newCustomFieldNameText))
+        {
+            newCustomFieldName.Add(templateKey, "");
+            newCustomFieldNameText = "";
+        }
 
+        EditorGUILayout.LabelField("Field Name:", GUILayout.Width(70));
+        newCustomFieldNameText = EditorGUILayout.TextField(newCustomFieldNameText);
+        if (!newCustomFieldNameText.Equals(newCustomFieldName[templateKey]))
+            newCustomFieldName[templateKey] = newCustomFieldNameText;
+
+        // Custom field type isList checkbox
+        bool isCustomListTemp = isCustomList.Contains(templateKey);
         EditorGUILayout.LabelField("Is List:", GUILayout.Width(50));
-        isCustomList = EditorGUILayout.Toggle(isCustomList, GUILayout.Width(15));
+        isCustomListTemp = EditorGUILayout.Toggle(isCustomListTemp, GUILayout.Width(15));
+
+        if (isCustomListTemp && !isCustomList.Contains(templateKey))
+            isCustomList.Add(templateKey);
+        else if(!isCustomListTemp && isCustomList.Contains(templateKey))
+            isCustomList.Remove(templateKey);
 
         if (GUILayout.Button("Add Custom Field"))
-            AddCustomField(customTypes[customTemplateTypeSelected], key, data as Dictionary<string, object>, newCustomFieldName, isCustomList);
+            AddCustomField(customTypes[customTemplateTypeSelected], templateKey, templateData, newCustomFieldNameText, isCustomListTemp);
 
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
@@ -109,41 +143,39 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
     #endregion
 
     #region DrawEntry Methods
-    protected override void DrawEntry(string key, object data)
+    protected override void DrawEntry(string templateKey, Dictionary<string, object> templateData)
     {
-        Dictionary<string, object> entry = data as Dictionary<string, object>;
-
         // Return if the template keys don't contain the filter text
-        if (!key.ToLower().Contains(filterText.ToLower()))
+        if (!templateKey.ToLower().Contains(filterText.ToLower()))
             return;
 
         // Start drawing below
-        if (DrawFoldout(string.Format("Template: {0}", key), key))
+        if (DrawFoldout(string.Format("Template: {0}", templateKey), templateKey))
         {
             EditorGUILayout.BeginVertical();
 
-            foreach(string entry_key in entry.Keys.ToArray())
+            foreach(string fieldKey in templateData.Keys.ToArray())
             {
-                if (entry_key.StartsWith(EZConstants.ValuePrefix) ||
-                    entry_key.StartsWith(EZConstants.IsListPrefix))
+                if (fieldKey.StartsWith(EZConstants.ValuePrefix) ||
+                    fieldKey.StartsWith(EZConstants.IsListPrefix))
                     continue;
 
-                if (entry.ContainsKey(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, entry_key)))
-                    DrawListField(key, entry_key, entry);
+                if (templateData.ContainsKey(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, fieldKey)))
+                    DrawListField(templateKey, templateData, fieldKey);
                 else
-                    DrawSingleField(entry_key, entry);
+                    DrawSingleField(fieldKey, templateData);
             }
 
             // Remove any fields that were deleted above
             foreach(string deletedKey in deletedFields)
             {
-                RemoveField(entry, key, deletedKey);
+                RemoveField(templateKey, templateData, deletedKey);
             }
             deletedFields.Clear();
 
             GUILayout.Space(20);
 
-            DrawAddFieldSection(key, data);
+            DrawAddFieldSection(templateKey, templateData);
 
             GUILayout.Box("", new GUILayoutOption[]
             {
@@ -155,9 +187,9 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
         }
     }
 
-    void DrawSingleField(string entry_key, Dictionary<string, object> entry)
+    void DrawSingleField(string fieldKey, Dictionary<string, object> templateData)
     {
-        string fieldType = entry[entry_key].ToString();
+        string fieldType = templateData[fieldKey].ToString();
         if (Enum.IsDefined(typeof(BasicFieldType), fieldType))
             fieldType = fieldType.ToLower();
         
@@ -166,42 +198,42 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
         GUILayout.Space(EZConstants.IndentSize);
         
         EditorGUILayout.LabelField(fieldType, GUILayout.Width(50));
-        EditorGUILayout.LabelField(entry_key, GUILayout.Width(100));
+        EditorGUILayout.LabelField(fieldKey, GUILayout.Width(100));
         EditorGUILayout.LabelField("Default Value:", GUILayout.Width(80));
         
         switch(fieldType)
         {
             case "int":
-                DrawInt(entry_key, entry);
+                DrawInt(fieldKey, templateData);
                 break;
             case "float":
-                DrawFloat(entry_key, entry);
+                DrawFloat(fieldKey, templateData);
                 break;
             case "string":
-                DrawString(entry_key, entry);
+                DrawString(fieldKey, templateData);
                 break;
                 
             default:
-                DrawCustom(entry_key, entry, false);
+                DrawCustom(fieldKey, templateData, false);
                 break;
         }
         
         if (GUILayout.Button("Delete"))
-            deletedFields.Add(entry_key);
+            deletedFields.Add(fieldKey);
         
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
     }
 
-    void DrawListField(string template_key, string entry_key, Dictionary<string, object> entry)
+    void DrawListField(string templateKey, Dictionary<string, object> templateData, string fieldKey)
     {
         try
         {
-            string foldoutKey = string.Format(EZConstants.MetaDataFormat, template_key, entry_key);
+            string foldoutKey = string.Format(EZConstants.MetaDataFormat, templateKey, fieldKey);
             bool newFoldoutState;
             bool currentFoldoutState = listFieldFoldoutState.Contains(foldoutKey);
 
-            string fieldType = entry[entry_key].ToString();
+            string fieldType = templateData[fieldKey].ToString();
             if (Enum.IsDefined(typeof(BasicFieldType), fieldType))
                 fieldType = fieldType.ToLower();
 
@@ -210,7 +242,7 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
             EditorGUILayout.BeginHorizontal();
             GUILayout.Space(EZConstants.IndentSize);
 
-            newFoldoutState = EditorGUILayout.Foldout(currentFoldoutState, string.Format("List<{0}>   {1}", fieldType, entry_key));
+            newFoldoutState = EditorGUILayout.Foldout(currentFoldoutState, string.Format("List<{0}>   {1}", fieldType, fieldKey));
             if (newFoldoutState != currentFoldoutState)
             {
                 if (newFoldoutState)
@@ -222,14 +254,14 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
             object temp = null;
             List<object> list = null;
 
-            if (entry.TryGetValue(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, entry_key), out temp))
+            if (templateData.TryGetValue(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldKey), out temp))
                 list = temp as List<object>;
 
             GUILayout.Space(120);
             EditorGUILayout.LabelField("Count:", GUILayout.Width(40));
 
             int newListCount;
-            string listCountKey = string.Format(EZConstants.MetaDataFormat, template_key, entry_key);
+            string listCountKey = string.Format(EZConstants.MetaDataFormat, templateKey, fieldKey);
             if (newListCountDict.ContainsKey(listCountKey))
             {
                 newListCount = newListCountDict[listCountKey];
@@ -250,7 +282,7 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
                  
             GUILayout.Space(20);
             if (GUILayout.Button("Delete"))
-                deletedFields.Add(entry_key);
+                deletedFields.Add(fieldKey);
 
             GUILayout.FlexibleSpace();
             EditorGUILayout.EndHorizontal();
@@ -296,14 +328,14 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
     #endregion
 
     #region Add/Remove Field Methods
-    private void AddBasicField(BasicFieldType type, string key, Dictionary<string, object> entry, string fieldName, bool isList)
+    private void AddBasicField(BasicFieldType type, string templateKey, Dictionary<string, object> templateData, string newFieldName, bool isList)
     {
-        entry.Add(fieldName, type);
+        templateData.Add(newFieldName, type);
 
         if (isList)
         {
-            entry.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName), new List<object>());
-            entry.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, fieldName), true);
+            templateData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName), new List<object>());
+            templateData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, newFieldName), true);
         }
         else
         {
@@ -311,42 +343,42 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
             {
                 case BasicFieldType.Int:
                 {
-                    entry.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName), 0);
+                    templateData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName), 0);
                     break;
                 }
                 case BasicFieldType.Float:
                 {
-                    entry.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName), 0f);
+                    templateData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName), 0f);
                     break;
                 }
                 case BasicFieldType.String:
                 {
-                    entry.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName), "");
+                    templateData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName), "");
                     break;
                 }
             }
         }
     }
 
-    private void AddCustomField(string customType, string key, Dictionary<string, object> entry, string fieldName, bool isList)
+    private void AddCustomField(string customType, string templateKey, Dictionary<string, object> templateData, string newFieldName, bool isList)
     {
-        entry.Add(fieldName, customType);
+        templateData.Add(newFieldName, customType);
 
         if (isList)
         {
-            entry.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName), new List<object>());
-            entry.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, fieldName), true);
+            templateData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName), new List<object>());
+            templateData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, newFieldName), true);
         }
         else
-            entry.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName), "null");
+            templateData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName), "null");
     }
 
-    private void RemoveField(Dictionary<string, object> entry, string templateKey, string deletedKey)
+    private void RemoveField(string templateKey, Dictionary<string, object> templateData, string deletedFieldKey)
     {
-        entry.Remove(deletedKey);
-        entry.Remove(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, deletedKey));
-        entry.Remove(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, deletedKey));
-        newListCountDict.Remove(string.Format(EZConstants.MetaDataFormat, templateKey, deletedKey));
+        templateData.Remove(deletedFieldKey);
+        templateData.Remove(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, deletedFieldKey));
+        templateData.Remove(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, deletedFieldKey));
+        newListCountDict.Remove(string.Format(EZConstants.MetaDataFormat, templateKey, deletedFieldKey));
     }
     #endregion
 

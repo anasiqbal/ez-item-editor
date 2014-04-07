@@ -17,8 +17,8 @@ public class EZItemManager
 {
     #region Item Dictionary
     private static string itemFilePath = Application.dataPath + "/ezitems.json";
-    private static Dictionary<string, object> _allItems;
-    public static Dictionary<string, object> AllItems
+    private static Dictionary<string, Dictionary<string, object>> _allItems;
+    public static Dictionary<string, Dictionary<string, object>> AllItems
     { 
         private set
         {
@@ -28,7 +28,7 @@ public class EZItemManager
         get
         {
             if (_allItems == null)
-                _allItems = new Dictionary<string, object>();
+                _allItems = new Dictionary<string, Dictionary<string, object>>();
             return _allItems;
         }
     }
@@ -36,8 +36,8 @@ public class EZItemManager
 
     #region Template Dictionary
     private static string templateFilePath = Application.dataPath + "/eztemplates.json";
-    private static Dictionary<string, object> _itemTemplates;
-    public static Dictionary<string, object> ItemTemplates
+    private static Dictionary<string, Dictionary<string, object>> _itemTemplates;
+    public static Dictionary<string, Dictionary<string, object>> ItemTemplates
     {
         private set
         {
@@ -47,7 +47,7 @@ public class EZItemManager
         get
         { 
             if (_itemTemplates == null) 
-                _itemTemplates = new Dictionary<string, object>();
+                _itemTemplates = new Dictionary<string, Dictionary<string, object>>();
             return _itemTemplates;
         } 
     }
@@ -89,7 +89,7 @@ public class EZItemManager
         try
         {
             string json = File.ReadAllText(itemFilePath);
-            AllItems = Json.Deserialize(json) as Dictionary<string, object>;
+            AllItems = Json.Deserialize(json) as Dictionary<string, Dictionary<string, object>>;
         }
         catch (Exception ex)
         {
@@ -102,7 +102,7 @@ public class EZItemManager
         try
         {
             string json = File.ReadAllText(templateFilePath);
-            ItemTemplates = Json.Deserialize(json) as Dictionary<string, object>;
+            ItemTemplates = Json.Deserialize(json) as Dictionary<string, Dictionary<string, object>>;
         }
         catch (Exception ex)
         {
@@ -112,7 +112,7 @@ public class EZItemManager
     #endregion
 
     #region Add/Remove Methods
-    public static void AddItem(string key, object data)
+    public static void AddItem(string key, Dictionary<string, object> data)
     {
         AllItems.Add(key, data);
     }
@@ -122,7 +122,7 @@ public class EZItemManager
         AllItems.Remove(key);
     }
 
-    public static void AddTemplate(string name, object data = null)
+    public static void AddTemplate(string name, Dictionary<string, object> data = null)
     {
         _itemTemplates.Add(name, data);
     }
