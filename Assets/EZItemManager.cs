@@ -89,7 +89,12 @@ public class EZItemManager
         try
         {
             string json = File.ReadAllText(itemFilePath);
-            AllItems = Json.Deserialize(json) as Dictionary<string, Dictionary<string, object>>;
+            Dictionary<string, object> data = Json.Deserialize(json) as Dictionary<string, object>;
+            AllItems = new Dictionary<string, Dictionary<string, object>>();
+            foreach(KeyValuePair<string, object> pair in data)
+            {
+                AllItems.Add(pair.Key, pair.Value as Dictionary<string, object>);
+            }
         }
         catch (Exception ex)
         {
@@ -102,7 +107,12 @@ public class EZItemManager
         try
         {
             string json = File.ReadAllText(templateFilePath);
-            ItemTemplates = Json.Deserialize(json) as Dictionary<string, Dictionary<string, object>>;
+            Dictionary<string, object> data = Json.Deserialize(json) as Dictionary<string, object>;
+            ItemTemplates = new Dictionary<string, Dictionary<string, object>>();
+            foreach(KeyValuePair<string, object> pair in data)
+            {
+                ItemTemplates.Add(pair.Key, pair.Value as Dictionary<string, object>);
+            }
         }
         catch (Exception ex)
         {
