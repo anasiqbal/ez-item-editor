@@ -34,27 +34,27 @@ public class EZItemManager
     }
     #endregion
 
-    #region Template Dictionary
-    private static string templateFilePath = Application.dataPath + "/eztemplates.json";
-    private static Dictionary<string, Dictionary<string, object>> _itemTemplates;
-    public static Dictionary<string, Dictionary<string, object>> ItemTemplates
+    #region Schema Dictionary
+    private static string schemaFilePath = Application.dataPath + "/ezschema.json";
+    private static Dictionary<string, Dictionary<string, object>> _schema;
+    public static Dictionary<string, Dictionary<string, object>> AllSchemas
     {
         private set
         {
-            _itemTemplates = value;
+            _schema = value;
         }
 
         get
         { 
-            if (_itemTemplates == null) 
-                _itemTemplates = new Dictionary<string, Dictionary<string, object>>();
-            return _itemTemplates;
+            if (_schema == null) 
+                _schema = new Dictionary<string, Dictionary<string, object>>();
+            return _schema;
         } 
     }
     #endregion
 
     #region Lists for sorting and lookups
-    // Key: field name, List: contains the template keys that contain that field name
+    // Key: field name, List: contains the schema keys that contain that field name
     private static Dictionary<string, List<string>> _listByFieldName;
     private static Dictionary<string, List<string>> ListByFieldName
     {
@@ -78,14 +78,14 @@ public class EZItemManager
         return CustomFieldKeys(itemKey, AllItems);
     }
 
-    public static List<string> TemplateFieldKeysOfType(string templateKey, string fieldType)
+    public static List<string> SchemaFieldKeysOfType(string schemaKey, string fieldType)
     {
-        return FieldKeysOfType(templateKey, fieldType, ItemTemplates);
+        return FieldKeysOfType(schemaKey, fieldType, AllSchemas);
     }
 
-    public static List<string> TemplateCustomFieldKeys(string templateKey)
+    public static List<string> SchemaCustomFieldKeys(string schemaKey)
     {
-        return CustomFieldKeys(templateKey, ItemTemplates);
+        return CustomFieldKeys(schemaKey, AllSchemas);
     }
 
     private static List<string> FieldKeysOfType(string key, string fieldType, Dictionary<string, Dictionary<string, object>> dict, bool onlyLists = false)
@@ -99,7 +99,7 @@ public class EZItemManager
             {
                 if (field.Key.StartsWith(EZConstants.IsListPrefix) ||
                     field.Key.StartsWith(EZConstants.ValuePrefix) ||
-                    field.Key.StartsWith(EZConstants.TemplateKey))
+                    field.Key.StartsWith(EZConstants.SchemaKey))
                     continue;
 
                 if (field.Value.ToString().ToLower().Equals(fieldType.ToLower()) && (data.ContainsKey(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, field.Key)) == onlyLists))
@@ -121,7 +121,7 @@ public class EZItemManager
             {
                 if (field.Key.StartsWith(EZConstants.IsListPrefix) ||
                     field.Key.StartsWith(EZConstants.ValuePrefix)||
-                    field.Key.StartsWith(EZConstants.TemplateKey))
+                    field.Key.StartsWith(EZConstants.SchemaKey))
                     continue;
 
                 if (!Enum.IsDefined(typeof(BasicFieldType), field.Value) && (data.ContainsKey(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, field.Key)) == onlyLists))
@@ -138,9 +138,9 @@ public class EZItemManager
         return ListFieldKeysOfType(itemKey, fieldType, AllItems);
     }
 
-    public static List<string> TemplateListFieldKeysOfType(string templateKey, string fieldType)
+    public static List<string> SchemaListFieldKeysOfType(string schemaKey, string fieldType)
     {
-        return ListFieldKeysOfType(templateKey, fieldType, ItemTemplates);
+        return ListFieldKeysOfType(schemaKey, fieldType, AllSchemas);
     }
 
     public static List<string> ItemCustomListFields(string itemKey)
@@ -148,9 +148,9 @@ public class EZItemManager
         return ListCustomFieldKeys(itemKey, AllItems);
     }
 
-    public static List<string> TemplateCustomListFields(string templateKey)
+    public static List<string> SchemaCustomListFields(string schemaKey)
     {
-        return ListCustomFieldKeys(templateKey, ItemTemplates);
+        return ListCustomFieldKeys(schemaKey, AllSchemas);
     }
 
     private static List<string> ListFieldKeysOfType(string key, string fieldType, Dictionary<string, Dictionary<string, object>> dict)
@@ -181,14 +181,14 @@ public class EZItemManager
         }
     }
 
-    public static void SaveTemplates()
+    public static void SaveSchemas()
     {
         try
         {
-            string rawJson = Json.Serialize(ItemTemplates);
+            string rawJson = Json.Serialize(AllSchemas);
             string prettyJson = JsonHelper.FormatJson(rawJson);
 
-            File.WriteAllText(templateFilePath, prettyJson);
+            File.WriteAllText(schemaFilePath, prettyJson);
         }
         catch(Exception ex)
         {
@@ -216,22 +216,22 @@ public class EZItemManager
         }
     }
 
-    public static void LoadTemplates()
+    public static void LoadSchemas()
     {
         try
         {
-            string json = File.ReadAllText(templateFilePath);
+            string json = File.ReadAllText(schemaFilePath);
             Dictionary<string, object> data = Json.Deserialize(json) as Dictionary<string, object>;
 
-            ItemTemplates.Clear();
+            AllSchemas.Clear();
             ListByFieldName.Clear();
 
             foreach(KeyValuePair<string, object> pair in data)
             {
-                Dictionary<string, object> templateData = pair.Value as Dictionary<string, object>;
-                ItemTemplates.Add(pair.Key, templateData);
+                Dictionary<string, object> schemaData = pair.Value as Dictionary<string, object>;
+                AllSchemas.Add(pair.Key, schemaData);
 
-                BuildSortingAndLookupListFor(pair.Key, templateData);
+                BuildSortingAndLookupListFor(pair.Key, schemaData);
             }
         }
         catch (Exception ex)
@@ -252,82 +252,82 @@ public class EZItemManager
         AllItems.Remove(key);
     }
 
-    public static void AddTemplate(string name, Dictionary<string, object> data = null)
+    public static void AddSchema(string name, Dictionary<string, object> data = null)
     {
-        ItemTemplates.Add(name, data);
+        AllSchemas.Add(name, data);
         BuildSortingAndLookupListFor(name, data);
     }
 
-    public static void AddBasicField(BasicFieldType type, string templateKey, Dictionary<string, object> templateData, string newFieldName, bool isList)
+    public static void AddBasicField(BasicFieldType type, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList)
     {
-        AddField(newFieldName, templateKey, templateData);
+        AddField(newFieldName, schemaKey, schemaData);
     }
 
-    public static void AddCustomField(string customType, string templateKey, Dictionary<string, object> templateData, string newFieldName, bool isList)
+    public static void AddCustomField(string customType, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList)
     {
-        AddField(newFieldName, templateKey, templateData);
+        AddField(newFieldName, schemaKey, schemaData);
     }
 
-    private static void AddField(string fieldName, string templateKey, Dictionary<string, object> templateData)
+    private static void AddField(string fieldName, string schemaKey, Dictionary<string, object> schemaData)
     {
-        // Add the template key to the listbyfieldname List
-        AddFieldToListByFieldName(fieldName, templateKey);
+        // Add the schema key to the listbyfieldname List
+        AddFieldToListByFieldName(fieldName, schemaKey);
     }
 
-    private static void AddFieldToListByFieldName(string fieldKey, string templateKey)
+    private static void AddFieldToListByFieldName(string fieldKey, string schemaKey)
     {
-        List<string> templateKeyList;
-        if (ListByFieldName.TryGetValue(fieldKey, out templateKeyList))
+        List<string> schemaKeyList;
+        if (ListByFieldName.TryGetValue(fieldKey, out schemaKeyList))
         {
-            templateKeyList.Add(templateKey);
+            schemaKeyList.Add(schemaKey);
         }
         else
         {
-            templateKeyList = new List<string>();
-            templateKeyList.Add(templateKey);
-            ListByFieldName.Add(fieldKey, templateKeyList);
+            schemaKeyList = new List<string>();
+            schemaKeyList.Add(schemaKey);
+            ListByFieldName.Add(fieldKey, schemaKeyList);
         }
     }
 
-    public static void RemoveField(string templateKey, Dictionary<string, object> templateData, string deletedFieldKey)
+    public static void RemoveField(string schemaKey, Dictionary<string, object> schemaData, string deletedFieldKey)
     {
-        // Remove the template key from the listbyfieldname List
-        List<string> templateKeyList;
-        if(ListByFieldName.TryGetValue(deletedFieldKey, out templateKeyList))
+        // Remove the schema key from the listbyfieldname List
+        List<string> schemaKeyList;
+        if(ListByFieldName.TryGetValue(deletedFieldKey, out schemaKeyList))
         {
-            templateKeyList.Remove(templateKey);
-            if (templateKeyList.Count == 0)
+            schemaKeyList.Remove(schemaKey);
+            if (schemaKeyList.Count == 0)
                 ListByFieldName.Remove(deletedFieldKey);
         }
     }
     #endregion
 
     #region Filter Methods
-    private static void BuildSortingAndLookupListFor(string templateKey, Dictionary<string, object> templateData)
+    private static void BuildSortingAndLookupListFor(string schemaKey, Dictionary<string, object> schemaData)
     {
         // Parse and add to list by field name
-        foreach(KeyValuePair<string, object> field in templateData)
+        foreach(KeyValuePair<string, object> field in schemaData)
         {
             // Skip over any metadata
             if (field.Key.StartsWith(EZConstants.ValuePrefix) ||
                 field.Key.StartsWith(EZConstants.IsListPrefix))
                 continue;
 
-            AddFieldToListByFieldName(field.Key, templateKey);
+            AddFieldToListByFieldName(field.Key, schemaKey);
         }
     }
 
-    // Returns false if any fields in the given template start with the given field name
+    // Returns false if any fields in the given schema start with the given field name
     // Returns true otherwise
-    public static bool ShouldFilterByField(string templateKey, string fieldName)
+    public static bool ShouldFilterByField(string schemaKey, string fieldName)
     {
-        List<string> templateKeyList = null;
+        List<string> schemaKeyList = null;
         foreach(KeyValuePair<string, List<string>> pair in ListByFieldName)
         {
             if (pair.Key.Contains(fieldName))
             {
-                templateKeyList = pair.Value;
-                if (templateKeyList.Contains(templateKey))
+                schemaKeyList = pair.Value;
+                if (schemaKeyList.Contains(schemaKey))
                     return false;
             }
         }

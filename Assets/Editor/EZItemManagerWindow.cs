@@ -9,12 +9,12 @@ public class EZItemManagerWindow : EZManagerWindowBase
 {
     private const string menuItemLocation = rootMenuLocation + "/EZ Item Manager";
 
-    private string[] templateKeys = null;
+    private string[] schemaKeys = null;
     private string newItemName = "";
-    private int templateIndex = 0;
+    private int schemaIndex = 0;
 
-    private string[] filterTemplateKeys = null;
-    private int filterTemplateIndex = 0;
+    private string[] filterSchemaKeys = null;
+    private int filterSchemaIndex = 0;
 
     private List<string> deletedItems = new List<string>();
 
@@ -33,14 +33,14 @@ public class EZItemManagerWindow : EZManagerWindowBase
     #region OnGUI Method
     protected override void OnGUI()
     {
-        if (templateKeys == null || templateKeys.Length != EZItemManager.ItemTemplates.Keys.Count)
+        if (schemaKeys == null || schemaKeys.Length != EZItemManager.AllSchemas.Keys.Count)
         {
-            templateKeys = EZItemManager.ItemTemplates.Keys.ToArray();
+            schemaKeys = EZItemManager.AllSchemas.Keys.ToArray();
 
-            List<string> temp = EZItemManager.ItemTemplates.Keys.ToList();
+            List<string> temp = EZItemManager.AllSchemas.Keys.ToList();
             temp.Add("_All");
             temp.Sort();
-            filterTemplateKeys = temp.ToArray();
+            filterSchemaKeys = temp.ToArray();
         }
 
         base.OnGUI();
@@ -49,8 +49,8 @@ public class EZItemManagerWindow : EZManagerWindowBase
         
         EditorGUILayout.BeginHorizontal();
 
-        GUILayout.Label("Template:", GUILayout.Width(60));
-        templateIndex = EditorGUILayout.Popup(templateIndex, templateKeys, GUILayout.Width(100));
+        GUILayout.Label("Schema:", GUILayout.Width(60));
+        schemaIndex = EditorGUILayout.Popup(schemaIndex, schemaKeys, GUILayout.Width(100));
 
         GUILayout.Space(EZConstants.IndentSize);
 
@@ -60,7 +60,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
         if (GUILayout.Button("Create New Item"))
         {
             List<object> args = new List<object>();
-            args.Add(templateKeys[templateIndex]);
+            args.Add(schemaKeys[schemaIndex]);
             args.Add(newItemName);
 
             Create(args);
@@ -98,8 +98,8 @@ public class EZItemManagerWindow : EZManagerWindowBase
         
         // Filter dropdown
         EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField("Filter By Template Type:", GUILayout.Width(140));
-        filterTemplateIndex = EditorGUILayout.Popup(filterTemplateIndex, filterTemplateKeys, GUILayout.Width(100));
+        EditorGUILayout.LabelField("Filter By Schema:", GUILayout.Width(140));
+        filterSchemaIndex = EditorGUILayout.Popup(filterSchemaIndex, filterSchemaKeys, GUILayout.Width(100));
         
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
@@ -109,29 +109,29 @@ public class EZItemManagerWindow : EZManagerWindowBase
     #region DrawEntry Method
     protected override void DrawEntry(string key, Dictionary<string, object> data)
     {
-        string templateType = "<unknown>";
+        string schemaType = "<unknown>";
         object temp;
         
-        if (data.TryGetValue(EZConstants.TemplateKey, out temp))
-            templateType = temp as string;
+        if (data.TryGetValue(EZConstants.SchemaKey, out temp))
+            schemaType = temp as string;
 
         // Return if we don't match any of the filter types
-        if (filterTemplateIndex != -1 &&
-            filterTemplateIndex < filterTemplateKeys.Length &&
-            !filterTemplateKeys[filterTemplateIndex].Equals("_All") &&
-            !templateType.Equals(filterTemplateKeys[filterTemplateIndex]))
+        if (filterSchemaIndex != -1 &&
+            filterSchemaIndex < filterSchemaKeys.Length &&
+            !filterSchemaKeys[filterSchemaIndex].Equals("_All") &&
+            !schemaType.Equals(filterSchemaKeys[filterSchemaIndex]))
             return;
 
-        bool templateKeyMatch = templateType.ToLower().Contains(filterText.ToLower());
-        bool fieldKeyMatch = !EZItemManager.ShouldFilterByField(templateType, filterText);
+        bool schemaKeyMatch = schemaType.ToLower().Contains(filterText.ToLower());
+        bool fieldKeyMatch = !EZItemManager.ShouldFilterByField(schemaType, filterText);
         
-        // Return if the template keys don't contain the filter text or
-        // if the template fields don't contain the filter text
-        if (!templateKeyMatch && !fieldKeyMatch)
+        // Return if the schema keys don't contain the filter text or
+        // if the schema fields don't contain the filter text
+        if (!schemaKeyMatch && !fieldKeyMatch)
             return;
 
         // Start drawing below
-        if (DrawFoldout(string.Format("{0}: {1}", templateType, key), key))
+        if (DrawFoldout(string.Format("{0}: {1}", schemaType, key), key))
         {
             bool shouldDrawSpace = false;
             bool didDrawSpaceForSection = false;
@@ -144,7 +144,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
                 List<string> fieldKeys = EZItemManager.ItemFieldKeysOfType(key, fieldType.ToString());                
                 foreach(string fieldKey in fieldKeys)
                 {
-                    DrawSingleField(templateType, fieldKey, data);
+                    DrawSingleField(schemaType, fieldKey, data);
                     shouldDrawSpace = true;
                 }
             }
@@ -159,7 +159,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
                 }
                 
                 shouldDrawSpace = true;
-                DrawSingleField(templateType, fieldKey, data);
+                DrawSingleField(schemaType, fieldKey, data);
             }
             didDrawSpaceForSection = false;
             
@@ -176,7 +176,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
                     }
                     
                     shouldDrawSpace = true;
-                    DrawListField(templateType, fieldKey, data);
+                    DrawListField(schemaType, fieldKey, data);
                 }
             }
             didDrawSpaceForSection = false;
@@ -191,7 +191,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
                 }
                 
                 shouldDrawSpace = true;
-                DrawListField(templateType, fieldKey, data);
+                DrawListField(schemaType, fieldKey, data);
             }
 
             GUILayout.Space(20);
@@ -212,7 +212,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
         }
     }
 
-    void DrawSingleField(string templateKey, string fieldKey, Dictionary<string, object> itemData)
+    void DrawSingleField(string schemaKey, string fieldKey, Dictionary<string, object> itemData)
     {
         string fieldType = itemData[fieldKey].ToString();
         if (Enum.IsDefined(typeof(BasicFieldType), fieldType))
@@ -240,7 +240,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
                 
             default:
             {
-                List<string> itemKeys = GetPossibleCustomValues(templateKey, fieldType);
+                List<string> itemKeys = GetPossibleCustomValues(schemaKey, fieldType);
                 DrawCustom(fieldKey, itemData, true, itemKeys);
                 break;
             }
@@ -250,11 +250,11 @@ public class EZItemManagerWindow : EZManagerWindowBase
         EditorGUILayout.EndHorizontal();
     }
 
-    void DrawListField(string templateKey, string fieldKey, Dictionary<string, object> itemData)
+    void DrawListField(string schemaKey, string fieldKey, Dictionary<string, object> itemData)
     {
         try
         {
-            string foldoutKey = string.Format(EZConstants.MetaDataFormat, templateKey, fieldKey);
+            string foldoutKey = string.Format(EZConstants.MetaDataFormat, schemaKey, fieldKey);
             bool newFoldoutState;
             bool currentFoldoutState = listFieldFoldoutState.Contains(foldoutKey);
             
@@ -286,7 +286,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
             EditorGUILayout.LabelField("Count:", GUILayout.Width(40));
 
             int newListCount;
-            string listCountKey = string.Format(EZConstants.MetaDataFormat, templateKey, fieldKey);
+            string listCountKey = string.Format(EZConstants.MetaDataFormat, schemaKey, fieldKey);
             if (newListCountDict.ContainsKey(listCountKey))
             {
                 newListCount = newListCountDict[listCountKey];
@@ -331,7 +331,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
                             break;
                             
                         default:
-                            List<string> itemKeys = GetPossibleCustomValues(templateKey, fieldType);
+                            List<string> itemKeys = GetPossibleCustomValues(schemaKey, fieldType);
                             DrawListCustom(i, list[i] as string, list, true, itemKeys);
                             break;
                     }
@@ -356,14 +356,14 @@ public class EZItemManagerWindow : EZManagerWindowBase
         itemKeys.Add("null");
         
         // Build a list of possible custom field values
-        // All items that match the template type of the custom field type
+        // All items that match the schema type of the custom field type
         // will be added to the selection list
         foreach(KeyValuePair<string, Dictionary<string, object>> item in EZItemManager.AllItems)
         {
             string itemType = "<unknown>";
             Dictionary<string, object> itemData = item.Value as Dictionary<string, object>;
             
-            if (itemData.TryGetValue(EZConstants.TemplateKey, out temp))
+            if (itemData.TryGetValue(EZConstants.SchemaKey, out temp))
                 itemType = temp as string;
             
             if (item.Key.Equals(fieldKey) || !itemType.Equals(fieldType))
@@ -380,7 +380,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
     protected override void Load()
     {
         EZItemManager.LoadItems();
-        EZItemManager.LoadTemplates();
+        EZItemManager.LoadSchemas();
     }
 
     protected override void Save()
@@ -391,20 +391,20 @@ public class EZItemManagerWindow : EZManagerWindowBase
     protected override void Create(object data)
     {
         List<object> args = data as List<object>;
-        string templateKey = args[0] as string;
+        string schemaKey = args[0] as string;
         string itemName = args[1] as string;
 
-        Dictionary<string, object> templateData = null;       
-        if (EZItemManager.ItemTemplates.TryGetValue(templateKey, out templateData))
+        Dictionary<string, object> schemaData = null;       
+        if (EZItemManager.AllSchemas.TryGetValue(schemaKey, out schemaData))
         {
-            Dictionary<string, object> itemData = new Dictionary<string, object>(templateData);
-            itemData.Add(EZConstants.TemplateKey, templateKey);
+            Dictionary<string, object> itemData = new Dictionary<string, object>(schemaData);
+            itemData.Add(EZConstants.SchemaKey, schemaKey);
 
             EZItemManager.AddItem(itemName, itemData);
             SetFoldout(true, itemName);
         }
         else
-            Debug.LogError("Template data not found: " + templateKey);
+            Debug.LogError("Schema data not found: " + schemaKey);
     }
     #endregion
 }

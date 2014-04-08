@@ -11,7 +11,7 @@ public class EZConstants {
     #endregion
 
     #region Item Metadata Constants
-    public const string TemplateKey = "_ezTemplate";
+    public const string SchemaKey = "_ezSchema";
     #endregion
 
     #region Window Constants
