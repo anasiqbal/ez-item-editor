@@ -3,6 +3,7 @@ using UnityEditor;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using EZExtensionMethods;
 
 public abstract class EZManagerWindowBase : EditorWindow {
 
@@ -108,7 +109,46 @@ public abstract class EZManagerWindowBase : EditorWindow {
     #endregion
 
     #region Draw Field Methods
-    protected virtual void DrawInt(string fieldName, Dictionary<string, object> data)
+    protected virtual void DrawBool(string fieldName, Dictionary<string, object> data, string label)
+    {
+        try
+        {
+            object currentValue;
+            bool newValue;
+            string key = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName);
+            
+            data.TryGetValue(key, out currentValue);
+
+            EditorGUILayout.LabelField(label, GUILayout.Width(80));
+            newValue = EditorGUILayout.Toggle(Convert.ToBoolean(currentValue), GUILayout.Width(50));
+            if (newValue != Convert.ToBoolean(currentValue))
+                data[key] = newValue;
+        }
+        catch(Exception ex)
+        {
+            Debug.LogException(ex);
+        }
+    }
+
+    protected virtual void DrawListBool(int index, bool value, List<object> boolList)
+    {
+        try
+        {
+            bool newValue;
+
+            EditorGUILayout.LabelField(string.Format("{0}:", index), GUILayout.Width(20));
+            newValue = EditorGUILayout.Toggle(value);
+
+            if (value != newValue)
+                boolList[index] = newValue;
+        } 
+        catch (Exception ex)
+        {
+            Debug.LogException(ex);
+        }
+    }
+
+    protected virtual void DrawInt(string fieldName, Dictionary<string, object> data, string label)
     {
         try
         {
@@ -117,7 +157,8 @@ public abstract class EZManagerWindowBase : EditorWindow {
             string key = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName);
             
             data.TryGetValue(key, out currentValue);
-            
+
+            EditorGUILayout.LabelField(label, GUILayout.Width(80));
             newValue = EditorGUILayout.IntField(Convert.ToInt32(currentValue), GUILayout.Width(50));
             if (newValue != Convert.ToInt32(currentValue))
                 data[key] = newValue;
@@ -133,7 +174,10 @@ public abstract class EZManagerWindowBase : EditorWindow {
         try
         {
             int newValue;
+
+            EditorGUILayout.LabelField(string.Format("{0}:", index), GUILayout.Width(20));
             newValue = EditorGUILayout.IntField(value, GUILayout.Width(50));
+
             if (value != newValue)
                 intList[index] = newValue;
         } 
@@ -143,7 +187,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
         }
     }
     
-    protected virtual void DrawFloat(string fieldName, Dictionary<string, object> data)
+    protected virtual void DrawFloat(string fieldName, Dictionary<string, object> data, string label)
     {
         try
         {
@@ -152,7 +196,8 @@ public abstract class EZManagerWindowBase : EditorWindow {
             string key = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName);
             
             data.TryGetValue(key, out currentValue);
-            
+
+            EditorGUILayout.LabelField(label, GUILayout.Width(80));
             newValue = EditorGUILayout.FloatField(Convert.ToSingle(currentValue), GUILayout.Width(50));
             if (newValue != Convert.ToSingle(currentValue))
                 data[key] = newValue;
@@ -168,7 +213,10 @@ public abstract class EZManagerWindowBase : EditorWindow {
         try
         {
             float newValue;
+
+            EditorGUILayout.LabelField(string.Format("{0}:", index), GUILayout.Width(20));
             newValue = EditorGUILayout.FloatField(value, GUILayout.Width(50));
+
             if (value != newValue)
                 floatList[index] = newValue;
         } 
@@ -178,7 +226,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
         }
     }
     
-    protected virtual void DrawString(string fieldName, Dictionary<string, object> data)
+    protected virtual void DrawString(string fieldName, Dictionary<string, object> data, string label)
     {
         try
         {
@@ -187,7 +235,8 @@ public abstract class EZManagerWindowBase : EditorWindow {
             string key = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName);
             
             data.TryGetValue(key, out currentValue);
-            
+
+            EditorGUILayout.LabelField(label, GUILayout.Width(80));
             newValue = EditorGUILayout.TextField(currentValue as string, GUILayout.Width(100));
             if (newValue != (string)currentValue)
                 data[key] = newValue;
@@ -203,9 +252,188 @@ public abstract class EZManagerWindowBase : EditorWindow {
         try
         {
             string newValue;
+
+            EditorGUILayout.LabelField(string.Format("{0}:", index), GUILayout.Width(20));
             newValue = EditorGUILayout.TextField(value, GUILayout.Width(100));
+
             if (value != newValue)
                 stringList[index] = newValue;
+        } 
+        catch (Exception ex)
+        {
+            Debug.LogException(ex);
+        }
+    }
+
+    protected virtual void DrawVector2(string fieldName, Dictionary<string, object> data, string label)
+    {
+        try
+        {
+            object temp = null;
+            Dictionary<string, object> vectDict = null;
+            Vector2 currentValue = Vector2.zero;
+            Vector2 newValue;
+            string key = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName);
+            
+            if (data.TryGetValue(key, out temp))
+            {
+                vectDict = temp as Dictionary<string, object>;
+                currentValue.x = Convert.ToSingle(vectDict["x"]);
+                currentValue.y = Convert.ToSingle(vectDict["y"]);
+            }
+            
+            newValue = EditorGUILayout.Vector2Field(label, currentValue);
+            if (newValue != currentValue)
+            {
+                vectDict["x"] = newValue.x;
+                vectDict["y"] = newValue.y;
+                data[key] = vectDict;
+            }
+        }
+        catch(Exception ex)
+        {
+            Debug.LogException(ex);
+        }
+    }
+    
+    protected virtual void DrawListVector2(int index, Dictionary<string, object> value, List<object> vectorList)
+    {
+        try
+        {
+            Vector2 newValue;
+            Vector2 currentValue = Vector2.zero;
+
+            currentValue.x = Convert.ToSingle(value["x"]);
+            currentValue.y = Convert.ToSingle(value["y"]);
+            
+            newValue = EditorGUILayout.Vector2Field(string.Format("{0}:", index), currentValue);
+            if (newValue != currentValue)
+            {
+                value["x"] = newValue.x;
+                value["y"] = newValue.y;
+                vectorList[index] = value;
+            }
+        } 
+        catch (Exception ex)
+        {
+            Debug.LogException(ex);
+        }
+    }
+
+    protected virtual void DrawVector3(string fieldName, Dictionary<string, object> data, string label)
+    {
+        try
+        {
+            object temp = null;
+            Dictionary<string, object> vectDict = null;
+            Vector3 currentValue = Vector3.zero;
+            Vector3 newValue;
+            string key = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName);
+            
+            if (data.TryGetValue(key, out temp))
+            {
+                vectDict = temp as Dictionary<string, object>;
+                currentValue.x = Convert.ToSingle(vectDict["x"]);
+                currentValue.y = Convert.ToSingle(vectDict["y"]);
+                currentValue.z = Convert.ToSingle(vectDict["z"]);
+            }
+            
+            newValue = EditorGUILayout.Vector3Field(label, currentValue);
+            if (newValue != currentValue)
+            {
+                vectDict["x"] = newValue.x;
+                vectDict["y"] = newValue.y;
+                vectDict["z"] = newValue.z;
+                data[key] = vectDict;
+            }
+        }
+        catch(Exception ex)
+        {
+            Debug.LogException(ex);
+        }
+    }
+    
+    protected virtual void DrawListVector3(int index, Dictionary<string, object> value, List<object> vectorList)
+    {
+        try
+        {
+            Vector3 newValue;
+            Vector3 currentValue = Vector3.zero;
+            
+            currentValue.x = Convert.ToSingle(value["x"]);
+            currentValue.y = Convert.ToSingle(value["y"]);
+            currentValue.z = Convert.ToSingle(value["z"]);
+            
+            newValue = EditorGUILayout.Vector3Field(string.Format("{0}:", index), currentValue);
+            if (newValue != currentValue)
+            {
+                value["x"] = newValue.x;
+                value["y"] = newValue.y;
+                value["z"] = newValue.z;
+                vectorList[index] = value;
+            }
+        } 
+        catch (Exception ex)
+        {
+            Debug.LogException(ex);
+        }
+    }
+
+    protected virtual void DrawVector4(string fieldName, Dictionary<string, object> data, string label)
+    {
+        try
+        {
+            object temp = null;
+            Dictionary<string, object> vectDict = null;
+            Vector4 currentValue = Vector4.zero;
+            Vector4 newValue;
+            string key = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName);
+            
+            if (data.TryGetValue(key, out temp))
+            {
+                vectDict = temp as Dictionary<string, object>;
+                currentValue.x = Convert.ToSingle(vectDict["x"]);
+                currentValue.y = Convert.ToSingle(vectDict["y"]);
+                currentValue.z = Convert.ToSingle(vectDict["z"]);
+                currentValue.w = Convert.ToSingle(vectDict["w"]);
+            }
+            
+            newValue = EditorGUILayout.Vector4Field(label, currentValue);
+            if (newValue != currentValue)
+            {
+                vectDict["x"] = newValue.x;
+                vectDict["y"] = newValue.y;
+                vectDict["z"] = newValue.z;
+                data[key] = vectDict;
+            }
+        }
+        catch(Exception ex)
+        {
+            Debug.LogException(ex);
+        }
+    }
+    
+    protected virtual void DrawListVector4(int index, Dictionary<string, object> value, List<object> vectorList)
+    {
+        try
+        {
+            Vector4 newValue;
+            Vector4 currentValue = Vector4.zero;
+            
+            currentValue.x = Convert.ToSingle(value["x"]);
+            currentValue.y = Convert.ToSingle(value["y"]);
+            currentValue.z = Convert.ToSingle(value["z"]);
+            currentValue.w = Convert.ToSingle(value["w"]);
+            
+            newValue = EditorGUILayout.Vector4Field(string.Format("{0}:", index), currentValue);
+            if (newValue != currentValue)
+            {
+                value["x"] = newValue.x;
+                value["y"] = newValue.y;
+                value["z"] = newValue.z;
+                value["w"] = newValue.w;
+                vectorList[index] = value;
+            }
         } 
         catch (Exception ex)
         {
@@ -227,13 +455,16 @@ public abstract class EZManagerWindowBase : EditorWindow {
             if (canEdit && possibleValues != null)
             {
                 currentIndex = possibleValues.IndexOf(currentValue as string);
+
+                EditorGUILayout.LabelField("Value:", GUILayout.Width(80));
                 newIndex = EditorGUILayout.Popup(currentIndex, possibleValues.ToArray());
+
                 if (newIndex != currentIndex)            
                     data[key] = possibleValues[newIndex];
             }
             else
             {
-                EditorGUILayout.LabelField("null", GUILayout.Width(40));
+                EditorGUILayout.LabelField("Default Value: null", GUILayout.Width(110));
             }
         }
         catch(Exception ex)
@@ -252,7 +483,10 @@ public abstract class EZManagerWindowBase : EditorWindow {
             if (canEdit && possibleValues != null)
             {
                 currentIndex = possibleValues.IndexOf(value);
+
+                EditorGUILayout.LabelField(string.Format("{0}:", index), GUILayout.Width(20));
                 newIndex = EditorGUILayout.Popup(currentIndex, possibleValues.ToArray());
+
                 if (newIndex != currentIndex)            
                     customList[index] = possibleValues[newIndex];
             }
@@ -291,13 +525,53 @@ public abstract class EZManagerWindowBase : EditorWindow {
         else if (list.Count < size)
         {
             // Add entries with the default value until the size is what we want
-            for (int i = list.Count; i < size; i++) {
-                list.Add(defaultValue);
+            for (int i = list.Count; i < size; i++) 
+            {
+                if (defaultValue != null && defaultValue.GetType().Equals(typeof(Dictionary<string, object>)))
+                    list.Add(new Dictionary<string, object>((defaultValue as Dictionary<string, object>)));
+                else
+                    list.Add(defaultValue);
             }
         }
     }
-    #endregion
 
+    protected virtual object GetDefaultValueForType(BasicFieldType type)
+    {
+        object defaultValue = 0;
+        if (type.IsSet(BasicFieldType.Vector2))
+        {
+            defaultValue = new Dictionary<string, object>() 
+            {
+                {"x", 0f},
+                {"y", 0f}
+            };
+        }
+        else if (type.IsSet(BasicFieldType.Vector3))
+        {
+            defaultValue = new Dictionary<string, object>() 
+            {
+                {"x", 0f},
+                {"y", 0f},
+                {"z", 0f}
+            };
+        }
+        else if (type.IsSet(BasicFieldType.Vector4))
+        {
+            defaultValue = new Dictionary<string, object>() 
+            {
+                {"x", 0f},
+                {"y", 0f},
+                {"z", 0f},
+                {"w", 0f}
+            };
+        }
+        else
+            defaultValue = 0;
+
+        return defaultValue;
+    }
+    #endregion
+    
     #region Abstract methods
     protected abstract void Load();
     protected abstract void Save();

@@ -70,7 +70,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         GUILayout.Space(EZConstants.IndentSize);
        
         EditorGUILayout.LabelField("Basic Field Type:", GUILayout.Width(90));
-        basicFieldTypeSelected = (BasicFieldType)EditorGUILayout.EnumPopup(basicFieldTypeSelected, GUILayout.Width(50));
+        basicFieldTypeSelected = (BasicFieldType)EditorGUILayout.EnumPopup(basicFieldTypeSelected, GUILayout.Width(60));
 
         // Basic field type name field
         string newBasicFieldNameText = "";
@@ -244,8 +244,15 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     void DrawSingleField(string fieldKey, Dictionary<string, object> schemaData)
     {
         string fieldType = schemaData[fieldKey].ToString();
+        BasicFieldType fieldTypeEnum = BasicFieldType.Undefined;
         if (Enum.IsDefined(typeof(BasicFieldType), fieldType))
-            fieldType = fieldType.ToLower();
+        {
+            fieldTypeEnum = (BasicFieldType)Enum.Parse(typeof(BasicFieldType), fieldType);
+            if (!fieldTypeEnum.Equals(BasicFieldType.Vector2) && 
+                !fieldTypeEnum.Equals(BasicFieldType.Vector3) && 
+                !fieldTypeEnum.Equals(BasicFieldType.Vector4))
+                fieldType = fieldType.ToLower();
+        }
         
         EditorGUILayout.BeginHorizontal();
         
@@ -253,18 +260,30 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         
         EditorGUILayout.LabelField(fieldType, GUILayout.Width(50));
         EditorGUILayout.LabelField(fieldKey, GUILayout.Width(100));
-        EditorGUILayout.LabelField("Default Value:", GUILayout.Width(80));
-        
-        switch(fieldType)
+
+        switch(fieldTypeEnum)
         {
-            case "int":
-                DrawInt(fieldKey, schemaData);
+            case BasicFieldType.Bool:
+                DrawBool(fieldKey, schemaData, "Default Values:");
                 break;
-            case "float":
-                DrawFloat(fieldKey, schemaData);
+            case BasicFieldType.Int:
+                DrawInt(fieldKey, schemaData, "Default Values:");
                 break;
-            case "string":
-                DrawString(fieldKey, schemaData);
+            case BasicFieldType.Float:
+                DrawFloat(fieldKey, schemaData, "Default Values:");
+                break;
+            case BasicFieldType.String:
+                DrawString(fieldKey, schemaData, "Default Values:");
+                break;
+
+            case BasicFieldType.Vector2:
+                DrawVector2(fieldKey, schemaData, "Default Values:");
+                break;
+            case BasicFieldType.Vector3:
+                DrawVector3(fieldKey, schemaData, "Default Values:");
+                break;
+            case BasicFieldType.Vector4:
+                DrawVector4(fieldKey, schemaData, "Default Values:");
                 break;
                 
             default:
@@ -286,10 +305,20 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
             string foldoutKey = string.Format(EZConstants.MetaDataFormat, schemaKey, fieldKey);
             bool newFoldoutState;
             bool currentFoldoutState = listFieldFoldoutState.Contains(foldoutKey);
+            object defaultResizeValue = null;
 
+            BasicFieldType fieldTypeEnum = BasicFieldType.Undefined;
             string fieldType = schemaData[fieldKey].ToString();
             if (Enum.IsDefined(typeof(BasicFieldType), fieldType))
-                fieldType = fieldType.ToLower();
+            {
+                fieldTypeEnum = (BasicFieldType)Enum.Parse(typeof(BasicFieldType), fieldType);
+                if (!fieldTypeEnum.Equals(BasicFieldType.Vector2) && 
+                    !fieldTypeEnum.Equals(BasicFieldType.Vector3) && 
+                    !fieldTypeEnum.Equals(BasicFieldType.Vector4))                
+                    fieldType = fieldType.ToLower();
+
+                defaultResizeValue = GetDefaultValueForType(fieldTypeEnum);
+            }
 
             EditorGUILayout.BeginVertical();       
 
@@ -331,7 +360,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
 
             if (newListCount != list.Count && GUILayout.Button("Resize"))            
             {
-                ResizeList(list, newListCount, 0);
+                ResizeList(list, newListCount, defaultResizeValue);
             }
                  
             GUILayout.Space(20);
@@ -349,17 +378,28 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
                     EditorGUILayout.BeginHorizontal();
                     GUILayout.Space(EZConstants.IndentSize*2);
 
-                    EditorGUILayout.LabelField(string.Format("{0}:", i), GUILayout.Width(20));
-
-                    switch (fieldType) {
-                    case "int":
+                    switch (fieldTypeEnum) {
+                        case BasicFieldType.Bool:
+                            DrawListBool(i, Convert.ToBoolean(list[i]), list);
+                            break;
+                        case BasicFieldType.Int:
                             DrawListInt(i, Convert.ToInt32(list[i]), list);
                             break;
-                        case "float":
+                        case BasicFieldType.Float:
                             DrawListFloat(i, Convert.ToSingle(list[i]), list);
                             break;
-                        case "string":
+                        case BasicFieldType.String:
                             DrawListString(i, list[i] as string, list);
+                            break;
+                        
+                        case BasicFieldType.Vector2:
+                            DrawListVector2(i, list[i] as Dictionary<string, object>, list);
+                            break;
+                        case BasicFieldType.Vector3:
+                            DrawListVector3(i, list[i] as Dictionary<string, object>, list);
+                            break;
+                        case BasicFieldType.Vector4:
+                            DrawListVector4(i, list[i] as Dictionary<string, object>, list);
                             break;
 
                         default:
@@ -384,33 +424,18 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     #region Add/Remove Field Methods
     private void AddBasicField(BasicFieldType type, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList)
     {
+        string valueKey = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName);
         schemaData.Add(newFieldName, type);
+        object defaultValue = GetDefaultValueForType(type);
 
         if (isList)
         {
-            schemaData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName), new List<object>());
+            schemaData.Add(valueKey, new List<object>());
             schemaData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, newFieldName), true);
         }
         else
         {
-            switch(type)
-            {
-                case BasicFieldType.Int:
-                {
-                    schemaData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName), 0);
-                    break;
-                }
-                case BasicFieldType.Float:
-                {
-                    schemaData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName), 0f);
-                    break;
-                }
-                case BasicFieldType.String:
-                {
-                    schemaData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName), "");
-                    break;
-                }
-            }
+            schemaData.Add(valueKey, defaultValue);
         }
 
         // Let the manager know we added a field

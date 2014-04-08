@@ -215,8 +215,15 @@ public class EZItemManagerWindow : EZManagerWindowBase
     void DrawSingleField(string schemaKey, string fieldKey, Dictionary<string, object> itemData)
     {
         string fieldType = itemData[fieldKey].ToString();
+        BasicFieldType fieldTypeEnum = BasicFieldType.Undefined;
         if (Enum.IsDefined(typeof(BasicFieldType), fieldType))
-            fieldType = fieldType.ToLower();
+        {
+            fieldTypeEnum = (BasicFieldType)Enum.Parse(typeof(BasicFieldType), fieldType);
+            if (!fieldTypeEnum.Equals(BasicFieldType.Vector2) && 
+                !fieldTypeEnum.Equals(BasicFieldType.Vector3) && 
+                !fieldTypeEnum.Equals(BasicFieldType.Vector4))
+                fieldType = fieldType.ToLower();
+        }
         
         EditorGUILayout.BeginHorizontal();
         
@@ -224,19 +231,32 @@ public class EZItemManagerWindow : EZManagerWindowBase
         
         EditorGUILayout.LabelField(fieldType, GUILayout.Width(50));
         EditorGUILayout.LabelField(fieldKey, GUILayout.Width(100));
-        EditorGUILayout.LabelField("Value:", GUILayout.Width(40));
         
-        switch(fieldType)
+        switch(fieldTypeEnum)
         {
-            case "int":
-                DrawInt(fieldKey, itemData);
+            case BasicFieldType.Bool:
+                DrawBool(fieldKey, itemData, "Value:");
                 break;
-            case "float":
-                DrawFloat(fieldKey, itemData);
+            case BasicFieldType.Int:
+                DrawInt(fieldKey, itemData, "Value:");
                 break;
-            case "string":
-                DrawString(fieldKey, itemData);
+            case BasicFieldType.Float:
+                DrawFloat(fieldKey, itemData, "Value:");
                 break;
+            case BasicFieldType.String:
+                DrawString(fieldKey, itemData, "Value:");
+                break;
+
+            case BasicFieldType.Vector2:
+                DrawVector2(fieldKey, itemData, "Values:");
+                break;
+            case BasicFieldType.Vector3:
+                DrawVector3(fieldKey, itemData, "Values:");
+                break;
+            case BasicFieldType.Vector4:
+                DrawVector4(fieldKey, itemData, "Values:");
+                break;
+
                 
             default:
             {
@@ -259,8 +279,15 @@ public class EZItemManagerWindow : EZManagerWindowBase
             bool currentFoldoutState = listFieldFoldoutState.Contains(foldoutKey);
             
             string fieldType = itemData[fieldKey].ToString();
+            BasicFieldType fieldTypeEnum = BasicFieldType.Undefined;
             if (Enum.IsDefined(typeof(BasicFieldType), fieldType))
-                fieldType = fieldType.ToLower();
+            {
+                fieldTypeEnum = (BasicFieldType)Enum.Parse(typeof(BasicFieldType), fieldType);
+                if (!fieldTypeEnum.Equals(BasicFieldType.Vector2) && 
+                    !fieldTypeEnum.Equals(BasicFieldType.Vector3) && 
+                    !fieldTypeEnum.Equals(BasicFieldType.Vector4))
+                    fieldType = fieldType.ToLower();
+            }
             
             EditorGUILayout.BeginVertical();       
             
@@ -317,19 +344,30 @@ public class EZItemManagerWindow : EZManagerWindowBase
                     EditorGUILayout.BeginHorizontal();
                     GUILayout.Space(EZConstants.IndentSize*2);
                     
-                    EditorGUILayout.LabelField(string.Format("{0}:", i), GUILayout.Width(20));
-                    
-                    switch (fieldType) {
-                        case "int":
+                    switch (fieldTypeEnum) {
+                        case BasicFieldType.Bool:
+                            DrawListBool(i, Convert.ToBoolean(list[i]), list);
+                            break;
+                        case BasicFieldType.Int:
                             DrawListInt(i, Convert.ToInt32(list[i]), list);
                             break;
-                        case "float":
+                        case BasicFieldType.Float:
                             DrawListFloat(i, Convert.ToSingle(list[i]), list);
                             break;
-                        case "string":
+                        case BasicFieldType.String:
                             DrawListString(i, list[i] as string, list);
                             break;
-                            
+
+                        case BasicFieldType.Vector2:
+                            DrawListVector2(i, list[i] as Dictionary<string, object>, list);
+                            break;
+                        case BasicFieldType.Vector3:
+                            DrawListVector3(i, list[i] as Dictionary<string, object>, list);
+                            break;
+                        case BasicFieldType.Vector4:
+                            DrawListVector4(i, list[i] as Dictionary<string, object>, list);
+                            break; 
+
                         default:
                             List<string> itemKeys = GetPossibleCustomValues(schemaKey, fieldType);
                             DrawListCustom(i, list[i] as string, list, true, itemKeys);

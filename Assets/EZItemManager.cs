@@ -8,9 +8,14 @@ using MiniJSON;
 [Flags]
 public enum BasicFieldType
 {
-    Int = 0,
-    Float = 1,
-    String = 2
+    Undefined = 0,
+    Bool = 1,
+    Int = 2,
+    Float = 4,
+    String = 8,
+    Vector2 = 16,
+    Vector3 = 32,
+    Vector4 = 64
 }
 
 public class EZItemManager
