@@ -53,10 +53,12 @@ public class EZTemplateManagerWindow : EZManagerWindowBase {
 
         EditorGUILayout.EndVertical();
 
+        verticalScrollbarPosition = EditorGUILayout.BeginScrollView(verticalScrollbarPosition);
         foreach(KeyValuePair<string, Dictionary<string, object>> template in EZItemManager.ItemTemplates)
         {   
             DrawEntry(template.Key, template.Value);
         }
+        EditorGUILayout.EndScrollView();
     }
     #endregion
 

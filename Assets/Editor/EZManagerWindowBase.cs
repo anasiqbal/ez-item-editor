@@ -15,6 +15,8 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected Dictionary<string, int> newListCountDict = new Dictionary<string, int>();
 
     protected string filterText = "";
+
+    protected Vector2 verticalScrollbarPosition;
       
     protected virtual void OnGUI()
     {

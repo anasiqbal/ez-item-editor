@@ -74,11 +74,13 @@ public class EZItemManagerWindow : EZManagerWindowBase
         DrawExpandCollapseAllFoldout(EZItemManager.AllItems.Keys.ToArray());
 
         EditorGUILayout.EndVertical();
-        
+
+        verticalScrollbarPosition = EditorGUILayout.BeginScrollView(verticalScrollbarPosition);
         foreach (KeyValuePair<string, Dictionary<string, object>> item in EZItemManager.AllItems)
         {
             DrawEntry(item.Key, item.Value);
         }
+        EditorGUILayout.EndScrollView();
         
         //Remove any items that were deleted
         foreach(string deletedkey in deletedItems)
