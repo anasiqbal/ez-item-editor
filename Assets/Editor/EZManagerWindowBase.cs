@@ -565,6 +565,10 @@ public abstract class EZManagerWindowBase : EditorWindow {
                 {"w", 0f}
             };
         }
+        else if (type.IsSet(BasicFieldType.String))
+        {
+            defaultValue = "";
+        }
         else
             defaultValue = 0;
 
