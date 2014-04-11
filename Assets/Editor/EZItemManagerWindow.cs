@@ -45,19 +45,27 @@ public class EZItemManagerWindow : EZManagerWindowBase
 
         base.OnGUI();
 
-        EditorGUILayout.BeginVertical();
-        
-        EditorGUILayout.BeginHorizontal();
+        NewLine();
 
-        GUILayout.Label("Schema:", GUILayout.Width(60));
-        schemaIndex = EditorGUILayout.Popup(schemaIndex, schemaKeys, GUILayout.Width(100));
+        float width = 60;
+        GUI.Label(new Rect(currentLinePosition, EZConstants.LineHeight*currentLine, width, StandardHeight()), "Schema:");
+        currentLinePosition += (width + 2);
 
-        GUILayout.Space(EZConstants.IndentSize);
+        width = 100;
+        schemaIndex = EditorGUI.Popup(new Rect(currentLinePosition, EZConstants.LineHeight*currentLine, width, StandardHeight()), schemaIndex, schemaKeys);
 
-        EditorGUILayout.LabelField("Item Name:", GUILayout.Width(65));
-        newItemName = EditorGUILayout.TextField(newItemName);
+        NewLine();
 
-        if (GUILayout.Button("Create New Item"))
+        width = 65;
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Item Name:");
+        currentLinePosition += (width + 8);
+
+        width = 180;
+        newItemName = EditorGUI.TextField(new Rect(currentLinePosition, TopOfLine(), width, TextBoxHeight()), newItemName);
+        currentLinePosition += (width + 4);
+
+        width = 100;
+        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Create New Item"))
         {
             List<object> args = new List<object>();
             args.Add(schemaKeys[schemaIndex]);
@@ -66,14 +74,9 @@ public class EZItemManagerWindow : EZManagerWindowBase
             Create(args);
         }
 
-        GUILayout.FlexibleSpace();
-        EditorGUILayout.EndHorizontal();
-        
-        GUILayout.Space(10);
+        NewLine();
 
         DrawExpandCollapseAllFoldout(EZItemManager.AllItems.Keys.ToArray());
-
-        EditorGUILayout.EndVertical();
 
         verticalScrollbarPosition = EditorGUILayout.BeginScrollView(verticalScrollbarPosition);
         foreach (KeyValuePair<string, Dictionary<string, object>> item in EZItemManager.AllItems)
@@ -97,12 +100,14 @@ public class EZItemManagerWindow : EZManagerWindowBase
         base.DrawFilterSection();
         
         // Filter dropdown
-        EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField("Filter By Schema:", GUILayout.Width(140));
-        filterSchemaIndex = EditorGUILayout.Popup(filterSchemaIndex, filterSchemaKeys, GUILayout.Width(100));
-        
-        GUILayout.FlexibleSpace();
-        EditorGUILayout.EndHorizontal();
+        float width = 100;
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Filter By Schema:");
+        currentLinePosition += (width + 2);
+
+        width = 100;
+        filterSchemaIndex = EditorGUI.Popup(new Rect(currentLinePosition, PopupTop(), width, StandardHeight()), filterSchemaIndex, filterSchemaKeys);
+
+        NewLine();
     }
     #endregion
 
@@ -136,14 +141,13 @@ public class EZItemManagerWindow : EZManagerWindowBase
             bool shouldDrawSpace = false;
             bool didDrawSpaceForSection = false;
 
-            EditorGUILayout.BeginVertical();
-            
             // Draw the basic types
             foreach(BasicFieldType fieldType in Enum.GetValues(typeof(BasicFieldType)))
             {
                 List<string> fieldKeys = EZItemManager.ItemFieldKeysOfType(key, fieldType.ToString());                
                 foreach(string fieldKey in fieldKeys)
                 {
+                    currentLinePosition += EZConstants.Indent;
                     DrawSingleField(schemaType, fieldKey, data);
                     shouldDrawSpace = true;
                 }
@@ -154,12 +158,13 @@ public class EZItemManagerWindow : EZManagerWindowBase
             {
                 if (shouldDrawSpace && !didDrawSpaceForSection)
                 {
-                    GUILayout.Space(10);
+                    NewLine(0.5f);
                     didDrawSpaceForSection = true;
                 }
                 
-                shouldDrawSpace = true;
+                currentLinePosition += EZConstants.Indent;
                 DrawSingleField(schemaType, fieldKey, data);
+                shouldDrawSpace = true;
             }
             didDrawSpaceForSection = false;
             
@@ -171,12 +176,13 @@ public class EZItemManagerWindow : EZManagerWindowBase
                 {
                     if (shouldDrawSpace && !didDrawSpaceForSection)
                     {
-                        GUILayout.Space(10);
+                        NewLine(0.5f);
                         didDrawSpaceForSection = true;
                     }
-                    
-                    shouldDrawSpace = true;
+
+                    currentLinePosition += EZConstants.Indent;
                     DrawListField(schemaType, fieldKey, data);
+                    shouldDrawSpace = true;
                 }
             }
             didDrawSpaceForSection = false;
@@ -186,29 +192,26 @@ public class EZItemManagerWindow : EZManagerWindowBase
             {
                 if (shouldDrawSpace && !didDrawSpaceForSection)
                 {
-                    GUILayout.Space(10);
+                    NewLine(0.5f);
                     didDrawSpaceForSection = true;
                 }
-                
-                shouldDrawSpace = true;
+
+                currentLinePosition += EZConstants.Indent;
                 DrawListField(schemaType, fieldKey, data);
+                shouldDrawSpace = true;
             }
 
-            GUILayout.Space(20);
+            NewLine(0.5f);
 
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Delete"))
+            float width = 50;
+            if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Delete"))
                 deletedItems.Add(key);
-            GUILayout.FlexibleSpace();
-            EditorGUILayout.EndHorizontal();
-                      
-            GUILayout.Box("", new GUILayoutOption[]
-                          {
-                GUILayout.ExpandWidth(true),
-                GUILayout.Height(1)
-            });
-            EditorGUILayout.Separator();
-            EditorGUILayout.EndVertical();
+
+            NewLine(0.75f);
+
+            GUI.Box(new Rect(currentLinePosition, MiddleOfLine(), FullSeparatorWidth(), 1), "");
+
+            NewLine();
         }
     }
 
@@ -224,50 +227,68 @@ public class EZItemManagerWindow : EZManagerWindowBase
                 !fieldTypeEnum.Equals(BasicFieldType.Vector4))
                 fieldType = fieldType.ToLower();
         }
-        
-        EditorGUILayout.BeginHorizontal();
-        
-        GUILayout.Space(EZConstants.IndentSize);
-        
-        EditorGUILayout.LabelField(fieldType, GUILayout.Width(50));
-        EditorGUILayout.LabelField(fieldKey, GUILayout.Width(100));
-        
+
+        float width = 120;
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), fieldType);
+        currentLinePosition += (width + 2);
+
+        width = 100;
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), fieldKey);
+        currentLinePosition += (width + 2);
+
         switch(fieldTypeEnum)
         {
             case BasicFieldType.Bool:
+            {
                 DrawBool(fieldKey, itemData, "Value:");
+                NewLine();
                 break;
+            }
             case BasicFieldType.Int:
+            {
                 DrawInt(fieldKey, itemData, "Value:");
+                NewLine();
                 break;
+            }
             case BasicFieldType.Float:
+            {
                 DrawFloat(fieldKey, itemData, "Value:");
+                NewLine();
                 break;
+            }
             case BasicFieldType.String:
+            {
                 DrawString(fieldKey, itemData, "Value:");
+                NewLine();
                 break;
-
+            }
             case BasicFieldType.Vector2:
+            {
                 DrawVector2(fieldKey, itemData, "Values:");
+                NewLine(EZConstants.VectorFieldBuffer+1);
                 break;
+            }
             case BasicFieldType.Vector3:
+            {
                 DrawVector3(fieldKey, itemData, "Values:");
+                NewLine(EZConstants.VectorFieldBuffer+1);
                 break;
+            }
             case BasicFieldType.Vector4:
+            {
                 DrawVector4(fieldKey, itemData, "Values:");
+                NewLine(EZConstants.VectorFieldBuffer+1);
                 break;
-
+            }
                 
             default:
             {
                 List<string> itemKeys = GetPossibleCustomValues(schemaKey, fieldType);
                 DrawCustom(fieldKey, itemData, true, itemKeys);
+                NewLine();
                 break;
             }
         }
-        
-        GUILayout.FlexibleSpace();
-        EditorGUILayout.EndHorizontal();
     }
 
     void DrawListField(string schemaKey, string fieldKey, Dictionary<string, object> itemData)
@@ -288,13 +309,15 @@ public class EZItemManagerWindow : EZManagerWindowBase
                     !fieldTypeEnum.Equals(BasicFieldType.Vector4))
                     fieldType = fieldType.ToLower();
             }
-            
-            EditorGUILayout.BeginVertical();       
-            
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Space(EZConstants.IndentSize);
-            
-            newFoldoutState = EditorGUILayout.Foldout(currentFoldoutState, string.Format("List<{0}>   {1}", fieldType, fieldKey));
+
+            float width = 120;
+            newFoldoutState = EditorGUI.Foldout(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), currentFoldoutState, string.Format("List<{0}>", fieldType));
+            currentLinePosition += (width + 2);
+
+            width = 100;
+            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), fieldKey);
+            currentLinePosition += (width + 2);
+
             if (newFoldoutState != currentFoldoutState)
             {
                 if (newFoldoutState)
@@ -308,9 +331,10 @@ public class EZItemManagerWindow : EZManagerWindowBase
             
             if (itemData.TryGetValue(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldKey), out temp))
                 list = temp as List<object>;
-            
-            GUILayout.Space(120);
-            EditorGUILayout.LabelField("Count:", GUILayout.Width(40));
+
+            width = 40;
+            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Count:");
+            currentLinePosition += (width + 2);
 
             int newListCount;
             string listCountKey = string.Format(EZConstants.MetaDataFormat, schemaKey, fieldKey);
@@ -323,63 +347,81 @@ public class EZItemManagerWindow : EZManagerWindowBase
                 newListCount = list.Count;
                 newListCountDict.Add(listCountKey, newListCount);
             }
-            newListCount = EditorGUILayout.IntField(newListCount, GUILayout.Width(40));
+
+            width = 40;
+            newListCount = EditorGUI.IntField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), newListCount);
+            currentLinePosition += (width + 4);
+
+            width = 50;
             newListCountDict[listCountKey] = newListCount;
-            if (newListCount != list.Count && GUILayout.Button("Resize"))            
+            if (newListCount != list.Count && GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Resize"))            
             {
                 ResizeList(list, newListCount, 0);
                 newListCountDict[listCountKey] = newListCount;
+                currentLinePosition += (width + 2);
             }
-            
-            GUILayout.Space(20);
-            
-            GUILayout.FlexibleSpace();
-            EditorGUILayout.EndHorizontal();
-            
-            
+
+            NewLine();
+
             if (newFoldoutState)
             {
                 for (int i = 0; i < list.Count; i++) 
                 {
-                    EditorGUILayout.BeginHorizontal();
-                    GUILayout.Space(EZConstants.IndentSize*2);
+                   currentLinePosition += EZConstants.Indent*2;
                     
                     switch (fieldTypeEnum) {
                         case BasicFieldType.Bool:
+                        {
                             DrawListBool(i, Convert.ToBoolean(list[i]), list);
+                            NewLine();
                             break;
+                        }
                         case BasicFieldType.Int:
+                        {
                             DrawListInt(i, Convert.ToInt32(list[i]), list);
+                            NewLine();
                             break;
+                        }
                         case BasicFieldType.Float:
+                        {
                             DrawListFloat(i, Convert.ToSingle(list[i]), list);
+                            NewLine();
                             break;
+                        }
                         case BasicFieldType.String:
+                        {
                             DrawListString(i, list[i] as string, list);
+                            NewLine();
                             break;
-
+                        }
                         case BasicFieldType.Vector2:
+                        {
                             DrawListVector2(i, list[i] as Dictionary<string, object>, list);
+                            NewLine(EZConstants.VectorFieldBuffer+1);
                             break;
+                        }
                         case BasicFieldType.Vector3:
+                        {
                             DrawListVector3(i, list[i] as Dictionary<string, object>, list);
+                            NewLine(EZConstants.VectorFieldBuffer+1);
                             break;
+                        }
                         case BasicFieldType.Vector4:
+                        {
                             DrawListVector4(i, list[i] as Dictionary<string, object>, list);
+                            NewLine(EZConstants.VectorFieldBuffer+1);
                             break; 
-
+                        }
                         default:
+                        {
                             List<string> itemKeys = GetPossibleCustomValues(schemaKey, fieldType);
                             DrawListCustom(i, list[i] as string, list, true, itemKeys);
+                            NewLine();
                             break;
+                        }
                     }
-                    
-                    GUILayout.FlexibleSpace();
-                    EditorGUILayout.EndHorizontal();
                 }
             }
-            
-            EditorGUILayout.EndVertical();
         }
         catch(Exception ex)
         {

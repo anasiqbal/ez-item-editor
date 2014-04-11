@@ -15,6 +15,11 @@ public class EZConstants {
     #endregion
 
     #region Window Constants
-    public const int IndentSize = 20;
+    public const int Indent = 20;
+    public const float LineHeight = 20f;
+    public const float TopBuffer = 2f;
+    public const float LeftBuffer = 2f;
+    public const float RightBuffer = 2f;
+    public const float VectorFieldBuffer = 0.75f;
     #endregion
 }

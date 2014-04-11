@@ -18,56 +18,95 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected string filterText = "";
 
     protected Vector2 verticalScrollbarPosition;
+
+    protected float currentLine = 0;
+    protected float currentLinePosition = EZConstants.LeftBuffer;
       
     protected virtual void OnGUI()
     {
+        ResetToTop();
         DrawHeader();
     }
 
     protected virtual void DrawHeader()
     {
-        EditorGUILayout.BeginVertical();
-        EditorGUILayout.BeginHorizontal();
-
-        GUILayout.FlexibleSpace();
-        
-        if (GUILayout.Button("Load"))
+        float width = 40;
+        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Load"))
             Load();
+
+        NewLine();
         
-        GUILayout.FlexibleSpace();
-        
-        if (GUILayout.Button("Save"))
+        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Save"))
             Save();
-        
-        GUILayout.FlexibleSpace();
-        
-        EditorGUILayout.EndHorizontal();
 
-        GUILayout.Space(15);
-
+        NewLine();
+        
         DrawFilterSection();
 
-        EditorGUILayout.EndVertical();
-        
-        GUILayout.Box("", new GUILayoutOption[]
-                      {
-            GUILayout.ExpandWidth(true),
-            GUILayout.Height(1)
-        });
-        EditorGUILayout.Separator();
+        width = FullSeparatorWidth();
+        GUI.Box(new Rect(currentLinePosition, TopOfLine(), width, 1), "");
     }
+
+    #region GUI Position Methods
+    protected virtual void ResetToTop()
+    {
+        currentLine = EZConstants.TopBuffer/EZConstants.LineHeight;
+        currentLinePosition = EZConstants.LeftBuffer;
+    }
+
+    protected virtual void NewLine(float numNewLines = 1)
+    {
+        currentLine += numNewLines;
+        currentLinePosition = EZConstants.LeftBuffer;
+    }
+
+    protected virtual float TopOfLine()
+    {
+        return EZConstants.LineHeight*currentLine;
+    }
+
+    protected virtual float MiddleOfLine()
+    {
+        return EZConstants.LineHeight*currentLine + EZConstants.LineHeight/2;
+    }
+
+    protected virtual float PopupTop()
+    {
+        return TopOfLine()+1;
+    }
+
+    protected virtual float StandardHeight()
+    {
+        return EZConstants.LineHeight-2;
+    }
+
+    protected virtual float TextBoxHeight()
+    {
+        return EZConstants.LineHeight-4;
+    }
+
+    protected virtual float VectorFieldHeight()
+    {
+        return EZConstants.LineHeight*1.2f;
+    }
+
+    protected virtual float FullSeparatorWidth()
+    {
+        return this.position.width-EZConstants.LeftBuffer-EZConstants.RightBuffer;
+    }
+    #endregion
 
     #region Foldout Methods
     protected virtual bool DrawFoldout(string label, string key)
     {
-        EditorGUILayout.BeginHorizontal();
-        
         bool currentFoldoutState = entryFoldoutState.Contains(key);
-        bool newFoldoutState = EditorGUILayout.Foldout(currentFoldoutState, label);
-        SetFoldout(newFoldoutState, key);
-        
-        EditorGUILayout.EndHorizontal();
 
+        float width = 200;
+        bool newFoldoutState = EditorGUI.Foldout(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), currentFoldoutState, label);
+        SetFoldout(newFoldoutState, key);
+
+        NewLine();
+            
         return newFoldoutState;
     }
 
@@ -79,11 +118,14 @@ public abstract class EZManagerWindowBase : EditorWindow {
         else
             label = "Expand All";
 
-        bool newFoldAllState = EditorGUILayout.Foldout(currentFoldoutAllState, label);
+        float width = 80;
+        bool newFoldAllState = EditorGUI.Foldout(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), currentFoldoutAllState, label);
         if (newFoldAllState != currentFoldoutAllState) {
             SetAllFoldouts(newFoldAllState, forKeys);
             currentFoldoutAllState = newFoldAllState;
         }
+
+        NewLine();
     }
 
     protected virtual void SetAllFoldouts(bool state, string[] forKeys)
@@ -119,8 +161,15 @@ public abstract class EZManagerWindowBase : EditorWindow {
             
             data.TryGetValue(key, out currentValue);
 
-            EditorGUILayout.LabelField(label, GUILayout.Width(80));
-            newValue = EditorGUILayout.Toggle(Convert.ToBoolean(currentValue), GUILayout.Width(50));
+            GUIContent content = new GUIContent(label);
+            float width = GUI.skin.GetStyle("Label").CalcSize(content).x;
+            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content);
+            currentLinePosition += (width + 2);
+
+            width = 50;
+            newValue = EditorGUI.Toggle(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), Convert.ToBoolean(currentValue));
+            currentLinePosition += (width + 2);
+
             if (newValue != Convert.ToBoolean(currentValue))
                 data[key] = newValue;
         }
@@ -136,8 +185,13 @@ public abstract class EZManagerWindowBase : EditorWindow {
         {
             bool newValue;
 
-            EditorGUILayout.LabelField(string.Format("{0}:", index), GUILayout.Width(20));
-            newValue = EditorGUILayout.Toggle(value);
+            float width = 20;
+            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), string.Format("{0}:", index));
+            currentLinePosition += (width + 2);
+
+            width = 30;
+            newValue = EditorGUI.Toggle(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), value);
+            currentLinePosition += (width + 2);
 
             if (value != newValue)
                 boolList[index] = newValue;
@@ -158,8 +212,15 @@ public abstract class EZManagerWindowBase : EditorWindow {
             
             data.TryGetValue(key, out currentValue);
 
-            EditorGUILayout.LabelField(label, GUILayout.Width(80));
-            newValue = EditorGUILayout.IntField(Convert.ToInt32(currentValue), GUILayout.Width(50));
+            GUIContent content = new GUIContent(label);
+            float width = GUI.skin.GetStyle("Label").CalcSize(content).x;
+            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content);
+            currentLinePosition += (width + 2);
+
+            width = 50;
+            newValue = EditorGUI.IntField(new Rect(currentLinePosition, TopOfLine(), width, TextBoxHeight()), Convert.ToInt32(currentValue));
+            currentLinePosition += (width + 2);
+
             if (newValue != Convert.ToInt32(currentValue))
                 data[key] = newValue;
         }
@@ -175,8 +236,13 @@ public abstract class EZManagerWindowBase : EditorWindow {
         {
             int newValue;
 
-            EditorGUILayout.LabelField(string.Format("{0}:", index), GUILayout.Width(20));
-            newValue = EditorGUILayout.IntField(value, GUILayout.Width(50));
+            float width = 20;
+            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), string.Format("{0}:", index));
+            currentLinePosition += (width + 2);
+
+            width = 50;
+            newValue = EditorGUI.IntField(new Rect(currentLinePosition, TopOfLine(), width, TextBoxHeight()), value);
+            currentLinePosition += (width + 2);
 
             if (value != newValue)
                 intList[index] = newValue;
@@ -197,8 +263,15 @@ public abstract class EZManagerWindowBase : EditorWindow {
             
             data.TryGetValue(key, out currentValue);
 
-            EditorGUILayout.LabelField(label, GUILayout.Width(80));
-            newValue = EditorGUILayout.FloatField(Convert.ToSingle(currentValue), GUILayout.Width(50));
+            GUIContent content = new GUIContent(label);
+            float width = GUI.skin.GetStyle("Label").CalcSize(content).x;
+            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content);
+            currentLinePosition += (width + 2);
+
+            width = 50;
+            newValue = EditorGUI.FloatField(new Rect(currentLinePosition, TopOfLine(), width, TextBoxHeight()), Convert.ToSingle(currentValue));
+            currentLinePosition += (width + 2);
+
             if (newValue != Convert.ToSingle(currentValue))
                 data[key] = newValue;
         }
@@ -214,8 +287,13 @@ public abstract class EZManagerWindowBase : EditorWindow {
         {
             float newValue;
 
-            EditorGUILayout.LabelField(string.Format("{0}:", index), GUILayout.Width(20));
-            newValue = EditorGUILayout.FloatField(value, GUILayout.Width(50));
+            float width = 20;
+            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), string.Format("{0}:", index));
+            currentLinePosition += (width + 2);
+
+            width = 50;
+            newValue = EditorGUI.FloatField(new Rect(currentLinePosition, TopOfLine(), width, TextBoxHeight()), value);
+            currentLinePosition += (width + 2);
 
             if (value != newValue)
                 floatList[index] = newValue;
@@ -236,8 +314,15 @@ public abstract class EZManagerWindowBase : EditorWindow {
             
             data.TryGetValue(key, out currentValue);
 
-            EditorGUILayout.LabelField(label, GUILayout.Width(80));
-            newValue = EditorGUILayout.TextField(currentValue as string, GUILayout.Width(100));
+            GUIContent content = new GUIContent(label);
+            float width = GUI.skin.GetStyle("Label").CalcSize(content).x;
+            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content);
+            currentLinePosition += (width + 2);
+
+            width = 100;
+            newValue = EditorGUI.TextField(new Rect(currentLinePosition, TopOfLine(), width, TextBoxHeight()), currentValue as string);
+            currentLinePosition += (width + 2);
+
             if (newValue != (string)currentValue)
                 data[key] = newValue;
             }
@@ -253,8 +338,13 @@ public abstract class EZManagerWindowBase : EditorWindow {
         {
             string newValue;
 
-            EditorGUILayout.LabelField(string.Format("{0}:", index), GUILayout.Width(20));
-            newValue = EditorGUILayout.TextField(value, GUILayout.Width(100));
+            float width = 20;
+            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), string.Format("{0}:", index));
+            currentLinePosition += (width + 2);
+
+            width = 100;
+            newValue = EditorGUI.TextField(new Rect(currentLinePosition, TopOfLine(), width, TextBoxHeight()), value);
+            currentLinePosition += (width + 2);
 
             if (value != newValue)
                 stringList[index] = newValue;
@@ -281,8 +371,11 @@ public abstract class EZManagerWindowBase : EditorWindow {
                 currentValue.x = Convert.ToSingle(vectDict["x"]);
                 currentValue.y = Convert.ToSingle(vectDict["y"]);
             }
-            
-            newValue = EditorGUILayout.Vector2Field(label, currentValue);
+
+            float width = 136;
+            newValue = EditorGUI.Vector2Field(new Rect(currentLinePosition, TopOfLine(), width, VectorFieldHeight()), label, currentValue);
+            currentLinePosition += (width + 2);
+
             if (newValue != currentValue)
             {
                 vectDict["x"] = newValue.x;
@@ -305,8 +398,11 @@ public abstract class EZManagerWindowBase : EditorWindow {
 
             currentValue.x = Convert.ToSingle(value["x"]);
             currentValue.y = Convert.ToSingle(value["y"]);
-            
-            newValue = EditorGUILayout.Vector2Field(string.Format("{0}:", index), currentValue);
+
+            float width = 136;
+            newValue = EditorGUI.Vector2Field(new Rect(currentLinePosition, TopOfLine(), width, VectorFieldHeight()), string.Format("{0}:", index), currentValue);
+            currentLinePosition += (width + 2);
+
             if (newValue != currentValue)
             {
                 value["x"] = newValue.x;
@@ -337,8 +433,11 @@ public abstract class EZManagerWindowBase : EditorWindow {
                 currentValue.y = Convert.ToSingle(vectDict["y"]);
                 currentValue.z = Convert.ToSingle(vectDict["z"]);
             }
-            
-            newValue = EditorGUILayout.Vector3Field(label, currentValue);
+
+            float width = 200;
+            newValue = EditorGUI.Vector3Field(new Rect(currentLinePosition, TopOfLine(), width, VectorFieldHeight()), label, currentValue);
+            currentLinePosition += (width + 2);
+
             if (newValue != currentValue)
             {
                 vectDict["x"] = newValue.x;
@@ -363,8 +462,11 @@ public abstract class EZManagerWindowBase : EditorWindow {
             currentValue.x = Convert.ToSingle(value["x"]);
             currentValue.y = Convert.ToSingle(value["y"]);
             currentValue.z = Convert.ToSingle(value["z"]);
-            
-            newValue = EditorGUILayout.Vector3Field(string.Format("{0}:", index), currentValue);
+
+            float width = 200;
+            newValue = EditorGUI.Vector3Field(new Rect(currentLinePosition, TopOfLine(), width, VectorFieldHeight()), string.Format("{0}:", index), currentValue);
+            currentLinePosition += (width + 2);
+
             if (newValue != currentValue)
             {
                 value["x"] = newValue.x;
@@ -397,8 +499,11 @@ public abstract class EZManagerWindowBase : EditorWindow {
                 currentValue.z = Convert.ToSingle(vectDict["z"]);
                 currentValue.w = Convert.ToSingle(vectDict["w"]);
             }
-            
-            newValue = EditorGUILayout.Vector4Field(label, currentValue);
+
+            float width = 228;
+            newValue = EditorGUI.Vector4Field(new Rect(currentLinePosition, TopOfLine(), width, VectorFieldHeight()), label, currentValue);
+            currentLinePosition += (width + 2);
+
             if (newValue != currentValue)
             {
                 vectDict["x"] = newValue.x;
@@ -424,8 +529,11 @@ public abstract class EZManagerWindowBase : EditorWindow {
             currentValue.y = Convert.ToSingle(value["y"]);
             currentValue.z = Convert.ToSingle(value["z"]);
             currentValue.w = Convert.ToSingle(value["w"]);
-            
-            newValue = EditorGUILayout.Vector4Field(string.Format("{0}:", index), currentValue);
+
+            float width = 228;
+            newValue = EditorGUI.Vector4Field(new Rect(currentLinePosition, TopOfLine(), width, VectorFieldHeight()), string.Format("{0}:", index), currentValue);
+            currentLinePosition += (width + 2);
+
             if (newValue != currentValue)
             {
                 value["x"] = newValue.x;
@@ -452,19 +560,29 @@ public abstract class EZManagerWindowBase : EditorWindow {
 
             data.TryGetValue(key, out currentValue);
 
+            float width;
             if (canEdit && possibleValues != null)
             {
                 currentIndex = possibleValues.IndexOf(currentValue as string);
 
-                EditorGUILayout.LabelField("Value:", GUILayout.Width(80));
-                newIndex = EditorGUILayout.Popup(currentIndex, possibleValues.ToArray());
+                GUIContent content = new GUIContent("Value:");
+                width = GUI.skin.GetStyle("Label").CalcSize(content).x;
+                EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content);
+                currentLinePosition += (width + 2);
+
+                width = 80;
+                newIndex = EditorGUI.Popup(new Rect(currentLinePosition, PopupTop(), width, StandardHeight()), currentIndex, possibleValues.ToArray());
+                currentLinePosition += (width + 2);
 
                 if (newIndex != currentIndex)            
                     data[key] = possibleValues[newIndex];
             }
             else
             {
-                EditorGUILayout.LabelField("Default Value: null", GUILayout.Width(110));
+                GUIContent content = new GUIContent("Default Value: null");
+                width = GUI.skin.GetStyle("Label").CalcSize(content).x;
+                EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content);
+                currentLinePosition += (width + 4);
             }
         }
         catch(Exception ex)
@@ -479,20 +597,29 @@ public abstract class EZManagerWindowBase : EditorWindow {
         {
             int newIndex;
             int currentIndex;
+            float width;
 
             if (canEdit && possibleValues != null)
             {
                 currentIndex = possibleValues.IndexOf(value);
 
-                EditorGUILayout.LabelField(string.Format("{0}:", index), GUILayout.Width(20));
-                newIndex = EditorGUILayout.Popup(currentIndex, possibleValues.ToArray());
+                width = 20;
+                EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), string.Format("{0}:", index));
+                currentLinePosition += (width + 2);
+
+                width = 80;
+                newIndex = EditorGUI.Popup(new Rect(currentLinePosition, PopupTop(), width, StandardHeight()), currentIndex, possibleValues.ToArray());
+                currentLinePosition += (width + 2);
 
                 if (newIndex != currentIndex)            
                     customList[index] = possibleValues[newIndex];
             }
             else
             {
-                EditorGUILayout.LabelField("null", GUILayout.Width(40));
+                GUIContent content = new GUIContent(string.Format("{0}: null", index));
+                width = GUI.skin.GetStyle("Label").CalcSize(content).x;
+                EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content);
+                currentLinePosition += (width + 2);
             }
         }
         catch(Exception ex)
@@ -506,13 +633,15 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected virtual void DrawFilterSection()
     {
         // Text search
-        EditorGUILayout.BeginHorizontal();
+        float width = 45;
+        EditorGUI.LabelField(new Rect(currentLinePosition, EZConstants.LineHeight*currentLine, width, StandardHeight()), "Search:");
 
-        EditorGUILayout.LabelField("Search By Key:", GUILayout.Width(80));
-        filterText = EditorGUILayout.TextField(filterText);
+        currentLinePosition += (width + 8);
 
-        GUILayout.FlexibleSpace();
-        EditorGUILayout.EndHorizontal();
+        width = 180;
+        filterText = EditorGUI.TextField(new Rect(currentLinePosition, EZConstants.LineHeight*currentLine, width, TextBoxHeight()), filterText);
+
+        NewLine();
     }
     #endregion
 
