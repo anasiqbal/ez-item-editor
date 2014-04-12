@@ -165,7 +165,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
         bool currentFoldoutState = entryFoldoutState.Contains(key);
 
         float width = 200;
-        bool newFoldoutState = EditorGUI.Foldout(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), currentFoldoutState, label);
+        bool newFoldoutState = EditorGUI.Foldout(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), currentFoldoutState, label, true);
         SetFoldout(newFoldoutState, key);
 
         NewLine();
@@ -182,7 +182,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             label = "Expand All";
 
         float width = 80;
-        bool newFoldAllState = EditorGUI.Foldout(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), currentFoldoutAllState, label);
+        bool newFoldAllState = EditorGUI.Foldout(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), currentFoldoutAllState, label, true);
         if (newFoldAllState != currentFoldoutAllState) 
         {
             SetAllFoldouts(newFoldAllState, forKeys);
