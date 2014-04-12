@@ -21,6 +21,10 @@ public abstract class EZManagerWindowBase : EditorWindow {
 
     protected float currentLine = 0;
     protected float currentLinePosition = EZConstants.LeftBuffer;
+
+    protected Dictionary<string, float> groupHeights = new Dictionary<string, float>();
+    protected float scrollViewHeight = 0;
+    protected float scrollViewY = 0;
       
     protected virtual void OnGUI()
     {
@@ -94,6 +98,65 @@ public abstract class EZManagerWindowBase : EditorWindow {
     {
         return this.position.width-EZConstants.LeftBuffer-EZConstants.RightBuffer;
     }
+
+    protected virtual float ScrollViewWidth()
+    {
+        return FullWindowWidth() - 20;
+    }
+
+    protected virtual float FullWindowWidth()
+    {
+        return this.position.width;
+    }
+
+    protected virtual float HeightToBottomOfWindow()
+    {
+        return this.position.height - (currentLine*EZConstants.LineHeight);
+    }
+
+    protected virtual float CurrentHeight()
+    {
+        return currentLine*EZConstants.LineHeight;
+    }
+
+    protected virtual float CalculateGroupHeightsTotal()
+    {
+        float totalHeight = 0;
+
+        foreach(KeyValuePair<string, float> pair in groupHeights)
+            totalHeight += pair.Value;
+
+        return totalHeight;
+    }
+
+    protected virtual bool IsVisible(float groupHeight)
+    {
+        float topSkip = this.verticalScrollbarPosition.y;            
+        float bottomThreshold = CurrentHeight() + groupHeight;            
+        if (topSkip >= bottomThreshold) {                
+            // the group is above our current window                
+            //Debug.Log(string.Format("Group is above topSkip:{0} bottomLine:{1}", topSkip,  bottomThreshold));
+            return false;                
+        }
+        
+        float bottomSkip = topSkip + scrollViewHeight + scrollViewY;            
+        float topThreshold = CurrentHeight() - EZConstants.LineHeight;
+        if (topThreshold >= bottomSkip) {                
+            // the group is below our current window
+            //Debug.Log(string.Format("Group is below bottomSkip:{0} topLine:{1}", bottomSkip,  topThreshold));
+            return false;
+        }
+        
+        return true;
+    }
+
+    protected virtual void SetGroupHeight(string forKey, float height)
+    {
+        if (groupHeights.ContainsKey(forKey))
+            groupHeights[forKey] = height;
+        else
+            groupHeights.Add(forKey, height);
+    }
     #endregion
 
     #region Foldout Methods
@@ -120,9 +183,14 @@ public abstract class EZManagerWindowBase : EditorWindow {
 
         float width = 80;
         bool newFoldAllState = EditorGUI.Foldout(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), currentFoldoutAllState, label);
-        if (newFoldAllState != currentFoldoutAllState) {
+        if (newFoldAllState != currentFoldoutAllState) 
+        {
             SetAllFoldouts(newFoldAllState, forKeys);
             currentFoldoutAllState = newFoldAllState;
+            
+            // Reset scrollbar if we just collapsed everything
+            if (!newFoldAllState)
+                verticalScrollbarPosition.y = 0;
         }
 
         NewLine();
@@ -146,7 +214,12 @@ public abstract class EZManagerWindowBase : EditorWindow {
         if (state)
             entryFoldoutState.Add(forKey);
         else
+        {
             entryFoldoutState.Remove(forKey);
+
+            // Reset the group height to be a single line for the root foldout
+            SetGroupHeight(forKey, EZConstants.LineHeight);
+        }
     }
     #endregion
 

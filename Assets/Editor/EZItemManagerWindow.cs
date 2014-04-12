@@ -78,12 +78,25 @@ public class EZItemManagerWindow : EZManagerWindowBase
 
         DrawExpandCollapseAllFoldout(EZItemManager.AllItems.Keys.ToArray());
 
-        verticalScrollbarPosition = EditorGUILayout.BeginScrollView(verticalScrollbarPosition);
+        scrollViewHeight = HeightToBottomOfWindow();
+        scrollViewY = TopOfLine();
+        verticalScrollbarPosition = GUI.BeginScrollView(new Rect(currentLinePosition, scrollViewY, FullWindowWidth(), scrollViewHeight), 
+                                                        verticalScrollbarPosition,
+                                                        new Rect(currentLinePosition, scrollViewY, ScrollViewWidth(), CalculateGroupHeightsTotal()));
         foreach (KeyValuePair<string, Dictionary<string, object>> item in EZItemManager.AllItems)
         {
-            DrawEntry(item.Key, item.Value);
+            float currentGroupHeight;
+            if (!groupHeights.TryGetValue(item.Key, out currentGroupHeight))
+                currentGroupHeight = EZConstants.LineHeight;
+
+            if (IsVisible(currentGroupHeight))
+                DrawEntry(item.Key, item.Value);
+            else
+            {
+                NewLine(currentGroupHeight/EZConstants.LineHeight);
+            }
         }
-        EditorGUILayout.EndScrollView();
+        GUI.EndScrollView();
         
         //Remove any items that were deleted
         foreach(string deletedkey in deletedItems)
@@ -114,6 +127,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
     #region DrawEntry Method
     protected override void DrawEntry(string key, Dictionary<string, object> data)
     {
+        float beginningHeight = CurrentHeight();
         string schemaType = "<unknown>";
         object temp;
         
@@ -213,6 +227,9 @@ public class EZItemManagerWindow : EZManagerWindowBase
 
             NewLine();
         }
+
+        float groupHeight = CurrentHeight() - beginningHeight;
+        SetGroupHeight(key, groupHeight);
     }
 
     void DrawSingleField(string schemaKey, string fieldKey, Dictionary<string, object> itemData)
@@ -461,6 +478,8 @@ public class EZItemManagerWindow : EZManagerWindowBase
     {
         EZItemManager.LoadItems();
         EZItemManager.LoadSchemas();
+
+        groupHeights.Clear();
     }
 
     protected override void Save()

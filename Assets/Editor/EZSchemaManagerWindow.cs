@@ -55,12 +55,25 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
 
         DrawExpandCollapseAllFoldout(EZItemManager.AllSchemas.Keys.ToArray());
 
-        //verticalScrollbarPosition = EditorGUILayout.BeginScrollView(verticalScrollbarPosition);
+        scrollViewHeight = HeightToBottomOfWindow();
+        scrollViewY = TopOfLine();
+        verticalScrollbarPosition = GUI.BeginScrollView(new Rect(currentLinePosition, scrollViewY, FullWindowWidth(), scrollViewHeight), 
+                                                        verticalScrollbarPosition,
+                                                        new Rect(currentLinePosition, scrollViewY, ScrollViewWidth(), CalculateGroupHeightsTotal()));
         foreach(KeyValuePair<string, Dictionary<string, object>> schema in EZItemManager.AllSchemas)
         {   
-            DrawEntry(schema.Key, schema.Value);
+            float currentGroupHeight;
+            if (!groupHeights.TryGetValue(schema.Key, out currentGroupHeight))
+                currentGroupHeight = EZConstants.LineHeight;
+            
+            if (IsVisible(currentGroupHeight))
+                DrawEntry(schema.Key, schema.Value);
+            else
+            {
+                NewLine(currentGroupHeight/EZConstants.LineHeight);
+            }
         }
-        //EditorGUILayout.EndScrollView();
+        GUI.EndScrollView();
     }
     #endregion
 
@@ -181,6 +194,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     #region DrawEntry Methods
     protected override void DrawEntry(string schemaKey, Dictionary<string, object> schemaData)
     {
+        float beginningHeight = CurrentHeight();
         bool schemaKeyMatch = schemaKey.ToLower().Contains(filterText.ToLower());
         bool fieldKeyMatch = !EZItemManager.ShouldFilterByField(schemaKey, filterText);
 
@@ -194,7 +208,6 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         {
             bool shouldDrawSpace = false;
             bool didDrawSpaceForSection = false;
-            EditorGUILayout.BeginVertical();
 
             // Draw the basic types
             foreach(BasicFieldType fieldType in Enum.GetValues(typeof(BasicFieldType)))
@@ -272,6 +285,9 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
             
             NewLine();
         }
+
+        float groupHeight = CurrentHeight() - beginningHeight;
+        SetGroupHeight(schemaKey, groupHeight);
     }
 
     void DrawSingleField(string fieldKey, Dictionary<string, object> schemaData)
@@ -542,6 +558,8 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     protected override void Load()
     {
         EZItemManager.LoadSchemas();
+
+        groupHeights.Clear();
     }
 
     protected override void Save()
