@@ -555,6 +555,14 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     #endregion
 
     #region Load, Save, and Create Schema Methods
+    protected override void DrawDataFileLabelForHeader()
+    {
+        GUIContent filePath = new GUIContent(EZItemManager.schemaFilePath);
+        float width = labelStyle.CalcSize(filePath).x + 10;
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), filePath);
+        currentLinePosition += (width + 2);
+    }
+
     protected override void Load()
     {
         EZItemManager.LoadSchemas();

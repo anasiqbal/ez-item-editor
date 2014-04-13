@@ -21,7 +21,7 @@ public enum BasicFieldType
 public class EZItemManager
 {
     #region Item Dictionary
-    private static string itemFilePath = Application.dataPath + "/ezitems.json";
+    public readonly static string itemFilePath = Application.dataPath + "/ezitems.json";
     private static Dictionary<string, Dictionary<string, object>> _allItems;
     public static Dictionary<string, Dictionary<string, object>> AllItems
     { 
@@ -40,7 +40,7 @@ public class EZItemManager
     #endregion
 
     #region Schema Dictionary
-    private static string schemaFilePath = Application.dataPath + "/ezschema.json";
+    public readonly static string schemaFilePath = Application.dataPath + "/ezschema.json";
     private static Dictionary<string, Dictionary<string, object>> _schema;
     public static Dictionary<string, Dictionary<string, object>> AllSchemas
     {

@@ -25,9 +25,17 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected Dictionary<string, float> groupHeights = new Dictionary<string, float>();
     protected float scrollViewHeight = 0;
     protected float scrollViewY = 0;
-      
+
+    protected GUIStyle labelStyle = null;
+     
+    #region OnGUI and DrawHeader Methods
     protected virtual void OnGUI()
     {
+        if (labelStyle == null)
+        {
+            labelStyle = GUI.skin.GetStyle("Label");
+        }
+
         ResetToTop();
         DrawHeader();
     }
@@ -37,6 +45,9 @@ public abstract class EZManagerWindowBase : EditorWindow {
         float width = 40;
         if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Load"))
             Load();
+        currentLinePosition += (width + 2);
+
+        DrawDataFileLabelForHeader();
 
         NewLine();
         
@@ -50,6 +61,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
         width = FullSeparatorWidth();
         GUI.Box(new Rect(currentLinePosition, TopOfLine(), width, 1), "");
     }
+    #endregion
 
     #region GUI Position Methods
     protected virtual void ResetToTop()
@@ -235,7 +247,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             data.TryGetValue(key, out currentValue);
 
             GUIContent content = new GUIContent(label);
-            float width = GUI.skin.GetStyle("Label").CalcSize(content).x;
+            float width = labelStyle.CalcSize(content).x;
             EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content);
             currentLinePosition += (width + 2);
 
@@ -286,7 +298,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             data.TryGetValue(key, out currentValue);
 
             GUIContent content = new GUIContent(label);
-            float width = GUI.skin.GetStyle("Label").CalcSize(content).x;
+            float width = labelStyle.CalcSize(content).x;
             EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content);
             currentLinePosition += (width + 2);
 
@@ -337,7 +349,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             data.TryGetValue(key, out currentValue);
 
             GUIContent content = new GUIContent(label);
-            float width = GUI.skin.GetStyle("Label").CalcSize(content).x;
+            float width = labelStyle.CalcSize(content).x;
             EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content);
             currentLinePosition += (width + 2);
 
@@ -388,7 +400,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             data.TryGetValue(key, out currentValue);
 
             GUIContent content = new GUIContent(label);
-            float width = GUI.skin.GetStyle("Label").CalcSize(content).x;
+            float width = labelStyle.CalcSize(content).x;
             EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content);
             currentLinePosition += (width + 2);
 
@@ -639,7 +651,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
                 currentIndex = possibleValues.IndexOf(currentValue as string);
 
                 GUIContent content = new GUIContent("Value:");
-                width = GUI.skin.GetStyle("Label").CalcSize(content).x;
+                width = labelStyle.CalcSize(content).x;
                 EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content);
                 currentLinePosition += (width + 2);
 
@@ -653,7 +665,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             else
             {
                 GUIContent content = new GUIContent("Default Value: null");
-                width = GUI.skin.GetStyle("Label").CalcSize(content).x;
+                width = labelStyle.CalcSize(content).x;
                 EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content);
                 currentLinePosition += (width + 4);
             }
@@ -690,7 +702,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             else
             {
                 GUIContent content = new GUIContent(string.Format("{0}: null", index));
-                width = GUI.skin.GetStyle("Label").CalcSize(content).x;
+                width = labelStyle.CalcSize(content).x;
                 EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content);
                 currentLinePosition += (width + 2);
             }
@@ -783,5 +795,6 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected abstract void Save();
     protected abstract void Create(object data);
     protected abstract void DrawEntry(string key, Dictionary<string, object> data);
+    protected abstract void DrawDataFileLabelForHeader();
     #endregion
 }
