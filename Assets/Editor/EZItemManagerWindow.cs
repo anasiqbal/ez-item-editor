@@ -134,28 +134,16 @@ public class EZItemManagerWindow : EZManagerWindowBase
 
     protected override void DrawEntry(string key, Dictionary<string, object> data)
     {
+        // If we are filtered out, return
+        if (ShouldFilter(key, data))
+            return;
+
         float beginningHeight = CurrentHeight();
         string schemaType = "<unknown>";
         object temp;
         
         if (data.TryGetValue(EZConstants.SchemaKey, out temp))
             schemaType = temp as string;
-
-        // Return if we don't match any of the filter types
-        if (filterSchemaIndex != -1 &&
-            filterSchemaIndex < filterSchemaKeys.Length &&
-            !filterSchemaKeys[filterSchemaIndex].Equals("_All") &&
-            !schemaType.Equals(filterSchemaKeys[filterSchemaIndex]))
-            return;
-
-        bool schemaKeyMatch = schemaType.ToLower().Contains(filterText.ToLower());
-        bool fieldKeyMatch = !EZItemManager.ShouldFilterByField(schemaType, filterText);
-        bool itemKeyMatch = key.ToLower().Contains(filterText.ToLower());
-        
-        // Return if the schema keys don't contain the filter text or
-        // if the schema fields don't contain the filter text
-        if (!schemaKeyMatch && !fieldKeyMatch && !itemKeyMatch)
-            return;
 
         // Start drawing below
         if (DrawFoldout(string.Format("{0}: {1}", schemaType, key), key))
@@ -499,6 +487,35 @@ public class EZItemManagerWindow : EZManagerWindowBase
     }
     #endregion
 
+    #region Filter Methods
+    protected override bool ShouldFilter(string itemKey, Dictionary<string, object> itemData)
+    {
+        string schemaType = "<unknown>";
+        object temp;
+        
+        if (itemData.TryGetValue(EZConstants.SchemaKey, out temp))
+            schemaType = temp as string;
+        
+        // Return if we don't match any of the filter types
+        if (filterSchemaIndex != -1 &&
+            filterSchemaIndex < filterSchemaKeys.Length &&
+            !filterSchemaKeys[filterSchemaIndex].Equals("_All") &&
+            !schemaType.Equals(filterSchemaKeys[filterSchemaIndex]))
+            return true;
+        
+        bool schemaKeyMatch = schemaType.ToLower().Contains(filterText.ToLower());
+        bool fieldKeyMatch = !EZItemManager.ShouldFilterByField(schemaType, filterText);
+        bool itemKeyMatch = itemKey.ToLower().Contains(filterText.ToLower());
+        
+        // Return if the schema keys don't contain the filter text or
+        // if the schema fields don't contain the filter text
+        if (!schemaKeyMatch && !fieldKeyMatch && !itemKeyMatch)
+            return true;
+
+        return false;
+    }
+    #endregion
+
     #region Load/Save/Create Item Methods
     protected override void Load()
     {
@@ -540,6 +557,34 @@ public class EZItemManagerWindow : EZManagerWindowBase
             groupHeightBySchema[schemaKey] = groupHeight;
         else
             groupHeightBySchema.Add(schemaKey, groupHeight);
+    }
+
+    protected override float CalculateGroupHeightsTotal()
+    {
+        float totalHeight = 0;
+        float schemaHeight = 0;
+        string schema = "";
+        
+        foreach(KeyValuePair<string, float> pair in groupHeights)
+        {
+            Dictionary<string, object> itemData;
+            EZItemManager.AllItems.TryGetValue(pair.Key, out itemData);
+            if (ShouldFilter(pair.Key, itemData))
+                continue;
+
+            //Check to see if this item's height has been updated
+            //otherwise use the min height for the schema
+            if (entryFoldoutState.Contains(pair.Key) && pair.Value.NearlyEqual(EZConstants.LineHeight))
+            {
+                schema = EZItemManager.GetSchemaForItem(pair.Key);
+                groupHeightBySchema.TryGetValue(schema, out schemaHeight);
+                totalHeight += schemaHeight;
+            }
+            else
+                totalHeight += pair.Value;
+        }
+        
+        return totalHeight;
     }
     #endregion
 }

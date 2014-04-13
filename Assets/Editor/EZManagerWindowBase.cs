@@ -133,29 +133,6 @@ public abstract class EZManagerWindowBase : EditorWindow {
         return currentLine*EZConstants.LineHeight;
     }
 
-    protected virtual float CalculateGroupHeightsTotal()
-    {
-        float totalHeight = 0;
-        float schemaHeight = 0;
-        string schema = "";
-
-        foreach(KeyValuePair<string, float> pair in groupHeights)
-        {
-            //Check to see if this item's height has been updated
-            //otherwise use the min height for the schema
-            if (entryFoldoutState.Contains(pair.Key) && pair.Value.NearlyEqual(EZConstants.LineHeight))
-            {
-                schema = EZItemManager.GetSchemaForItem(pair.Key);
-                groupHeightBySchema.TryGetValue(schema, out schemaHeight);
-                totalHeight += schemaHeight;
-            }
-            else
-                totalHeight += pair.Value;
-        }
-
-        return totalHeight;
-    }
-
     protected virtual bool IsVisible(float groupHeight)
     {
         float topSkip = this.verticalScrollbarPosition.y;            
@@ -809,7 +786,12 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected abstract void Load();
     protected abstract void Save();
     protected abstract void Create(object data);
+
     protected abstract void DrawEntry(string key, Dictionary<string, object> data);
     protected abstract void DrawDataFileLabelForHeader();
+
+    protected abstract bool ShouldFilter(string key, Dictionary<string, object> data);
+
+    protected abstract float CalculateGroupHeightsTotal();
     #endregion
 }

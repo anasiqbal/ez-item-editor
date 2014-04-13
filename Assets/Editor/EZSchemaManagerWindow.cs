@@ -194,14 +194,11 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     #region DrawEntry Methods
     protected override void DrawEntry(string schemaKey, Dictionary<string, object> schemaData)
     {
-        float beginningHeight = CurrentHeight();
-        bool schemaKeyMatch = schemaKey.ToLower().Contains(filterText.ToLower());
-        bool fieldKeyMatch = !EZItemManager.ShouldFilterByField(schemaKey, filterText);
-
-        // Return if the schema keys don't contain the filter text or
-        // if the schema fields don't contain the filter text
-        if (!schemaKeyMatch && !fieldKeyMatch)
+        // If we are filtered out, return
+        if (ShouldFilter(schemaKey, schemaData))
             return;
+
+        float beginningHeight = CurrentHeight();
 
         // Start drawing below
         if (DrawFoldout(string.Format("Schema: {0}", schemaKey), schemaKey))
@@ -505,6 +502,21 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     }
     #endregion
 
+    #region Filter Methods
+    protected override bool ShouldFilter(string schemaKey, Dictionary<string, object> schemaData)
+    {
+        bool schemaKeyMatch = schemaKey.ToLower().Contains(filterText.ToLower());
+        bool fieldKeyMatch = !EZItemManager.ShouldFilterByField(schemaKey, filterText);
+        
+        // Return if the schema keys don't contain the filter text or
+        // if the schema fields don't contain the filter text
+        if (!schemaKeyMatch && !fieldKeyMatch)
+            return true;
+
+        return false;
+    }
+    #endregion
+
     #region Add/Remove Field Methods
     private void AddBasicField(BasicFieldType type, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList)
     {
@@ -580,6 +592,20 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         string key = data as string;
         EZItemManager.AddSchema(key, new Dictionary<string, object>());
         SetFoldout(true, key);
+    }
+    #endregion
+
+    #region Helper Methods
+    protected override float CalculateGroupHeightsTotal()
+    {
+        float totalHeight = 0;
+        foreach(KeyValuePair<string, float> pair in groupHeights)
+        {
+            if (!ShouldFilter(pair.Key, null))
+                totalHeight += pair.Value;
+        }
+        
+        return totalHeight;
     }
     #endregion
 }
