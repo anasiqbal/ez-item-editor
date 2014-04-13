@@ -150,10 +150,11 @@ public class EZItemManagerWindow : EZManagerWindowBase
 
         bool schemaKeyMatch = schemaType.ToLower().Contains(filterText.ToLower());
         bool fieldKeyMatch = !EZItemManager.ShouldFilterByField(schemaType, filterText);
+        bool itemKeyMatch = key.ToLower().Contains(filterText.ToLower());
         
         // Return if the schema keys don't contain the filter text or
         // if the schema fields don't contain the filter text
-        if (!schemaKeyMatch && !fieldKeyMatch)
+        if (!schemaKeyMatch && !fieldKeyMatch && !itemKeyMatch)
             return;
 
         // Start drawing below
