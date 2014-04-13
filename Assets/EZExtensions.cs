@@ -11,5 +11,14 @@ namespace EZExtensionMethods
             return (variableVal & flagVal) == flagVal;
         }
     }
+
+    public static class FloatExtensions
+    {
+        public const float TOLERANCE = 0.0001f;
+        public static bool NearlyEqual(this float a, float b)
+        {
+            return Math.Abs(a - b) < TOLERANCE;
+        }
+    }
 }
 

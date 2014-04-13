@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using EZExtensionMethods;
 
 public class EZItemManagerWindow : EZManagerWindowBase
 {
@@ -107,7 +108,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
     }
     #endregion
 
-    #region Draw Filter/Search Override
+    #region Draw Methods
     protected override void DrawFilterSection()
     {
         base.DrawFilterSection();
@@ -122,9 +123,15 @@ public class EZItemManagerWindow : EZManagerWindowBase
 
         NewLine();
     }
-    #endregion
 
-    #region DrawEntry Method
+    protected override void DrawDataFileLabelForHeader()
+    {
+        GUIContent filePath = new GUIContent(EZItemManager.itemFilePath);
+        float width = labelStyle.CalcSize(filePath).x + 10;
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), filePath);
+        currentLinePosition += (width + 2);
+    }
+
     protected override void DrawEntry(string key, Dictionary<string, object> data)
     {
         float beginningHeight = CurrentHeight();
@@ -195,7 +202,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
                     }
 
                     currentLinePosition += EZConstants.Indent;
-                    DrawListField(schemaType, fieldKey, data);
+                    DrawListField(schemaType, key, fieldKey, data);
                     shouldDrawSpace = true;
                 }
             }
@@ -211,7 +218,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
                 }
 
                 currentLinePosition += EZConstants.Indent;
-                DrawListField(schemaType, fieldKey, data);
+                DrawListField(schemaType, key, fieldKey, data);
                 shouldDrawSpace = true;
             }
 
@@ -227,9 +234,27 @@ public class EZItemManagerWindow : EZManagerWindowBase
 
             NewLine();
         }
+        else
+        {
+            // Collapse any list foldouts as well
+            List<string> listKeys = EZItemManager.ItemListFieldKeys(key);
+            string foldoutKey;
+            foreach(string listKey in listKeys)
+            {
+                foldoutKey = string.Format(EZConstants.MetaDataFormat, key, listKey);
+                listFieldFoldoutState.Remove(foldoutKey);
+            }
+        }
 
-        float groupHeight = CurrentHeight() - beginningHeight;
-        SetGroupHeight(key, groupHeight);
+        float newGroupHeight = CurrentHeight() - beginningHeight;
+        float currentGroupHeight;
+        groupHeights.TryGetValue(key, out currentGroupHeight);
+
+        // Set the minimum height for the schema type
+        if (currentGroupHeight.NearlyEqual(EZConstants.LineHeight) && !newGroupHeight.NearlyEqual(EZConstants.LineHeight))
+            SetSchemaHeight(schemaType, newGroupHeight);
+
+        SetGroupHeight(key, newGroupHeight);
     }
 
     void DrawSingleField(string schemaKey, string fieldKey, Dictionary<string, object> itemData)
@@ -308,11 +333,11 @@ public class EZItemManagerWindow : EZManagerWindowBase
         }
     }
 
-    void DrawListField(string schemaKey, string fieldKey, Dictionary<string, object> itemData)
+    void DrawListField(string schemaKey, string itemKey, string fieldKey, Dictionary<string, object> itemData)
     {
         try
         {
-            string foldoutKey = string.Format(EZConstants.MetaDataFormat, schemaKey, fieldKey);
+            string foldoutKey = string.Format(EZConstants.MetaDataFormat, itemKey, fieldKey);
             bool newFoldoutState;
             bool currentFoldoutState = listFieldFoldoutState.Contains(foldoutKey);
             
@@ -354,7 +379,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
             currentLinePosition += (width + 2);
 
             int newListCount;
-            string listCountKey = string.Format(EZConstants.MetaDataFormat, schemaKey, fieldKey);
+            string listCountKey = string.Format(EZConstants.MetaDataFormat, itemKey, fieldKey);
             if (newListCountDict.ContainsKey(listCountKey))
             {
                 newListCount = newListCountDict[listCountKey];
@@ -474,14 +499,6 @@ public class EZItemManagerWindow : EZManagerWindowBase
     #endregion
 
     #region Load/Save/Create Item Methods
-    protected override void DrawDataFileLabelForHeader()
-    {
-        GUIContent filePath = new GUIContent(EZItemManager.itemFilePath);
-        float width = labelStyle.CalcSize(filePath).x + 10;
-        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), filePath);
-        currentLinePosition += (width + 2);
-    }
-
     protected override void Load()
     {
         EZItemManager.LoadItems();
@@ -512,6 +529,16 @@ public class EZItemManagerWindow : EZManagerWindowBase
         }
         else
             Debug.LogError("Schema data not found: " + schemaKey);
+    }
+    #endregion
+
+    #region Helper Methods
+    void SetSchemaHeight(string schemaKey, float groupHeight)
+    {
+        if (groupHeightBySchema.ContainsKey(schemaKey))
+            groupHeightBySchema[schemaKey] = groupHeight;
+        else
+            groupHeightBySchema.Add(schemaKey, groupHeight);
     }
     #endregion
 }

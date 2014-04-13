@@ -73,6 +73,20 @@ public class EZItemManager
     }
 
 #if UNITY_EDITOR
+    public static string GetSchemaForItem(string itemKey)
+    {
+        string schema = "";
+        Dictionary<string, object> itemData;
+        if (AllItems.TryGetValue(itemKey, out itemData))
+        {
+            object temp;
+            if (itemData.TryGetValue(EZConstants.SchemaKey, out temp))
+                schema = temp as string;
+        }
+
+        return schema;
+    }
+
     public static List<string> ItemFieldKeysOfType(string itemKey, string fieldType)
     {
         return FieldKeysOfType(itemKey, fieldType, AllItems);
@@ -137,6 +151,22 @@ public class EZItemManager
         return fieldKeys;
     }
 
+    public static List<string> ItemListFieldKeys(string itemKey)
+    {
+        List<string> fieldKeys = new List<string>();
+        Dictionary<string, object> data;
+
+        if (AllItems.TryGetValue(itemKey, out data))
+        {
+            foreach(KeyValuePair<string, object> field in data)
+            {
+                if (field.Key.StartsWith(EZConstants.IsListPrefix))
+                    fieldKeys.Add(field.Key.Replace(EZConstants.IsListPrefix+"_", ""));
+            }
+        }
+
+        return fieldKeys;
+    }
 
     public static List<string> ItemListFieldKeysOfType(string itemKey, string fieldType)
     {

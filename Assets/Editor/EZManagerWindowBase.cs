@@ -26,6 +26,8 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected float scrollViewHeight = 0;
     protected float scrollViewY = 0;
 
+    protected Dictionary<string, float> groupHeightBySchema = new Dictionary<string, float>();
+
     protected GUIStyle labelStyle = null;
      
     #region OnGUI and DrawHeader Methods
@@ -134,9 +136,22 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected virtual float CalculateGroupHeightsTotal()
     {
         float totalHeight = 0;
+        float schemaHeight = 0;
+        string schema = "";
 
         foreach(KeyValuePair<string, float> pair in groupHeights)
-            totalHeight += pair.Value;
+        {
+            //Check to see if this item's height has been updated
+            //otherwise use the min height for the schema
+            if (entryFoldoutState.Contains(pair.Key) && pair.Value.NearlyEqual(EZConstants.LineHeight))
+            {
+                schema = EZItemManager.GetSchemaForItem(pair.Key);
+                groupHeightBySchema.TryGetValue(schema, out schemaHeight);
+                totalHeight += schemaHeight;
+            }
+            else
+                totalHeight += pair.Value;
+        }
 
         return totalHeight;
     }
