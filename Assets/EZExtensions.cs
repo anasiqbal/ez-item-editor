@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace EZExtensionMethods
 {
@@ -26,6 +27,30 @@ namespace EZExtensionMethods
         public static bool IsValidIndex(this Array variable, int index)
         {
             return index > -1 && index < variable.Length;
+        }
+    }
+
+    public static class DictionaryExtensions
+    {
+        // Adds the value if the key does not exist, otherwise it updates the value for the given key
+        public static bool TryAddOrUpdateValue<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, TValue value)
+        {
+            bool result;
+            try
+            {
+                if (variable.ContainsKey(key))
+                    variable[key] = value;
+                else
+                    variable.Add(key, value);
+
+                result = true;
+            }
+            catch
+            {
+                result = false;
+            }
+
+            return result;
         }
     }
 }

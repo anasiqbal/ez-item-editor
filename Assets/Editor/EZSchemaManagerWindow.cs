@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using EZExtensionMethods;
 
 public class EZSchemaManagerWindow : EZManagerWindowBase {
 
@@ -128,7 +129,12 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
 
         width = 65;
         if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Add Field"))
+        {
             AddBasicField(basicFieldTypeSelected, schemaKey, schemaData, newBasicFieldNameText, isBasicListTemp);
+            isBasicList.Remove(schemaKey);
+            newBasicFieldName.TryAddOrUpdateValue(schemaKey, "");
+            newBasicFieldNameText = "";
+        }
 
         NewLine();
 
@@ -185,7 +191,12 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
 
         width = 110;
         if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Add Custom Field"))
+        {
             AddCustomField(customTypes[customSchemaTypeSelected], schemaKey, schemaData, newCustomFieldNameText, isCustomListTemp);
+            isCustomList.Remove(schemaKey);
+            newCustomFieldName.TryAddOrUpdateValue(schemaKey, "");
+            newCustomFieldNameText = "";
+        }
 
         NewLine();
     }
