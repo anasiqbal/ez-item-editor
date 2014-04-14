@@ -515,6 +515,30 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
 
         return false;
     }
+
+    protected override void DrawFilterSection()
+    {
+        base.DrawFilterSection();
+        
+        float width = 200;
+        
+        int totalItems = EZItemManager.AllSchemas.Count;
+        string itemText = totalItems != 1 ? "items" : "item";
+        if (!string.IsNullOrEmpty(filterText))
+        {
+            string resultText = string.Format("{0} of {1} {2} displayed", NumberOfItemsBeingShown(EZItemManager.AllSchemas), totalItems, itemText);
+            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), resultText);
+            currentLinePosition += (width + 2);
+        }
+        else
+        {
+            string resultText = string.Format("{0} {1} displayed", totalItems, itemText);
+            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), resultText);
+            currentLinePosition += (width + 2);
+        }
+        
+        NewLine();
+    }
     #endregion
 
     #region Add/Remove Field Methods

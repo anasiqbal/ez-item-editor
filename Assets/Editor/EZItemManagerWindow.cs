@@ -112,9 +112,29 @@ public class EZItemManagerWindow : EZManagerWindowBase
     protected override void DrawFilterSection()
     {
         base.DrawFilterSection();
+
+        float width = 200;
+
+        int totalItems = EZItemManager.AllItems.Count;
+        string itemText = totalItems != 1 ? "items" : "item";
+        if (!string.IsNullOrEmpty(filterText) || 
+            (filterSchemaKeys.IsValidIndex(filterSchemaIndex) && !filterSchemaKeys[filterSchemaIndex].Equals("_All")))
+        {
+            string resultText = string.Format("{0} of {1} {2} displayed", NumberOfItemsBeingShown(EZItemManager.AllItems), totalItems, itemText);
+            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), resultText);
+            currentLinePosition += (width + 2);
+        }
+        else
+        {
+            string resultText = string.Format("{0} {1} displayed", totalItems, itemText);
+            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), resultText);
+            currentLinePosition += (width + 2);
+        }
+
+        NewLine();
         
         // Filter dropdown
-        float width = 100;
+        width = 100;
         EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Filter By Schema:");
         currentLinePosition += (width + 2);
 
@@ -497,8 +517,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
             schemaType = temp as string;
         
         // Return if we don't match any of the filter types
-        if (filterSchemaIndex != -1 &&
-            filterSchemaIndex < filterSchemaKeys.Length &&
+        if (filterSchemaKeys.IsValidIndex(filterSchemaIndex) &&
             !filterSchemaKeys[filterSchemaIndex].Equals("_All") &&
             !schemaType.Equals(filterSchemaKeys[filterSchemaIndex]))
             return true;

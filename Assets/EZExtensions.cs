@@ -20,5 +20,13 @@ namespace EZExtensionMethods
             return Math.Abs(a - b) < TOLERANCE;
         }
     }
+
+    public static class ArrayExtensions
+    {
+        public static bool IsValidIndex(this Array variable, int index)
+        {
+            return index > -1 && index < variable.Length;
+        }
+    }
 }
 

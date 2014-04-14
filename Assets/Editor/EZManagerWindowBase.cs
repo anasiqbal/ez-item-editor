@@ -711,14 +711,26 @@ public abstract class EZManagerWindowBase : EditorWindow {
     {
         // Text search
         float width = 45;
-        EditorGUI.LabelField(new Rect(currentLinePosition, EZConstants.LineHeight*currentLine, width, StandardHeight()), "Search:");
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Search:");
 
         currentLinePosition += (width + 8);
 
         width = 180;
-        filterText = EditorGUI.TextField(new Rect(currentLinePosition, EZConstants.LineHeight*currentLine, width, TextBoxHeight()), filterText);
+        filterText = EditorGUI.TextField(new Rect(currentLinePosition, TopOfLine(), width, TextBoxHeight()), filterText);
+        currentLinePosition += (width + 2);
+    }
 
-        NewLine();
+    protected virtual int NumberOfItemsBeingShown(Dictionary<string, Dictionary<string, object>> data)
+    {
+        int resultCount = 0;
+        
+        foreach(KeyValuePair<string, Dictionary<string, object>> pair in data)
+        {
+            if (!ShouldFilter(pair.Key, pair.Value))
+                resultCount++;
+        }
+        
+        return resultCount;
     }
     #endregion
 
