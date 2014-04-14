@@ -556,7 +556,10 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     private void AddBasicField(BasicFieldType type, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList)
     {
         string valueKey = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName);
-        schemaData.Add(newFieldName, type);
+
+        if (!schemaData.TryAddValue(newFieldName, type))
+            return;
+
         object defaultValue = GetDefaultValueForType(type);
 
         if (isList)
@@ -571,11 +574,14 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
 
         // Let the manager know we added a field
         EZItemManager.AddBasicField(type, schemaKey, schemaData, newFieldName, isList);
+
+        needsSave = true;
     }
 
     private void AddCustomField(string customType, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList)
     {
-        schemaData.Add(newFieldName, customType);
+        if (!schemaData.TryAddValue(newFieldName, customType))
+            return;
 
         if (isList)
         {
@@ -587,6 +593,8 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
 
         // Let the manager know we added a field
         EZItemManager.AddCustomField(customType, schemaKey, schemaData, newFieldName, isList);
+
+        needsSave = true;
     }
 
     private void RemoveField(string schemaKey, Dictionary<string, object> schemaData, string deletedFieldKey)
@@ -598,6 +606,8 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
 
         // Let the manager know we removed a field
         EZItemManager.RemoveField(schemaKey, schemaData, deletedFieldKey);
+
+        needsSave = true;
     }
     #endregion
 
@@ -613,20 +623,27 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     protected override void Load()
     {
         EZItemManager.LoadSchemas();
-
         groupHeights.Clear();
+
+        needsSave = false;
     }
 
     protected override void Save()
     {
         EZItemManager.SaveSchemas();
+        needsSave = false;
     }
 
     protected override void Create(object data)
     {
         string key = data as string;
-        EZItemManager.AddSchema(key, new Dictionary<string, object>());
+        needsSave = EZItemManager.AddSchema(key, new Dictionary<string, object>());
         SetFoldout(true, key);
+    }
+
+    protected override void Remove(string key)
+    {
+        throw new NotImplementedException();
     }
     #endregion
 

@@ -100,10 +100,8 @@ public class EZItemManagerWindow : EZManagerWindowBase
         GUI.EndScrollView();
         
         //Remove any items that were deleted
-        foreach(string deletedkey in deletedItems)
-        {
-            EZItemManager.RemoveItem(deletedkey);
-        }
+        foreach(string deletedkey in deletedItems)        
+            Remove(deletedkey);
         deletedItems.Clear();
     }
     #endregion
@@ -349,6 +347,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
             string foldoutKey = string.Format(EZConstants.MetaDataFormat, itemKey, fieldKey);
             bool newFoldoutState;
             bool currentFoldoutState = listFieldFoldoutState.Contains(foldoutKey);
+            object defaultResizeValue = null;
             
             string fieldType = itemData[fieldKey].ToString();
             BasicFieldType fieldTypeEnum = BasicFieldType.Undefined;
@@ -359,6 +358,8 @@ public class EZItemManagerWindow : EZManagerWindowBase
                     !fieldTypeEnum.Equals(BasicFieldType.Vector3) && 
                     !fieldTypeEnum.Equals(BasicFieldType.Vector4))
                     fieldType = fieldType.ToLower();
+
+                defaultResizeValue = GetDefaultValueForType(fieldTypeEnum);
             }
 
             float width = 120;
@@ -407,7 +408,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
             newListCountDict[listCountKey] = newListCount;
             if (newListCount != list.Count && GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Resize"))            
             {
-                ResizeList(list, newListCount, 0);
+                ResizeList(list, newListCount, defaultResizeValue);
                 newListCountDict[listCountKey] = newListCount;
                 currentLinePosition += (width + 2);
             }
@@ -510,6 +511,9 @@ public class EZItemManagerWindow : EZManagerWindowBase
     #region Filter Methods
     protected override bool ShouldFilter(string itemKey, Dictionary<string, object> itemData)
     {
+        if (itemData == null)
+            return true;
+
         string schemaType = "<unknown>";
         object temp;
         
@@ -535,18 +539,20 @@ public class EZItemManagerWindow : EZManagerWindowBase
     }
     #endregion
 
-    #region Load/Save/Create Item Methods
+    #region Load/Save/Create/Remove Item Methods
     protected override void Load()
     {
         EZItemManager.LoadItems();
         EZItemManager.LoadSchemas();
-
         groupHeights.Clear();
+
+        needsSave = false;
     }
 
     protected override void Save()
     {
         EZItemManager.SaveItems();
+        needsSave = false;
     }
 
     protected override void Create(object data)
@@ -561,11 +567,17 @@ public class EZItemManagerWindow : EZManagerWindowBase
             Dictionary<string, object> itemData = new Dictionary<string, object>(schemaData);
             itemData.Add(EZConstants.SchemaKey, schemaKey);
 
-            EZItemManager.AddItem(itemName, itemData);
+            needsSave = EZItemManager.AddItem(itemName, itemData);
             SetFoldout(true, itemName);
         }
         else
             Debug.LogError("Schema data not found: " + schemaKey);
+    }
+
+    protected override void Remove(string key)
+    {
+        EZItemManager.RemoveItem(key);
+        needsSave = true;
     }
     #endregion
 

@@ -4,6 +4,7 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using MiniJSON;
+using EZExtensionMethods;
 
 [Flags]
 public enum BasicFieldType
@@ -277,9 +278,9 @@ public class EZItemManager
     #endregion
 
     #region Add/Remove Methods
-    public static void AddItem(string key, Dictionary<string, object> data)
+    public static bool AddItem(string key, Dictionary<string, object> data)
     {
-        AllItems.Add(key, data);
+        return AllItems.TryAddValue(key, data);
     }
 
     public static void RemoveItem(string key)
@@ -287,10 +288,14 @@ public class EZItemManager
         AllItems.Remove(key);
     }
 
-    public static void AddSchema(string name, Dictionary<string, object> data = null)
+    public static bool AddSchema(string name, Dictionary<string, object> data = null)
     {
-        AllSchemas.Add(name, data);
-        BuildSortingAndLookupListFor(name, data);
+        bool result = AllSchemas.TryAddValue(name, data);
+
+        if (result)
+            BuildSortingAndLookupListFor(name, data);
+
+        return result;
     }
 
     public static void AddBasicField(BasicFieldType type, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList)

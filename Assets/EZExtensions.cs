@@ -39,17 +39,33 @@ namespace EZExtensionMethods
             try
             {
                 if (variable.ContainsKey(key))
+                {
                     variable[key] = value;
+                    result = true;
+                }
                 else
-                    variable.Add(key, value);
-
-                result = true;
+                    result = variable.TryAddValue(key, value);
             }
             catch
             {
                 result = false;
             }
 
+            return result;
+        }
+
+        public static bool TryAddValue<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, TValue value)
+        {
+            bool result;
+            try
+            {
+                variable.Add(key, value);
+                result = true;
+            }
+            catch
+            {
+                result = false;
+            }
             return result;
         }
     }
