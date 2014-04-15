@@ -83,7 +83,8 @@ namespace EZExtensionMethods
                 int index = variable.Replace("Schema:", "       ").IndexOf(substring, StringComparison.CurrentCultureIgnoreCase);
 
                 if (index != -1)
-                    highlightedString = string.Format("{0}<color={1}>{2}</color>{3}", variable.Substring(0, index), color, substring, variable.Substring(index+substring.Length));
+                    highlightedString = string.Format("{0}<color={1}>{2}</color>{3}", 
+                                                      variable.Substring(0, index), color, variable.Substring(index, substring.Length), variable.Substring(index+substring.Length));
                 else
                     highlightedString = variable.Clone() as string;
             }
