@@ -28,6 +28,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
 
     protected Dictionary<string, float> groupHeightBySchema = new Dictionary<string, float>();
 
+    protected GUIStyle foldoutStyle = null;
     protected GUIStyle labelStyle = null;
     protected GUIStyle saveButtonStyle = null;
     protected string saveButtonText = "Save";
@@ -37,10 +38,19 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected virtual void OnGUI()
     {
         if (labelStyle == null)
+        {
             labelStyle = new GUIStyle(GUI.skin.label);
+            labelStyle.richText = true;
+        }
 
         if (saveButtonStyle == null)
             saveButtonStyle = new GUIStyle(GUI.skin.button);
+
+        if (foldoutStyle == null)
+        {
+            foldoutStyle = new GUIStyle(EditorStyles.foldout);
+            foldoutStyle.richText = true;
+        }
 
         ResetToTop();
         DrawHeader();
@@ -187,7 +197,8 @@ public abstract class EZManagerWindowBase : EditorWindow {
         bool currentFoldoutState = entryFoldoutState.Contains(key);
 
         float width = 200;
-        bool newFoldoutState = EditorGUI.Foldout(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), currentFoldoutState, label, true);
+        bool newFoldoutState = EditorGUI.Foldout(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), currentFoldoutState, 
+                                                 label.HighlightSubstring(filterText, "yellow"), true, foldoutStyle);
         SetFoldout(newFoldoutState, key);
 
         NewLine();

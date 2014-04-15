@@ -69,5 +69,29 @@ namespace EZExtensionMethods
             return result;
         }
     }
+
+    public static class StringExtensions
+    {
+        // Returns a new string that hightlights the first instance of substring with html color tag
+        // Ex. "The sky is <color=blue>blue</color>!"
+        public static string HighlightSubstring(this string variable, string substring, string color)
+        {
+            string highlightedString = "";
+
+            if (!string.IsNullOrEmpty(substring))
+            {
+                int index = variable.Replace("Schema:", "       ").IndexOf(substring, StringComparison.CurrentCultureIgnoreCase);
+
+                if (index != -1)
+                    highlightedString = string.Format("{0}<color={1}>{2}</color>{3}", variable.Substring(0, index), color, substring, variable.Substring(index+substring.Length));
+                else
+                    highlightedString = variable.Clone() as string;
+            }
+            else
+                highlightedString = variable.Clone() as string;
+
+            return highlightedString;
+        }
+    }
 }
 
