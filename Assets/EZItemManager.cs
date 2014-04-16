@@ -236,6 +236,8 @@ public class EZItemManager
     {
         try
         {
+            CreateFileIfMissing(itemFilePath);
+
             string json = File.ReadAllText(itemFilePath);
             Dictionary<string, object> data = Json.Deserialize(json) as Dictionary<string, object>;
 
@@ -256,6 +258,8 @@ public class EZItemManager
     {
         try
         {
+            CreateFileIfMissing(schemaFilePath);
+
             string json = File.ReadAllText(schemaFilePath);
             Dictionary<string, object> data = Json.Deserialize(json) as Dictionary<string, object>;
 
@@ -273,6 +277,16 @@ public class EZItemManager
         catch (Exception ex)
         {
             Debug.LogException(ex);
+        }
+    }
+
+    static void CreateFileIfMissing(string path)
+    {
+        if (!File.Exists(path))
+        {
+            StreamWriter writer = File.CreateText(path);
+            writer.WriteLine("{}");
+            writer.Close();
         }
     }
     #endregion
