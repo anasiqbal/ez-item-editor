@@ -544,12 +544,6 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
             EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), resultText);
             currentLinePosition += (width + 2);
         }
-        else
-        {
-            string resultText = string.Format("{0} {1} displayed", totalItems, itemText);
-            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), resultText);
-            currentLinePosition += (width + 2);
-        }
         
         NewLine();
     }
