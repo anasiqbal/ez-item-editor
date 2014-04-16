@@ -50,7 +50,10 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
 
         width = 120;
         if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Create New Schema") && !string.IsNullOrEmpty(newSchemaName))
+        {
             Create(newSchemaName);
+            newSchemaName = "";
+        }
 
         NewLine();
 

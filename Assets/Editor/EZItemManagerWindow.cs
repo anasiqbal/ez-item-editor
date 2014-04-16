@@ -49,21 +49,20 @@ public class EZItemManagerWindow : EZManagerWindowBase
         NewLine();
 
         float width = 60;
-        GUI.Label(new Rect(currentLinePosition, EZConstants.LineHeight*currentLine, width, StandardHeight()), "Schema:");
+        GUI.Label(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Schema:");
         currentLinePosition += (width + 2);
 
         width = 100;
-        schemaIndex = EditorGUI.Popup(new Rect(currentLinePosition, EZConstants.LineHeight*currentLine, width, StandardHeight()), schemaIndex, schemaKeys);
-
-        NewLine();
+        schemaIndex = EditorGUI.Popup(new Rect(currentLinePosition, PopupTop(), width, StandardHeight()), schemaIndex, schemaKeys);
+        currentLinePosition += (width + 6);
 
         width = 65;
         EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Item Name:");
-        currentLinePosition += (width + 8);
+        currentLinePosition += (width + 2);
 
         width = 180;
         newItemName = EditorGUI.TextField(new Rect(currentLinePosition, TopOfLine(), width, TextBoxHeight()), newItemName);
-        currentLinePosition += (width + 4);
+        currentLinePosition += (width + 2);
 
         width = 100;
         if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Create New Item"))
@@ -73,6 +72,8 @@ public class EZItemManagerWindow : EZManagerWindowBase
             args.Add(newItemName);
 
             Create(args);
+
+            newItemName = "";
         }
 
         NewLine();
