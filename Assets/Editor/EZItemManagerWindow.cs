@@ -568,8 +568,15 @@ public class EZItemManagerWindow : EZManagerWindowBase
             Dictionary<string, object> itemData = new Dictionary<string, object>(schemaData);
             itemData.Add(EZConstants.SchemaKey, schemaKey);
 
-            needsSave = EZItemManager.AddItem(itemName, itemData);
-            SetFoldout(true, itemName);
+            if (EZItemManager.AddItem(itemName, itemData))
+            {
+                SetFoldout(true, itemName);
+                needsSave = true;
+            }
+            else
+            {
+                EditorUtility.DisplayDialog("Error Creating Item!", "Item name not valid or name already exists.", "Ok");
+            }
         }
         else
             Debug.LogError("Schema data not found: " + schemaKey);

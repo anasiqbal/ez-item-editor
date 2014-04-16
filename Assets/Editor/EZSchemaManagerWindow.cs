@@ -561,7 +561,10 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         string valueKey = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName);
 
         if (!schemaData.TryAddValue(newFieldName, type))
+        {
+            EditorUtility.DisplayDialog("Error creating field!", "Field name already exists.", "Ok");
             return;
+        }
 
         object defaultValue = GetDefaultValueForType(type);
 
@@ -584,7 +587,10 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     private void AddCustomField(string customType, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList)
     {
         if (!schemaData.TryAddValue(newFieldName, customType))
+        {
+            EditorUtility.DisplayDialog("Error creating field!", "Field name already exists.", "Ok");
             return;
+        }
 
         if (isList)
         {
@@ -640,8 +646,16 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     protected override void Create(object data)
     {
         string key = data as string;
-        needsSave = EZItemManager.AddSchema(key, new Dictionary<string, object>());
-        SetFoldout(true, key);
+
+        if (EZItemManager.AddSchema(key, new Dictionary<string, object>()))
+        {
+            needsSave = true;
+            SetFoldout(true, key);
+        }
+        else
+        {
+            EditorUtility.DisplayDialog("Error creating Schema!", "Schema name is invalid or schema name already exists.", "Ok");
+        }
     }
 
     protected override void Remove(string key)
