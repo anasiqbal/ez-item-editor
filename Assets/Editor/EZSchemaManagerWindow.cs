@@ -8,7 +8,7 @@ using EZExtensionMethods;
 
 public class EZSchemaManagerWindow : EZManagerWindowBase {
 
-    private const string menuItemLocation = rootMenuLocation + "/EZ Schema Manager";
+    private const string menuItemLocation = rootMenuLocation + "/EZ Define Data";
 
     private string newSchemaName = "";
     private BasicFieldType basicFieldTypeSelected = BasicFieldType.Int;
@@ -24,7 +24,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     [MenuItem(menuItemLocation)]
     private static void showEditor()
     {
-        EditorWindow.GetWindow<EZSchemaManagerWindow>(false, "EZ Schema Manager");
+        EditorWindow.GetWindow<EZSchemaManagerWindow>(false, "EZ Define Data");
     }
     
     [MenuItem(menuItemLocation, true)]
@@ -33,31 +33,15 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         return true;
     }
 
-    #region OnGUI Method
+    #region OnGUI/Header Methods
     protected override void OnGUI()
     {
+        mainHeaderText = "Define Game Data";
+        headerColor = "teal";
+
         base.OnGUI();
 
-        NewLine();
-
-        float width = 100;
-        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Schema Name:");
-        currentLinePosition += (width + 2);
-
-        width = 120;
-        newSchemaName = EditorGUI.TextField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), newSchemaName);
-        currentLinePosition += (width + 2);
-
-        width = 120;
-        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Create New Schema") && !string.IsNullOrEmpty(newSchemaName))
-        {
-            Create(newSchemaName);
-            newSchemaName = "";
-        }
-
-        NewLine();
-
-        DrawExpandCollapseAllFoldout(EZItemManager.AllSchemas.Keys.ToArray());
+        DrawExpandCollapseAllFoldout(EZItemManager.AllSchemas.Keys.ToArray(), "Schema List");
 
         scrollViewHeight = HeightToBottomOfWindow();
         scrollViewY = TopOfLine();
@@ -81,13 +65,46 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     }
     #endregion
 
-    #region DrawAddFieldSection Method
+    #region Draw Methods
+    protected override void DrawCreateSection()
+    {
+        DrawSubHeader("Create a New Schema");
+
+        float width = 100;
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Schema Name:");
+        currentLinePosition += (width + 2);
+        
+        width = 120;
+        newSchemaName = EditorGUI.TextField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), newSchemaName);
+        currentLinePosition += (width + 2);
+        
+        width = 120;
+        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Create New Schema") && !string.IsNullOrEmpty(newSchemaName))
+        {
+            Create(newSchemaName);
+            newSchemaName = "";
+        }
+
+        NewLine();
+
+        DrawSectionSeparator();
+    }
+
     private void DrawAddFieldSection(string schemaKey, Dictionary<string, object> schemaData)
     {
         currentLinePosition += EZConstants.Indent;
 
+        string newFieldLabelText = string.Format("<b><color={0}>Add a new field</color></b>", headerColor);
+        GUIContent newFieldLabelContent = new GUIContent(newFieldLabelText);
+        float width = labelStyle.CalcSize(newFieldLabelContent).x;
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), newFieldLabelContent, labelStyle);
+
+        NewLine();
+
+        currentLinePosition += EZConstants.Indent;
+
         // Basic Field Type Group
-        float width = 120;
+        width = 120;
         EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Basic Field Type:");
         currentLinePosition += (width + 2);
 
@@ -200,12 +217,8 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
             newCustomFieldName.TryAddOrUpdateValue(schemaKey, "");
             newCustomFieldNameText = "";
         }
-
-        NewLine();
     }
-    #endregion
 
-    #region DrawEntry Methods
     protected override void DrawEntry(string schemaKey, Dictionary<string, object> schemaData)
     {
         // If we are filtered out, return
@@ -291,10 +304,12 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
             NewLine();
 
             DrawAddFieldSection(schemaKey, schemaData);
-
-            GUI.Box(new Rect(currentLinePosition, MiddleOfLine(), FullSeparatorWidth(), 1), "");
             
             NewLine();
+            
+            DrawSectionSeparator();
+
+            NewLine(0.25f);
         }
 
         float groupHeight = CurrentHeight() - beginningHeight;
@@ -357,7 +372,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
             fieldTypeEnum.Equals(BasicFieldType.Vector3) ||
             fieldTypeEnum.Equals(BasicFieldType.Vector4))
         {
-            if (GUI.Button(new Rect(currentLinePosition, MiddleOfLine(), width, StandardHeight()), "Delete"))
+            if (GUI.Button(new Rect(currentLinePosition, VerticalMiddleOfLine(), width, StandardHeight()), "Delete"))
                 deletedFields.Add(fieldKey);
 
             NewLine(EZConstants.VectorFieldBuffer+1);

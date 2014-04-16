@@ -7,7 +7,7 @@ using EZExtensionMethods;
 
 public abstract class EZManagerWindowBase : EditorWindow {
 
-    protected const string rootMenuLocation = "Assets/EZ Item Manager";
+    protected const string rootMenuLocation = "Assets/EZ Game Data Editor";
 
     protected HashSet<string> entryFoldoutState = new HashSet<string>();
     protected HashSet<string> listFieldFoldoutState = new HashSet<string>();
@@ -31,8 +31,14 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected GUIStyle foldoutStyle = null;
     protected GUIStyle labelStyle = null;
     protected GUIStyle saveButtonStyle = null;
+    protected GUIStyle mainHeaderStyle = null;
+    protected GUIStyle subHeaderStyle = null;
+
     protected string saveButtonText = "Save";
     protected bool needsSave = false;
+
+    protected string headerColor = "red";
+    protected string mainHeaderText = "Oops";
      
     #region OnGUI and DrawHeader Methods
     protected virtual void OnGUI()
@@ -52,44 +58,106 @@ public abstract class EZManagerWindowBase : EditorWindow {
             foldoutStyle.richText = true;
         }
 
+        if (mainHeaderStyle == null)
+        {
+            mainHeaderStyle = new GUIStyle(GUI.skin.label);
+            mainHeaderStyle.fontSize = 20;
+            mainHeaderStyle.fontStyle = FontStyle.Bold;
+            mainHeaderStyle.richText = true;
+        }
+
+        if (subHeaderStyle == null)
+        {
+            subHeaderStyle = new GUIStyle(GUI.skin.label);
+            subHeaderStyle.fontSize = mainHeaderStyle.fontSize - 4;
+            subHeaderStyle.fontStyle = FontStyle.Bold;
+            subHeaderStyle.richText = true;
+        }
+
         ResetToTop();
+
+        DrawHeaderLabel();
         DrawHeader();
+
+        DrawCreateSection();
+    }
+
+    protected virtual void DrawHeaderLabel()
+    {
+        string labelText = string.Format("<color={0}>{1}</color>", headerColor, mainHeaderText);
+        GUIContent labelContent = new GUIContent(labelText);
+        
+        Vector2 contentSize = mainHeaderStyle.CalcSize(labelContent);        
+        float headerLabelWidth = contentSize.x;
+        float headerLabelHeight = contentSize.y;
+        
+        currentLinePosition = Math.Max(HorizontalMiddleOfLine()-headerLabelWidth/2f, 0);
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), headerLabelWidth, headerLabelHeight), labelContent, mainHeaderStyle);
+        currentLinePosition += (headerLabelWidth + 2);
+        
+        NewLine(headerLabelHeight/EZConstants.LineHeight);
     }
 
     protected virtual void DrawHeader()
     {
-        float width = 40;
-        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Load"))
+        float width = 60;
+        float buttonHeightMultiplier = 1.25f;
+
+        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()*buttonHeightMultiplier), "Load"))
             Load();
         currentLinePosition += (width + 2);
 
         DrawDataFileLabelForHeader();
 
-        NewLine();
+        NewLine(buttonHeightMultiplier);
 
         if (needsSave)
         {
-            width = 90;
+            width = 110;
             saveButtonStyle.normal.textColor = Color.red;
             saveButtonStyle.fontStyle = FontStyle.Bold;
             saveButtonText = "Save Needed";
         }
         else
         {
-            width = 40;
+            width = 60;
             saveButtonStyle.normal.textColor = GUI.skin.button.normal.textColor;
             saveButtonStyle.fontStyle = FontStyle.Normal;
             saveButtonText = "Save";
         }
-        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), saveButtonText, saveButtonStyle))
+
+        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()*buttonHeightMultiplier), saveButtonText, saveButtonStyle))
             Save();
 
-        NewLine();
+        NewLine(buttonHeightMultiplier);
+
+        DrawSectionSeparator();
         
         DrawFilterSection();
 
-        width = FullSeparatorWidth();
-        GUI.Box(new Rect(currentLinePosition, TopOfLine(), width, 1), "");
+        DrawSectionSeparator();
+    }
+
+    protected virtual void DrawSubHeader(string text)
+    {
+        string subHeaderText = string.Format("<color={0}>{1}</color>", headerColor, text);
+        GUIContent subHeaderContent = new GUIContent(subHeaderText);
+        Vector2 size = subHeaderStyle.CalcSize(subHeaderContent);
+        float width = size.x;
+        float height = size.y;
+
+        NewLine(0.25f);
+        
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, height), subHeaderContent, subHeaderStyle);
+        currentLinePosition += (width + 2);
+        
+        NewLine(height/EZConstants.LineHeight+0.5f);
+    }
+
+    protected virtual void DrawSectionSeparator()
+    {
+        NewLine(0.25f);
+        GUI.Box(new Rect(currentLinePosition, TopOfLine(), FullSeparatorWidth(), 1), "");
     }
     #endregion
 
@@ -111,9 +179,14 @@ public abstract class EZManagerWindowBase : EditorWindow {
         return EZConstants.LineHeight*currentLine;
     }
 
-    protected virtual float MiddleOfLine()
+    protected virtual float VerticalMiddleOfLine()
     {
         return EZConstants.LineHeight*currentLine + EZConstants.LineHeight/2;
+    }
+
+    protected virtual float HorizontalMiddleOfLine()
+    {
+        return FullSeparatorWidth()/2f + EZConstants.LeftBuffer;
     }
 
     protected virtual float PopupTop()
@@ -206,8 +279,10 @@ public abstract class EZManagerWindowBase : EditorWindow {
         return newFoldoutState;
     }
 
-    protected virtual void DrawExpandCollapseAllFoldout(string[] forKeys)
+    protected virtual void DrawExpandCollapseAllFoldout(string[] forKeys, string headerText)
     {
+        DrawSubHeader(headerText);
+
         string label;
         if (currentFoldoutAllState)
             label = "Collapse All";
@@ -775,6 +850,8 @@ public abstract class EZManagerWindowBase : EditorWindow {
     #region Filter/Sorting Methods
     protected virtual void DrawFilterSection()
     {
+        DrawSubHeader("Filter or Search");
+
         // Text search
         float width = 45;
         EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Search:");
@@ -872,6 +949,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
 
     protected abstract void DrawEntry(string key, Dictionary<string, object> data);
     protected abstract void DrawDataFileLabelForHeader();
+    protected abstract void DrawCreateSection();
 
     protected abstract bool ShouldFilter(string key, Dictionary<string, object> data);
 

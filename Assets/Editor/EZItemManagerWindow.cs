@@ -8,7 +8,7 @@ using EZExtensionMethods;
 
 public class EZItemManagerWindow : EZManagerWindowBase
 {
-    private const string menuItemLocation = rootMenuLocation + "/EZ Item Manager";
+    private const string menuItemLocation = rootMenuLocation + "/EZ Create Data";
 
     private string[] schemaKeys = null;
     private string newItemName = "";
@@ -22,7 +22,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
     [MenuItem(menuItemLocation)]
     private static void showEditor()
     {
-        EditorWindow.GetWindow<EZItemManagerWindow>(false, "EZ Item Manager");
+        EditorWindow.GetWindow<EZItemManagerWindow>(false, "EZ Create Data");
     }
 
     [MenuItem(menuItemLocation, true)]
@@ -44,41 +44,12 @@ public class EZItemManagerWindow : EZManagerWindowBase
             filterSchemaKeys = temp.ToArray();
         }
 
+        mainHeaderText = "Create Game Data";
+        headerColor = "green";
+
         base.OnGUI();
 
-        NewLine();
-
-        float width = 60;
-        GUI.Label(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Schema:");
-        currentLinePosition += (width + 2);
-
-        width = 100;
-        schemaIndex = EditorGUI.Popup(new Rect(currentLinePosition, PopupTop(), width, StandardHeight()), schemaIndex, schemaKeys);
-        currentLinePosition += (width + 6);
-
-        width = 65;
-        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Item Name:");
-        currentLinePosition += (width + 2);
-
-        width = 180;
-        newItemName = EditorGUI.TextField(new Rect(currentLinePosition, TopOfLine(), width, TextBoxHeight()), newItemName);
-        currentLinePosition += (width + 2);
-
-        width = 100;
-        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Create New Item"))
-        {
-            List<object> args = new List<object>();
-            args.Add(schemaKeys[schemaIndex]);
-            args.Add(newItemName);
-
-            Create(args);
-
-            newItemName = "";
-        }
-
-        NewLine();
-
-        DrawExpandCollapseAllFoldout(EZItemManager.AllItems.Keys.ToArray());
+        DrawExpandCollapseAllFoldout(EZItemManager.AllItems.Keys.ToArray(), "Item List");
 
         scrollViewHeight = HeightToBottomOfWindow();
         scrollViewY = TopOfLine();
@@ -108,6 +79,42 @@ public class EZItemManagerWindow : EZManagerWindowBase
     #endregion
 
     #region Draw Methods
+    protected override void DrawCreateSection()
+    {
+        DrawSubHeader("Create a New Item");
+        
+        float width = 60;
+        GUI.Label(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Schema:");
+        currentLinePosition += (width + 2);
+        
+        width = 100;
+        schemaIndex = EditorGUI.Popup(new Rect(currentLinePosition, PopupTop(), width, StandardHeight()), schemaIndex, schemaKeys);
+        currentLinePosition += (width + 6);
+        
+        width = 65;
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Item Name:");
+        currentLinePosition += (width + 2);
+        
+        width = 180;
+        newItemName = EditorGUI.TextField(new Rect(currentLinePosition, TopOfLine(), width, TextBoxHeight()), newItemName);
+        currentLinePosition += (width + 2);
+        
+        width = 100;
+        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Create New Item"))
+        {
+            List<object> args = new List<object>();
+            args.Add(schemaKeys[schemaIndex]);
+            args.Add(newItemName);
+            
+            Create(args);
+            
+            newItemName = "";
+        }
+
+        NewLine();
+
+        DrawSectionSeparator();
+    }
     protected override void DrawFilterSection()
     {
         base.DrawFilterSection();
@@ -230,11 +237,11 @@ public class EZItemManagerWindow : EZManagerWindowBase
             if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Delete"))
                 deletedItems.Add(key);
 
-            NewLine(0.75f);
-
-            GUI.Box(new Rect(currentLinePosition, MiddleOfLine(), FullSeparatorWidth(), 1), "");
-
             NewLine();
+
+            DrawSectionSeparator();
+
+            NewLine(0.25f);
         }
         else
         {
