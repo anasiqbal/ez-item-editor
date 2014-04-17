@@ -132,7 +132,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
             currentLinePosition += (width + 2);
         }
 
-        NewLine();
+        NewLine(1.25f);
         
         // Filter dropdown
         width = 100;

@@ -850,16 +850,20 @@ public abstract class EZManagerWindowBase : EditorWindow {
     #region Filter/Sorting Methods
     protected virtual void DrawFilterSection()
     {
-        DrawSubHeader("Filter or Search");
-
-        // Text search
-        float width = 45;
-        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Search:");
-
+        string labelText = string.Format("<color={0}>Search:</color>", headerColor);
+        GUIContent labelContent = new GUIContent(labelText);
+        Vector2 size = subHeaderStyle.CalcSize(labelContent);
+        float width = size.x;
+        float height = size.y;
+        
+        NewLine(0.25f);
+        
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, height), labelContent, subHeaderStyle);
         currentLinePosition += (width + 8);
 
+        // Text search
         width = 180;
-        filterText = EditorGUI.TextField(new Rect(currentLinePosition, TopOfLine(), width, TextBoxHeight()), filterText);
+        filterText = EditorGUI.TextField(new Rect(currentLinePosition, TopOfLine()+(height-EZConstants.LineHeight+2), width, TextBoxHeight()), filterText);
         currentLinePosition += (width + 2);
     }
 
