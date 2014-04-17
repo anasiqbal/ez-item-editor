@@ -39,6 +39,8 @@ public abstract class EZManagerWindowBase : EditorWindow {
 
     protected string headerColor = "red";
     protected string mainHeaderText = "Oops";
+
+    protected string highlightColor = "#f15c25";
      
     #region OnGUI and DrawHeader Methods
     protected virtual void OnGUI()
@@ -271,7 +273,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
 
         float width = 200;
         bool newFoldoutState = EditorGUI.Foldout(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), currentFoldoutState, 
-                                                 label.HighlightSubstring(filterText, "yellow"), true, foldoutStyle);
+                                                 label.HighlightSubstring(filterText, highlightColor), true, foldoutStyle);
         SetFoldout(newFoldoutState, key);
 
         NewLine();

@@ -45,7 +45,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
         }
 
         mainHeaderText = "Create Game Data";
-        headerColor = "green";
+        headerColor = "#013859";
 
         base.OnGUI();
 
@@ -285,7 +285,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
         currentLinePosition += (width + 2);
 
         width = 100;
-        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), fieldKey.HighlightSubstring(filterText, "yellow"), labelStyle);
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), fieldKey.HighlightSubstring(filterText, highlightColor), labelStyle);
         currentLinePosition += (width + 2);
 
         switch(fieldTypeEnum)
@@ -370,7 +370,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
             currentLinePosition += (width + 2);
 
             width = 100;
-            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), fieldKey.HighlightSubstring(filterText, "yellow"), labelStyle);
+            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), fieldKey.HighlightSubstring(filterText, highlightColor), labelStyle);
             currentLinePosition += (width + 2);
 
             if (newFoldoutState != currentFoldoutState)

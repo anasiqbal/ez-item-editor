@@ -37,7 +37,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     protected override void OnGUI()
     {
         mainHeaderText = "Define Game Data";
-        headerColor = "teal";
+        headerColor = "#185e65";
 
         base.OnGUI();
 
@@ -338,7 +338,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         currentLinePosition += (width + 2);
 
         width = 100;
-        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), fieldKey.HighlightSubstring(filterText, "yellow"), labelStyle);
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), fieldKey.HighlightSubstring(filterText, highlightColor), labelStyle);
         currentLinePosition += (width + 2);
 
         switch(fieldTypeEnum)
@@ -417,7 +417,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
             currentLinePosition += (width + 2);
             
             width = 100;
-            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), fieldKey.HighlightSubstring(filterText, "yellow"), labelStyle);
+            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), fieldKey.HighlightSubstring(filterText, highlightColor), labelStyle);
             currentLinePosition += (width + 2);
 
             if (newFoldoutState != currentFoldoutState)
