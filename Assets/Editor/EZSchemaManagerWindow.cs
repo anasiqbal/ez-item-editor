@@ -413,7 +413,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
             }
 
             float width = 120;
-            newFoldoutState = EditorGUI.Foldout(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), currentFoldoutState, string.Format("List<{0}>", fieldType));
+            newFoldoutState = EditorGUI.Foldout(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), currentFoldoutState, string.Format("List<{0}>", fieldType), true);
             currentLinePosition += (width + 2);
             
             width = 100;
