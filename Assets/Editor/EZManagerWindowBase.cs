@@ -7,7 +7,7 @@ using EZExtensionMethods;
 
 public abstract class EZManagerWindowBase : EditorWindow {
 
-    protected const string rootMenuLocation = "Assets/EZ Game Data Editor";
+    public const string rootMenuLocation = "Assets/EZ Game Data Editor";
 
     protected HashSet<string> entryFoldoutState = new HashSet<string>();
     protected HashSet<string> listFieldFoldoutState = new HashSet<string>();
@@ -40,7 +40,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected string headerColor = "red";
     protected string mainHeaderText = "Oops";
 
-    protected string highlightColor = "#f15c25";
+    protected string highlightColor;
      
     #region OnGUI and DrawHeader Methods
     protected virtual void OnGUI()
@@ -75,6 +75,8 @@ public abstract class EZManagerWindowBase : EditorWindow {
             subHeaderStyle.fontStyle = FontStyle.Bold;
             subHeaderStyle.richText = true;
         }
+
+        highlightColor = EditorPrefs.GetString(EZConstants.HighlightColorKey, EZConstants.HighlightColor);
 
         ResetToTop();
 

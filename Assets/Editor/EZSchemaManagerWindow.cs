@@ -37,7 +37,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     protected override void OnGUI()
     {
         mainHeaderText = "Define Game Data";
-        headerColor = "#185e65";
+        headerColor = EditorPrefs.GetString(EZConstants.DefineDataColorKey, EZConstants.DefineDataColor);
 
         base.OnGUI();
 
@@ -636,7 +636,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     #region Load, Save, and Create Schema Methods
     protected override void DrawDataFileLabelForHeader()
     {
-        GUIContent filePath = new GUIContent(EZItemManager.schemaFilePath);
+        GUIContent filePath = new GUIContent(EZItemManager.SchemaFilePath);
         float width = labelStyle.CalcSize(filePath).x + 10;
         EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), filePath);
         currentLinePosition += (width + 2);

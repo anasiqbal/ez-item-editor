@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEditor;
 using System;
 using System.IO;
 using System.Collections;
@@ -22,7 +23,13 @@ public enum BasicFieldType
 public class EZItemManager
 {
     #region Item Dictionary
-    public readonly static string itemFilePath = Application.dataPath + "/ezitems.json";
+    public static string ItemFilePath 
+    {
+        get
+        {
+            return Application.dataPath + "/" + EditorPrefs.GetString(EZConstants.CreateDataFileKey, EZConstants.CreateDataFile);
+        }
+    }
     private static Dictionary<string, Dictionary<string, object>> _allItems;
     public static Dictionary<string, Dictionary<string, object>> AllItems
     { 
@@ -41,7 +48,13 @@ public class EZItemManager
     #endregion
 
     #region Schema Dictionary
-    public readonly static string schemaFilePath = Application.dataPath + "/ezschema.json";
+    public static string SchemaFilePath
+    {
+        get
+        {
+            return Application.dataPath + "/" + EditorPrefs.GetString(EZConstants.DefineDataFileKey, EZConstants.DefineDataFile);
+        }
+    }
     private static Dictionary<string, Dictionary<string, object>> _schema;
     public static Dictionary<string, Dictionary<string, object>> AllSchemas
     {
@@ -209,7 +222,7 @@ public class EZItemManager
             string rawJson = Json.Serialize(AllItems);
             string prettyJson = JsonHelper.FormatJson(rawJson);
 
-            File.WriteAllText(itemFilePath, prettyJson);
+            File.WriteAllText(ItemFilePath, prettyJson);
         }
         catch(Exception ex)
         {
@@ -224,7 +237,7 @@ public class EZItemManager
             string rawJson = Json.Serialize(AllSchemas);
             string prettyJson = JsonHelper.FormatJson(rawJson);
 
-            File.WriteAllText(schemaFilePath, prettyJson);
+            File.WriteAllText(SchemaFilePath, prettyJson);
         }
         catch(Exception ex)
         {
@@ -236,9 +249,9 @@ public class EZItemManager
     {
         try
         {
-            CreateFileIfMissing(itemFilePath);
+            CreateFileIfMissing(ItemFilePath);
 
-            string json = File.ReadAllText(itemFilePath);
+            string json = File.ReadAllText(ItemFilePath);
             Dictionary<string, object> data = Json.Deserialize(json) as Dictionary<string, object>;
 
             AllItems.Clear();
@@ -258,9 +271,9 @@ public class EZItemManager
     {
         try
         {
-            CreateFileIfMissing(schemaFilePath);
+            CreateFileIfMissing(SchemaFilePath);
 
-            string json = File.ReadAllText(schemaFilePath);
+            string json = File.ReadAllText(SchemaFilePath);
             Dictionary<string, object> data = Json.Deserialize(json) as Dictionary<string, object>;
 
             AllSchemas.Clear();

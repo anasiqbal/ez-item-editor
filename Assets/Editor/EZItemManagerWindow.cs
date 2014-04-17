@@ -45,7 +45,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
         }
 
         mainHeaderText = "Create Game Data";
-        headerColor = "#013859";
+        headerColor = EditorPrefs.GetString(EZConstants.CreateDataColorKey, EZConstants.CreateDataColor);
 
         base.OnGUI();
 
@@ -147,7 +147,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
 
     protected override void DrawDataFileLabelForHeader()
     {
-        GUIContent filePath = new GUIContent(EZItemManager.itemFilePath);
+        GUIContent filePath = new GUIContent(EZItemManager.ItemFilePath);
         float width = labelStyle.CalcSize(filePath).x + 10;
         EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), filePath);
         currentLinePosition += (width + 2);

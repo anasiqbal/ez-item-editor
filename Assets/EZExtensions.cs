@@ -1,5 +1,7 @@
 using System;
+using System.Globalization;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace EZExtensionMethods
 {
@@ -92,6 +94,25 @@ namespace EZExtensionMethods
                 highlightedString = variable.Clone() as string;
 
             return highlightedString;
+        }
+    }
+
+    public static class ColorExtensions
+    {
+        public static string ToHexString(this Color32 color)
+        {
+            return string.Format("{0}{1}{2}", color.r.ToString("x2"), color.g.ToString("x2"), color.b.ToString("x2"));
+        }
+        
+        public static Color ToColor(this string hex)
+        {
+            hex = hex.Replace("#", "");
+
+            byte r = byte.Parse(hex.Substring(0,2), NumberStyles.HexNumber);
+            byte g = byte.Parse(hex.Substring(2,2), NumberStyles.HexNumber);
+            byte b = byte.Parse(hex.Substring(4,2), NumberStyles.HexNumber);
+
+            return new Color32(r, g, b, 1);
         }
     }
 }

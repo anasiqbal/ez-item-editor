@@ -22,4 +22,22 @@ public class EZConstants {
     public const float RightBuffer = 2f;
     public const float VectorFieldBuffer = 0.75f;
     #endregion
+
+    #region Preference Keys
+    public const string CreateDataColorKey = "ez_createdatacolor";
+    public const string DefineDataColorKey = "ez_definedatacolor";
+    public const string HighlightColorKey = "ez_highlightcolor";
+
+    public const string CreateDataFileKey = "ez_createdatafile";
+    public const string DefineDataFileKey = "ez_definedatafile";
+    #endregion
+
+    #region Default Preference Settings
+    public const string CreateDataColor = "#013859";
+    public const string DefineDataColor = "#185e65";
+    public const string HighlightColor = "#f15c25";
+
+    public const string CreateDataFile = "ezitems.json";
+    public const string DefineDataFile = "ezschema.json";
+    #endregion
 }
