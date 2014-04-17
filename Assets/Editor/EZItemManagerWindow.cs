@@ -109,6 +109,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
             Create(args);
             
             newItemName = "";
+            GUI.FocusControl("");
         }
 
         NewLine();

@@ -82,7 +82,9 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Create New Schema") && !string.IsNullOrEmpty(newSchemaName))
         {
             Create(newSchemaName);
+
             newSchemaName = "";
+            GUI.FocusControl("");
         }
 
         NewLine();
@@ -154,6 +156,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
             isBasicList.Remove(schemaKey);
             newBasicFieldName.TryAddOrUpdateValue(schemaKey, "");
             newBasicFieldNameText = "";
+            GUI.FocusControl("");
         }
 
         NewLine();
@@ -216,6 +219,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
             isCustomList.Remove(schemaKey);
             newCustomFieldName.TryAddOrUpdateValue(schemaKey, "");
             newCustomFieldNameText = "";
+            GUI.FocusControl("");
         }
     }
 
