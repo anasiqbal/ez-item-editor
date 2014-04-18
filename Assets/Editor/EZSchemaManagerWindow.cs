@@ -20,6 +20,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     private HashSet<string> isCustomList = new HashSet<string>();
     
     private List<string> deletedFields = new List<string>();
+    private List<string> deletedSchemas = new List<string>();
     
     [MenuItem(menuItemLocation)]
     private static void showEditor()
@@ -62,6 +63,11 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
             }
         }
         GUI.EndScrollView();
+
+        //Remove any schemas that were deleted
+        foreach(string deletedSchemaKey in deletedSchemas)        
+            Remove(deletedSchemaKey);
+        deletedSchemas.Clear();
     }
     #endregion
 
@@ -315,6 +321,12 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
 
             DrawAddFieldSection(schemaKey, schemaData);
             
+            NewLine(2f);
+
+            float width = 45;
+            if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Delete"))
+                deletedSchemas.Add(schemaKey);
+
             NewLine();
             
             DrawSectionSeparator();
@@ -623,21 +635,14 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     }
     #endregion
 
-    #region Load, Save, and Create Schema Methods
-    protected override void DrawDataFileLabelForHeader()
-    {
-        GUIContent filePath = new GUIContent(EZItemManager.SchemaFilePath);
-        float width = labelStyle.CalcSize(filePath).x + 10;
-        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), filePath);
-        currentLinePosition += (width + 2);
-    }
-
+    #region Load/Save Schema Methods
     protected override void Load()
     {
-        EZItemManager.LoadSchemas();
+        EZItemManager.Load();
         groupHeights.Clear();
 
         needsSave = false;
+        SetNeedsSaveForItemWindow(needsSave);
     }
 
     protected override void Save()
@@ -645,7 +650,9 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         EZItemManager.SaveSchemas();
         needsSave = false;
     }
+    #endregion
 
+    #region Create/Remove Schema Methods
     protected override bool Create(object data)
     {
         bool result = true;
@@ -667,7 +674,29 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
 
     protected override void Remove(string key)
     {
-        throw new NotImplementedException();
+        // Show a warning if we have items using this schema
+        List<string> items = EZItemManager.ItemsOfSchemaType(key);
+        bool shouldDelete = true;
+
+        if (items.Count > 0)
+        {
+            string itemWord = items.Count == 1 ? "item" : "items";
+            if (EditorUtility.DisplayDialog(string.Format("{0} {1} will be deleted!", items.Count, itemWord), "Are you sure you want to delete this schema?", "Delete Schema", "Cancel"))
+            {
+                shouldDelete = true;
+                SetNeedsSaveForItemWindow(true);
+            }
+            else
+            {
+                shouldDelete = false;
+            }
+        }
+
+        if (shouldDelete)
+        {
+            EZItemManager.RemoveSchema(key, true);
+            needsSave = true;
+        }
     }
     #endregion
 
@@ -682,6 +711,12 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         }
         
         return totalHeight;
+    }
+
+    void SetNeedsSaveForItemWindow(bool needsSave)
+    {
+        EZItemManagerWindow window = EditorWindow.GetWindow<EZItemManagerWindow>();
+        window.needsSave = needsSave;
     }
     #endregion
 }

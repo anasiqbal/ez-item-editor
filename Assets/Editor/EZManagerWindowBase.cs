@@ -31,11 +31,12 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected GUIStyle foldoutStyle = null;
     protected GUIStyle labelStyle = null;
     protected GUIStyle saveButtonStyle = null;
+    protected GUIStyle loadButtonStyle = null;
     protected GUIStyle mainHeaderStyle = null;
     protected GUIStyle subHeaderStyle = null;
 
     protected string saveButtonText = "Save";
-    protected bool needsSave = false;
+    public bool needsSave = false;
 
     protected string headerColor = "red";
     protected string mainHeaderText = "Oops";
@@ -52,7 +53,16 @@ public abstract class EZManagerWindowBase : EditorWindow {
         }
 
         if (saveButtonStyle == null)
+        {
             saveButtonStyle = new GUIStyle(GUI.skin.button);
+            saveButtonStyle.fontSize = 14;
+        }
+
+        if (loadButtonStyle == null)
+        {
+            loadButtonStyle = new GUIStyle(GUI.skin.button);
+            loadButtonStyle.fontSize = 14;
+        }
 
         if (foldoutStyle == null)
         {
@@ -105,15 +115,18 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected virtual void DrawHeader()
     {
         float width = 60;
-        float buttonHeightMultiplier = 1.25f;
+        float buttonHeightMultiplier = 1.5f;
 
-        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()*buttonHeightMultiplier), "Load"))
+        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()*buttonHeightMultiplier), "Load", loadButtonStyle))
             Load();
         currentLinePosition += (width + 2);
 
-        DrawDataFileLabelForHeader();
+        GUIContent filePath = new GUIContent(EZItemManager.ItemFilePath + Environment.NewLine + EZItemManager.SchemaFilePath);
+        Vector2 size = labelStyle.CalcSize(filePath);
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), size.x, size.y), filePath);
+        currentLinePosition += (size.x + 2);
 
-        NewLine(buttonHeightMultiplier);
+        NewLine(buttonHeightMultiplier+.1f);
 
         if (needsSave)
         {
@@ -956,7 +969,6 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected abstract void Remove(string key);
 
     protected abstract void DrawEntry(string key, Dictionary<string, object> data);
-    protected abstract void DrawDataFileLabelForHeader();
     protected abstract void DrawCreateSection();
 
     protected abstract bool ShouldFilter(string key, Dictionary<string, object> data);

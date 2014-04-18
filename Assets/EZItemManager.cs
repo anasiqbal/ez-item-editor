@@ -72,7 +72,7 @@ public class EZItemManager
     }
     #endregion
 
-    #region Lists for sorting and lookups
+    #region Sorting and Lookup
     // Key: field name, List: contains the schema keys that contain that field name
     private static Dictionary<string, List<string>> _listByFieldName;
     private static Dictionary<string, List<string>> ListByFieldName
@@ -83,6 +83,18 @@ public class EZItemManager
             if (_listByFieldName == null)
                 _listByFieldName = new Dictionary<string, List<string>>();
             return _listByFieldName;
+        }
+    }
+
+    private static Dictionary<string, List<string>> _itemListBySchema;
+    private static Dictionary<string, List<string>> ItemListBySchema
+    {
+        set { _itemListBySchema = value; }
+        get
+        {
+            if (_itemListBySchema == null)
+                _itemListBySchema = new Dictionary<string, List<string>>();
+            return _itemListBySchema;
         }
     }
 
@@ -99,6 +111,13 @@ public class EZItemManager
         }
 
         return schema;
+    }
+
+    public static List<string> ItemsOfSchemaType(string schemaType)
+    {
+        List<string> itemList;
+        ItemListBySchema.TryGetValue(schemaType, out itemList);
+        return itemList;
     }
 
     public static List<string> ItemFieldKeysOfType(string itemKey, string fieldType)
@@ -202,6 +221,27 @@ public class EZItemManager
         return ListCustomFieldKeys(schemaKey, AllSchemas);
     }
 
+    private static List<string> GetAllFieldKeys(string key, Dictionary<string, Dictionary<string, object>> dict)
+    {
+        List<string> allFields = new List<string>();
+        Dictionary<string, object> data;        
+
+        if (dict.TryGetValue(key, out data))
+        {
+            foreach(KeyValuePair<string, object> field in data)
+            {
+                if (field.Key.StartsWith(EZConstants.IsListPrefix) ||
+                    field.Key.StartsWith(EZConstants.ValuePrefix) ||
+                    field.Key.StartsWith(EZConstants.SchemaKey))
+                    continue;
+                
+                allFields.Add(field.Key);
+            }
+        }
+
+        return allFields;
+    }
+
     private static List<string> ListFieldKeysOfType(string key, string fieldType, Dictionary<string, Dictionary<string, object>> dict)
     {
         return FieldKeysOfType(key, fieldType, dict, true);
@@ -210,6 +250,54 @@ public class EZItemManager
     private static List<string> ListCustomFieldKeys(string key, Dictionary<string, Dictionary<string, object>> dict)
     {
         return CustomFieldKeys(key, dict, true);
+    }
+
+    private static void BuildSortingAndLookupListFor(string schemaKey, Dictionary<string, object> schemaData)
+    {
+        // Parse and add to list by field name
+        foreach(KeyValuePair<string, object> field in schemaData)
+        {
+            // Skip over any metadata
+            if (field.Key.StartsWith(EZConstants.ValuePrefix) ||
+                field.Key.StartsWith(EZConstants.IsListPrefix))
+                continue;
+            
+            AddFieldToListByFieldName(field.Key, schemaKey);
+        }
+        
+        // Create empty list for the Item by Schema list
+        ItemListBySchema.Add(schemaKey, new List<string>());
+    }
+
+    private static void AddFieldToListByFieldName(string fieldKey, string schemaKey)
+    {
+        List<string> schemaKeyList;
+        if (ListByFieldName.TryGetValue(fieldKey, out schemaKeyList))
+        {
+            schemaKeyList.Add(schemaKey);
+        }
+        else
+        {
+            schemaKeyList = new List<string>();
+            schemaKeyList.Add(schemaKey);
+            ListByFieldName.Add(fieldKey, schemaKeyList);
+        }
+    }
+
+    private static void AddItemToListBySchema(string itemKey, string schemaKey)
+    {
+        List<string> itemList;
+        if (ItemListBySchema.TryGetValue(schemaKey, out itemList))
+        {
+            if (!itemList.Contains(itemKey))
+                itemList.Add(itemKey);
+        }
+        else
+        {
+            itemList = new List<string>();
+            itemList.Add(itemKey);
+            ItemListBySchema.Add(schemaKey, itemList);
+        }
     }
 #endif
     #endregion
@@ -245,7 +333,13 @@ public class EZItemManager
         }
     }
 
-    public static void LoadItems()
+    public static void Load()
+    {
+        LoadSchemas();
+        LoadItems();
+    }
+
+    private static void LoadItems()
     {
         try
         {
@@ -258,7 +352,7 @@ public class EZItemManager
 
             foreach(KeyValuePair<string, object> pair in data)
             {
-                AllItems.Add(pair.Key, pair.Value as Dictionary<string, object>);
+                AddItem(pair.Key, pair.Value as Dictionary<string, object>);
             }
         }
         catch (Exception ex)
@@ -267,7 +361,7 @@ public class EZItemManager
         }
     }
 
-    public static void LoadSchemas()
+    private static void LoadSchemas()
     {
         try
         {
@@ -276,15 +370,15 @@ public class EZItemManager
             string json = File.ReadAllText(SchemaFilePath);
             Dictionary<string, object> data = Json.Deserialize(json) as Dictionary<string, object>;
 
+            // Clear all schema related lists
             AllSchemas.Clear();
             ListByFieldName.Clear();
+            ItemListBySchema.Clear();
 
             foreach(KeyValuePair<string, object> pair in data)
             {
                 Dictionary<string, object> schemaData = pair.Value as Dictionary<string, object>;
-                AllSchemas.Add(pair.Key, schemaData);
-
-                BuildSortingAndLookupListFor(pair.Key, schemaData);
+                AddSchema(pair.Key, schemaData);
             }
         }
         catch (Exception ex)
@@ -314,11 +408,25 @@ public class EZItemManager
         else
             result = false;
 
+        if (result)
+        {
+            AddItemToListBySchema(key, GetSchemaForItem(key));
+        }
+
         return result;
     }
 
     public static void RemoveItem(string key)
     {
+        string schemaKey = GetSchemaForItem(key);
+        List<string> itemList;
+
+        // Remove from the Item list by schema
+        if(ItemListBySchema.TryGetValue(schemaKey, out itemList)) 
+        {
+            itemList.Remove(key);
+        }
+
         AllItems.Remove(key);
     }
 
@@ -335,6 +443,29 @@ public class EZItemManager
             BuildSortingAndLookupListFor(name, data);
 
         return result;
+    }
+
+    public static void RemoveSchema(string key, bool deleteItems = true)
+    {
+        if (deleteItems)
+        {
+            // Delete the items with this schema
+            List<string> itemList;
+            if (ItemListBySchema.TryGetValue(key, out itemList))
+            {
+                List<string> itemListCopy = new List<string>(itemList);
+                foreach(string itemKey in itemListCopy)
+                    RemoveItem(itemKey);
+            }
+            ItemListBySchema.Remove(key);
+        }
+
+        // Remove all the fields so the lookup lists get updated
+        List<string> allFields = GetAllFieldKeys(key, AllSchemas);
+        foreach(string field in allFields)
+            RemoveField(key, field);
+        
+        AllSchemas.Remove(key);
     }
 
     public static bool AddBasicField(BasicFieldType type, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList = false, object defaultValue = null)
@@ -390,19 +521,11 @@ public class EZItemManager
         return result;
     }
 
-    private static void AddFieldToListByFieldName(string fieldKey, string schemaKey)
+    public static void RemoveField(string schemaKey, string deletedFieldKey)
     {
-        List<string> schemaKeyList;
-        if (ListByFieldName.TryGetValue(fieldKey, out schemaKeyList))
-        {
-            schemaKeyList.Add(schemaKey);
-        }
-        else
-        {
-            schemaKeyList = new List<string>();
-            schemaKeyList.Add(schemaKey);
-            ListByFieldName.Add(fieldKey, schemaKeyList);
-        }
+        Dictionary<string, object> schemaData;
+        if (AllSchemas.TryGetValue(schemaKey, out schemaData))
+            RemoveField(schemaKey, schemaData, deletedFieldKey);
     }
 
     public static void RemoveField(string schemaKey, Dictionary<string, object> schemaData, string deletedFieldKey)
@@ -419,20 +542,6 @@ public class EZItemManager
     #endregion
 
     #region Filter Methods
-    private static void BuildSortingAndLookupListFor(string schemaKey, Dictionary<string, object> schemaData)
-    {
-        // Parse and add to list by field name
-        foreach(KeyValuePair<string, object> field in schemaData)
-        {
-            // Skip over any metadata
-            if (field.Key.StartsWith(EZConstants.ValuePrefix) ||
-                field.Key.StartsWith(EZConstants.IsListPrefix))
-                continue;
-
-            AddFieldToListByFieldName(field.Key, schemaKey);
-        }
-    }
-
     // Returns false if any fields in the given schema start with the given field name
     // Returns true otherwise
     public static bool ShouldFilterByField(string schemaKey, string fieldName)

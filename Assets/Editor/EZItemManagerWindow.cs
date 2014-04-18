@@ -146,14 +146,6 @@ public class EZItemManagerWindow : EZManagerWindowBase
         NewLine();
     }
 
-    protected override void DrawDataFileLabelForHeader()
-    {
-        GUIContent filePath = new GUIContent(EZItemManager.ItemFilePath);
-        float width = labelStyle.CalcSize(filePath).x + 10;
-        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), filePath);
-        currentLinePosition += (width + 2);
-    }
-
     protected override void DrawEntry(string key, Dictionary<string, object> data)
     {
         // If we are filtered out, return
@@ -546,11 +538,11 @@ public class EZItemManagerWindow : EZManagerWindowBase
     #region Load/Save/Create/Remove Item Methods
     protected override void Load()
     {
-        EZItemManager.LoadItems();
-        EZItemManager.LoadSchemas();
+        EZItemManager.Load();
         groupHeights.Clear();
 
         needsSave = false;
+        SetNeedsSaveForSchemaWindow(needsSave);
     }
 
     protected override void Save()
@@ -634,6 +626,12 @@ public class EZItemManagerWindow : EZManagerWindowBase
         }
         
         return totalHeight;
+    }
+
+    void SetNeedsSaveForSchemaWindow(bool needsSave)
+    {
+       EZSchemaManagerWindow window = EditorWindow.GetWindow<EZSchemaManagerWindow>();
+       window.needsSave = needsSave;
     }
     #endregion
 }
