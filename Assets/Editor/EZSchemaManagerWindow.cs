@@ -79,7 +79,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         currentLinePosition += (width + 2);
         
         width = 120;
-        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Create New Schema") && !string.IsNullOrEmpty(newSchemaName))
+        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Create New Schema"))
         {
             Create(newSchemaName);
 
@@ -571,52 +571,22 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     #region Add/Remove Field Methods
     private void AddBasicField(BasicFieldType type, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList)
     {
-        string valueKey = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName);
-
-        if (!schemaData.TryAddValue(newFieldName, type))
-        {
-            EditorUtility.DisplayDialog("Error creating field!", "Field name already exists.", "Ok");
-            return;
-        }
-
-        object defaultValue = GetDefaultValueForType(type);
-
+        object defaultValue = null;
         if (isList)
-        {
-            schemaData.Add(valueKey, new List<object>());
-            schemaData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, newFieldName), true);
-        }
+            defaultValue = GetDefaultValueForType(type);        
+
+        if (EZItemManager.AddBasicField(type, schemaKey, schemaData, newFieldName, isList, defaultValue))
+            needsSave = true;
         else
-        {
-            schemaData.Add(valueKey, defaultValue);
-        }
-
-        // Let the manager know we added a field
-        EZItemManager.AddBasicField(type, schemaKey, schemaData, newFieldName, isList);
-
-        needsSave = true;
+            EditorUtility.DisplayDialog("Error creating field!", "Field name is invalid or field name already exists.", "Ok");
     }
 
     private void AddCustomField(string customType, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList)
     {
-        if (!schemaData.TryAddValue(newFieldName, customType))
-        {
-            EditorUtility.DisplayDialog("Error creating field!", "Field name already exists.", "Ok");
-            return;
-        }
-
-        if (isList)
-        {
-            schemaData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName), new List<object>());
-            schemaData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, newFieldName), true);
-        }
+        if (EZItemManager.AddCustomField(customType, schemaKey, schemaData, newFieldName, isList))        
+            needsSave = true;
         else
-            schemaData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName), "null");
-
-        // Let the manager know we added a field
-        EZItemManager.AddCustomField(customType, schemaKey, schemaData, newFieldName, isList);
-
-        needsSave = true;
+            EditorUtility.DisplayDialog("Error creating field!", "Field name is invalid or field name already exists.", "Ok");
     }
 
     private void RemoveField(string schemaKey, Dictionary<string, object> schemaData, string deletedFieldKey)

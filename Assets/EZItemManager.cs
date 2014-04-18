@@ -307,7 +307,14 @@ public class EZItemManager
     #region Add/Remove Methods
     public static bool AddItem(string key, Dictionary<string, object> data)
     {
-        return AllItems.TryAddValue(key, data);
+        bool result = true;
+
+        if (IsItemNameValid(key))
+            result = AllItems.TryAddValue(key, data);
+        else
+            result = false;
+
+        return result;
     }
 
     public static void RemoveItem(string key)
@@ -317,7 +324,12 @@ public class EZItemManager
 
     public static bool AddSchema(string name, Dictionary<string, object> data = null)
     {
-        bool result = AllSchemas.TryAddValue(name, data);
+        bool result = true;
+
+        if (IsSchemaNameValid(name))
+            result = AllSchemas.TryAddValue(name, data);
+        else
+            result = false;
 
         if (result)
             BuildSortingAndLookupListFor(name, data);
@@ -325,20 +337,57 @@ public class EZItemManager
         return result;
     }
 
-    public static void AddBasicField(BasicFieldType type, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList)
+    public static bool AddBasicField(BasicFieldType type, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList = false, object defaultValue = null)
     {
-        AddField(newFieldName, schemaKey, schemaData);
+        bool result = true;
+        string valueKey = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName);
+        
+        if (IsFieldNameValid(schemaKey, newFieldName))
+            result = schemaData.TryAddValue(newFieldName, type);
+        else
+            result = false;
+
+        if (result)
+        {
+            if (isList)
+            {
+                schemaData.Add(valueKey, new List<object>());
+                schemaData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, newFieldName), true);
+            }
+            else
+            {
+                schemaData.Add(valueKey, defaultValue);
+            }
+
+            AddFieldToListByFieldName(newFieldName, schemaKey);
+        }
+
+        return result;
     }
 
-    public static void AddCustomField(string customType, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList)
+    public static bool AddCustomField(string customType, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList)
     {
-        AddField(newFieldName, schemaKey, schemaData);
-    }
+        bool result = true;
 
-    private static void AddField(string fieldName, string schemaKey, Dictionary<string, object> schemaData)
-    {
-        // Add the schema key to the listbyfieldname List
-        AddFieldToListByFieldName(fieldName, schemaKey);
+        if (IsFieldNameValid(schemaKey, newFieldName))
+            result = schemaData.TryAddValue(newFieldName, customType);
+        else
+            result = false;
+
+        if (result)
+        {
+            if (isList)
+            {
+                schemaData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName), new List<object>());
+                schemaData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, newFieldName), true);
+            }
+            else
+                schemaData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName), "null");
+
+            AddFieldToListByFieldName(newFieldName, schemaKey);
+        }
+
+        return result;
     }
 
     private static void AddFieldToListByFieldName(string fieldKey, string schemaKey)
@@ -400,6 +449,41 @@ public class EZItemManager
         }
 
         return true;
+    }
+    #endregion
+
+    #region Validation Methods
+    public static bool IsSchemaNameValid(string name)
+    {
+        bool result = true;
+
+        if (AllSchemas.ContainsKey(name) ||
+            !ValidateIdentifier.IsValidIdentifier(name))
+            result = false;
+
+        return result;
+    }    
+
+    public static bool IsFieldNameValid(string schemaKey, string fieldName)
+    {
+        bool result = true;
+
+        Dictionary<string, object> data;
+        if (AllSchemas.TryGetValue(schemaKey, out data))
+        {
+            if (data.ContainsKey(fieldName) || 
+                !ValidateIdentifier.IsValidIdentifier(fieldName))
+                result = false;
+        }
+        else 
+            result = false;
+
+        return result;
+    }
+
+    public static bool IsItemNameValid(string name)
+    {
+        return !string.IsNullOrEmpty(name) && !AllItems.ContainsKey(name);
     }
     #endregion
 }
