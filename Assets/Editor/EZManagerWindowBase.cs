@@ -952,7 +952,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
     #region Abstract methods
     protected abstract void Load();
     protected abstract void Save();
-    protected abstract void Create(object data);
+    protected abstract bool Create(object data);
     protected abstract void Remove(string key);
 
     protected abstract void DrawEntry(string key, Dictionary<string, object> data);

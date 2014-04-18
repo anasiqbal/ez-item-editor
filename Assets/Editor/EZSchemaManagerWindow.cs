@@ -81,10 +81,11 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         width = 120;
         if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Create New Schema"))
         {
-            Create(newSchemaName);
-
-            newSchemaName = "";
-            GUI.FocusControl("");
+            if (Create(newSchemaName))
+            {
+                newSchemaName = "";
+                GUI.FocusControl("");
+            }
         }
 
         NewLine();
@@ -152,11 +153,14 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         width = 65;
         if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Add Field"))
         {
-            AddBasicField(basicFieldTypeSelected, schemaKey, schemaData, newBasicFieldNameText, isBasicListTemp);
-            isBasicList.Remove(schemaKey);
-            newBasicFieldName.TryAddOrUpdateValue(schemaKey, "");
-            newBasicFieldNameText = "";
-            GUI.FocusControl("");
+            if (AddBasicField(basicFieldTypeSelected, schemaKey, schemaData, newBasicFieldNameText, isBasicListTemp))
+            {
+                isBasicList.Remove(schemaKey);
+                newBasicFieldName.TryAddOrUpdateValue(schemaKey, "");
+
+                newBasicFieldNameText = "";
+                GUI.FocusControl("");
+            }
         }
 
         NewLine();
@@ -215,11 +219,13 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         width = 110;
         if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Add Custom Field"))
         {
-            AddCustomField(customTypes[customSchemaTypeSelected], schemaKey, schemaData, newCustomFieldNameText, isCustomListTemp);
-            isCustomList.Remove(schemaKey);
-            newCustomFieldName.TryAddOrUpdateValue(schemaKey, "");
-            newCustomFieldNameText = "";
-            GUI.FocusControl("");
+            if (AddCustomField(customTypes[customSchemaTypeSelected], schemaKey, schemaData, newCustomFieldNameText, isCustomListTemp))
+            {
+                isCustomList.Remove(schemaKey);
+                newCustomFieldName.TryAddOrUpdateValue(schemaKey, "");
+                newCustomFieldNameText = "";
+                GUI.FocusControl("");
+            }
         }
     }
 
@@ -569,24 +575,38 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     #endregion
 
     #region Add/Remove Field Methods
-    private void AddBasicField(BasicFieldType type, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList)
+    private bool AddBasicField(BasicFieldType type, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList)
     {
+        bool result = true;
         object defaultValue = null;
+
         if (isList)
             defaultValue = GetDefaultValueForType(type);        
 
         if (EZItemManager.AddBasicField(type, schemaKey, schemaData, newFieldName, isList, defaultValue))
             needsSave = true;
         else
+        {
             EditorUtility.DisplayDialog("Error creating field!", "Field name is invalid or field name already exists.", "Ok");
+            result = false;
+        }
+
+        return result;
     }
 
-    private void AddCustomField(string customType, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList)
+    private bool AddCustomField(string customType, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList)
     {
+        bool result = true;
+
         if (EZItemManager.AddCustomField(customType, schemaKey, schemaData, newFieldName, isList))        
             needsSave = true;
         else
+        {
             EditorUtility.DisplayDialog("Error creating field!", "Field name is invalid or field name already exists.", "Ok");
+            result = false;
+        }
+
+        return result;
     }
 
     private void RemoveField(string schemaKey, Dictionary<string, object> schemaData, string deletedFieldKey)
@@ -626,8 +646,9 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         needsSave = false;
     }
 
-    protected override void Create(object data)
+    protected override bool Create(object data)
     {
+        bool result = true;
         string key = data as string;
 
         if (EZItemManager.AddSchema(key, new Dictionary<string, object>()))
@@ -638,7 +659,10 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         else
         {
             EditorUtility.DisplayDialog("Error creating Schema!", "Schema name is invalid or schema name already exists.", "Ok");
+            result = false;
         }
+
+        return result;
     }
 
     protected override void Remove(string key)

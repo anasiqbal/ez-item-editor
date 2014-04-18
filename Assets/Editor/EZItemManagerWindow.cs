@@ -106,10 +106,11 @@ public class EZItemManagerWindow : EZManagerWindowBase
             args.Add(schemaKeys[schemaIndex]);
             args.Add(newItemName);
             
-            Create(args);
-            
-            newItemName = "";
-            GUI.FocusControl("");
+            if (Create(args))
+            {            
+                newItemName = "";
+                GUI.FocusControl("");
+            }
         }
 
         NewLine();
@@ -558,8 +559,9 @@ public class EZItemManagerWindow : EZManagerWindowBase
         needsSave = false;
     }
 
-    protected override void Create(object data)
+    protected override bool Create(object data)
     {
+        bool result = true;
         List<object> args = data as List<object>;
         string schemaKey = args[0] as string;
         string itemName = args[1] as string;
@@ -577,11 +579,17 @@ public class EZItemManagerWindow : EZManagerWindowBase
             }
             else
             {
+                result = false;
                 EditorUtility.DisplayDialog("Error Creating Item!", "Item name not valid or name already exists.", "Ok");
             }
         }
         else
+        {
+            result = false;
             Debug.LogError("Schema data not found: " + schemaKey);
+        }
+
+        return result;
     }
 
     protected override void Remove(string key)
