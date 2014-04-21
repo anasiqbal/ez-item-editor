@@ -136,9 +136,10 @@ public class EZItemManagerWindow : EZManagerWindowBase
         NewLine(1.25f);
         
         // Filter dropdown
-        width = 100;
-        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Filter By Schema:");
-        currentLinePosition += (width + 2);
+        GUIContent content = new GUIContent("Show Items Containing Schema:");
+        width = labelStyle.CalcSize(content).x;
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Show Items Containing Schema:");
+        currentLinePosition += (width + 8);
 
         width = 100;
         filterSchemaIndex = EditorGUI.Popup(new Rect(currentLinePosition, PopupTop(), width, StandardHeight()), filterSchemaIndex, filterSchemaKeys);
