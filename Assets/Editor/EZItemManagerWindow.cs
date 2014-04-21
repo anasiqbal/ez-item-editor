@@ -539,13 +539,8 @@ public class EZItemManagerWindow : EZManagerWindowBase
     #region Load/Save/Create/Remove Item Methods
     protected override void Load()
     {
-        EZItemManager.Load();
+        base.Load();
         groupHeights.Clear();
-    }
-
-    protected override void Save()
-    {
-        EZItemManager.SaveItems();
     }
 
     protected override bool Create(object data)

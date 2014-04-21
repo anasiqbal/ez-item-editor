@@ -979,10 +979,20 @@ public abstract class EZManagerWindowBase : EditorWindow {
         return defaultValue;
     }
     #endregion
+
+    #region Save/Load methods
+    protected virtual void Load()
+    {
+        EZItemManager.Load();
+    }
+
+    protected virtual void Save()
+    {
+        EZItemManager.Save();
+    }
+    #endregion
     
     #region Abstract methods
-    protected abstract void Load();
-    protected abstract void Save();
     protected abstract bool Create(object data);
     protected abstract void Remove(string key);
 

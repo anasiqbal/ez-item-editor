@@ -115,7 +115,7 @@ public class EZItemManager
         return schema;
     }
 
-    public static List<string> ItemsOfSchemaType(string schemaType)
+    public static List<string> GetItemsOfSchemaType(string schemaType)
     {
         List<string> itemList;
         ItemListBySchema.TryGetValue(schemaType, out itemList);
@@ -304,8 +304,20 @@ public class EZItemManager
 #endif
     #endregion
 
-    #region Save/Load Methods
-    public static void SaveItems()
+    #region Save/Load Methods    
+    public static void Load()
+    {
+        LoadSchemas();
+        LoadItems();
+    }
+
+    public static void Save()
+    {
+        SaveSchemas();
+        SaveItems();
+    }
+
+    private static void SaveItems()
     {
         try
         {
@@ -322,7 +334,7 @@ public class EZItemManager
         }
     }
 
-    public static void SaveSchemas()
+    private static void SaveSchemas()
     {
         try
         {
@@ -337,12 +349,6 @@ public class EZItemManager
         {
             Debug.LogException(ex);
         }
-    }
-
-    public static void Load()
-    {
-        LoadSchemas();
-        LoadItems();
     }
 
     private static void LoadItems()
@@ -397,7 +403,7 @@ public class EZItemManager
         }
     }
 
-    static void CreateFileIfMissing(string path)
+    private static void CreateFileIfMissing(string path)
     {
         if (!File.Exists(path))
         {
@@ -407,7 +413,7 @@ public class EZItemManager
         }
     }
 
-    static bool SchemaExistsForItem(string itemKey, Dictionary<string, object> itemData)
+    private static bool SchemaExistsForItem(string itemKey, Dictionary<string, object> itemData)
     {
         bool result = false;
         object schemaType;
@@ -495,13 +501,15 @@ public class EZItemManager
         // Remove all the fields so the lookup lists get updated
         List<string> allFields = GetAllFieldKeys(key, AllSchemas);
         foreach(string field in allFields)
-            RemoveField(key, field);
+            RemoveFieldFromSchema(key, field);
         
         AllSchemas.Remove(key);
         SchemasNeedSave = true;
     }
+    #endregion
 
-    public static bool AddBasicField(BasicFieldType type, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList = false, object defaultValue = null)
+    #region Add/Remove Schema Field Methods
+    public static bool AddBasicFieldToSchema(BasicFieldType type, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList = false, object defaultValue = null)
     {
         bool result = true;
         string valueKey = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName);
@@ -524,12 +532,13 @@ public class EZItemManager
             }
 
             AddFieldToListByFieldName(newFieldName, schemaKey);
+            AddBasicFieldToItems(type, schemaKey, newFieldName, isList, defaultValue);
         }
 
         return result;
     }
 
-    public static bool AddCustomField(string customType, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList)
+    public static bool AddCustomFieldToSchema(string customType, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList)
     {
         bool result = true;
 
@@ -549,20 +558,25 @@ public class EZItemManager
                 schemaData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName), "null");
 
             AddFieldToListByFieldName(newFieldName, schemaKey);
+            AddCustomFieldToItems(customType, schemaKey, newFieldName, isList);
         }
 
         return result;
     }
 
-    public static void RemoveField(string schemaKey, string deletedFieldKey)
+    public static void RemoveFieldFromSchema(string schemaKey, string deletedFieldKey)
     {
         Dictionary<string, object> schemaData;
         if (AllSchemas.TryGetValue(schemaKey, out schemaData))
-            RemoveField(schemaKey, schemaData, deletedFieldKey);
+            RemoveFieldFromSchema(schemaKey, schemaData, deletedFieldKey);
     }
 
-    public static void RemoveField(string schemaKey, Dictionary<string, object> schemaData, string deletedFieldKey)
+    public static void RemoveFieldFromSchema(string schemaKey, Dictionary<string, object> schemaData, string deletedFieldKey)
     {
+        schemaData.Remove(deletedFieldKey);
+        schemaData.Remove(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, deletedFieldKey));
+        schemaData.Remove(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, deletedFieldKey));
+
         // Remove the schema key from the listbyfieldname List
         List<string> schemaKeyList;
         if(ListByFieldName.TryGetValue(deletedFieldKey, out schemaKeyList))
@@ -570,6 +584,80 @@ public class EZItemManager
             schemaKeyList.Remove(schemaKey);
             if (schemaKeyList.Count == 0)
                 ListByFieldName.Remove(deletedFieldKey);
+        }
+
+        RemoveFieldFromItems(schemaKey, deletedFieldKey);
+    }
+    #endregion
+
+    #region Add/Remove Item Field Methods
+    private static void AddBasicFieldToItems(BasicFieldType type, string schemaKey, string newFieldName, bool isList, object defaultValue)
+    {
+        List<string> itemKeys = GetItemsOfSchemaType(schemaKey);
+        Dictionary<string, object> itemData;
+
+        foreach(string itemKey in itemKeys)
+        {
+            if (AllItems.TryGetValue(itemKey, out itemData))
+            {
+                itemData.Add(newFieldName, type);
+
+                if (isList)
+                {
+                    itemData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName), new List<object>());
+                    itemData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, newFieldName), true);
+                }
+                else
+                {
+                    itemData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName), defaultValue);
+                }
+
+                ItemsNeedSave = true;
+            }
+        }
+    }
+
+    private static void AddCustomFieldToItems(string customType, string schemaKey, string newFieldName, bool isList)
+    {
+        List<string> itemKeys = GetItemsOfSchemaType(schemaKey);
+        Dictionary<string, object> itemData;
+        
+        foreach(string itemKey in itemKeys)
+        {
+            if (AllItems.TryGetValue(itemKey, out itemData))
+            {
+                itemData.Add(newFieldName, customType);
+                
+                if (isList)
+                {
+                    itemData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName), new List<object>());
+                    itemData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, newFieldName), true);
+                }
+                else
+                {
+                    itemData.Add(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName), "null");
+                }
+                
+                ItemsNeedSave = true;
+            }
+        }
+    }
+
+    private static void RemoveFieldFromItems(string schemaKey, string deleteFieldName)
+    {
+        List<string> itemKeys = GetItemsOfSchemaType(schemaKey);
+        Dictionary<string, object> itemData;
+
+        foreach(string itemKey in itemKeys)
+        {
+            if (AllItems.TryGetValue(itemKey, out itemData))
+            {
+                itemData.Remove(deleteFieldName);
+                itemData.Remove(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, deleteFieldName));
+                itemData.Remove(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, deleteFieldName));
+
+                ItemsNeedSave = true;
+            }
         }
     }
     #endregion

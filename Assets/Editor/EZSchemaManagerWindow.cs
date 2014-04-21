@@ -595,7 +595,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         if (isList)
             defaultValue = GetDefaultValueForType(type);        
 
-        if (EZItemManager.AddBasicField(type, schemaKey, schemaData, newFieldName, isList, defaultValue))
+        if (EZItemManager.AddBasicFieldToSchema(type, schemaKey, schemaData, newFieldName, isList, defaultValue))
             SetNeedToSave(true);
         else
         {
@@ -610,7 +610,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     {
         bool result = true;
 
-        if (EZItemManager.AddCustomField(customType, schemaKey, schemaData, newFieldName, isList))        
+        if (EZItemManager.AddCustomFieldToSchema(customType, schemaKey, schemaData, newFieldName, isList))        
             SetNeedToSave(true);
         else
         {
@@ -623,13 +623,8 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
 
     private void RemoveField(string schemaKey, Dictionary<string, object> schemaData, string deletedFieldKey)
     {
-        schemaData.Remove(deletedFieldKey);
-        schemaData.Remove(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, deletedFieldKey));
-        schemaData.Remove(string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, deletedFieldKey));
         newListCountDict.Remove(string.Format(EZConstants.MetaDataFormat, schemaKey, deletedFieldKey));
-
-        // Let the manager know we removed a field
-        EZItemManager.RemoveField(schemaKey, schemaData, deletedFieldKey);
+        EZItemManager.RemoveFieldFromSchema(schemaKey, schemaData, deletedFieldKey);
 
         SetNeedToSave(true);
     }
@@ -640,11 +635,6 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     {
         EZItemManager.Load();
         groupHeights.Clear();
-    }
-
-    protected override void Save()
-    {
-        EZItemManager.SaveSchemas();
     }
 
     protected override bool NeedToSave()
@@ -681,7 +671,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     protected override void Remove(string key)
     {
         // Show a warning if we have items using this schema
-        List<string> items = EZItemManager.ItemsOfSchemaType(key);
+        List<string> items = EZItemManager.GetItemsOfSchemaType(key);
         bool shouldDelete = true;
 
         if (items.Count > 0)
