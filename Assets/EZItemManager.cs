@@ -396,6 +396,22 @@ public class EZItemManager
             writer.Close();
         }
     }
+
+    static bool SchemaExistsForItem(string itemKey, Dictionary<string, object> itemData)
+    {
+        bool result = false;
+        object schemaType;
+
+        if (itemData.TryGetValue(EZConstants.SchemaKey, out schemaType))
+        {
+            string schemaKey = schemaType as string;
+            if (AllSchemas.ContainsKey(schemaKey))
+                result = true;
+        }
+
+        return result;
+
+    }
     #endregion
 
     #region Add/Remove Methods
@@ -403,7 +419,7 @@ public class EZItemManager
     {
         bool result = true;
 
-        if (IsItemNameValid(key))
+        if (IsItemNameValid(key) && SchemaExistsForItem(key, data))
             result = AllItems.TryAddValue(key, data);
         else
             result = false;
