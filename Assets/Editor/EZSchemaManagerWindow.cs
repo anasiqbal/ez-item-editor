@@ -596,7 +596,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
             defaultValue = GetDefaultValueForType(type);        
 
         if (EZItemManager.AddBasicField(type, schemaKey, schemaData, newFieldName, isList, defaultValue))
-            needsSave = true;
+            SetNeedToSave(true);
         else
         {
             EditorUtility.DisplayDialog("Error creating field!", "Field name is invalid or field name already exists.", "Ok");
@@ -611,7 +611,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         bool result = true;
 
         if (EZItemManager.AddCustomField(customType, schemaKey, schemaData, newFieldName, isList))        
-            needsSave = true;
+            SetNeedToSave(true);
         else
         {
             EditorUtility.DisplayDialog("Error creating field!", "Field name is invalid or field name already exists.", "Ok");
@@ -631,7 +631,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         // Let the manager know we removed a field
         EZItemManager.RemoveField(schemaKey, schemaData, deletedFieldKey);
 
-        needsSave = true;
+        SetNeedToSave(true);
     }
     #endregion
 
@@ -640,15 +640,21 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     {
         EZItemManager.Load();
         groupHeights.Clear();
-
-        needsSave = false;
-        SetNeedsSaveForItemWindow(needsSave);
     }
 
     protected override void Save()
     {
         EZItemManager.SaveSchemas();
-        needsSave = false;
+    }
+
+    protected override bool NeedToSave()
+    {
+        return EZItemManager.SchemasNeedSave;
+    }
+
+    protected override void SetNeedToSave(bool shouldSave)
+    {
+        EZItemManager.SchemasNeedSave = true;
     }
     #endregion
 
@@ -660,7 +666,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
 
         if (EZItemManager.AddSchema(key, new Dictionary<string, object>()))
         {
-            needsSave = true;
+            SetNeedToSave(true);
             SetFoldout(true, key);
         }
         else
@@ -681,21 +687,13 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         if (items.Count > 0)
         {
             string itemWord = items.Count == 1 ? "item" : "items";
-            if (EditorUtility.DisplayDialog(string.Format("{0} {1} will be deleted!", items.Count, itemWord), "Are you sure you want to delete this schema?", "Delete Schema", "Cancel"))
-            {
-                shouldDelete = true;
-                SetNeedsSaveForItemWindow(true);
-            }
-            else
-            {
-                shouldDelete = false;
-            }
+            shouldDelete = EditorUtility.DisplayDialog(string.Format("{0} {1} will be deleted!", items.Count, itemWord), "Are you sure you want to delete this schema?", "Delete Schema", "Cancel");
         }
 
         if (shouldDelete)
         {
             EZItemManager.RemoveSchema(key, true);
-            needsSave = true;
+            SetNeedToSave(true);
         }
     }
     #endregion
@@ -711,12 +709,6 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         }
         
         return totalHeight;
-    }
-
-    void SetNeedsSaveForItemWindow(bool needsSave)
-    {
-        EZItemManagerWindow window = EditorWindow.GetWindow<EZItemManagerWindow>();
-        window.needsSave = needsSave;
     }
     #endregion
 }

@@ -36,7 +36,6 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected GUIStyle subHeaderStyle = null;
 
     protected string saveButtonText = "Save";
-    public bool needsSave = false;
 
     protected string headerColor = "red";
     protected string mainHeaderText = "Oops";
@@ -128,7 +127,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
 
         NewLine(buttonHeightMultiplier+.1f);
 
-        if (needsSave)
+        if (NeedToSave())
         {
             width = 110;
             saveButtonStyle.normal.textColor = Color.red;
@@ -371,7 +370,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             if (newValue != Convert.ToBoolean(currentValue))
             {
                 data[key] = newValue;
-                needsSave = true;
+                SetNeedToSave(true);
             }
         }
         catch(Exception ex)
@@ -397,7 +396,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             if (value != newValue)
             {
                 boolList[index] = newValue;
-                needsSave = true;
+                SetNeedToSave(true);
             }
         } 
         catch (Exception ex)
@@ -428,7 +427,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             if (newValue != Convert.ToInt32(currentValue))
             {
                 data[key] = newValue;
-                needsSave = true;
+                SetNeedToSave(true);
             }
         }
         catch(Exception ex)
@@ -454,7 +453,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             if (value != newValue)
             {
                 intList[index] = newValue;
-                needsSave = true;
+                SetNeedToSave(true);
             }
         } 
         catch (Exception ex)
@@ -485,7 +484,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             if (newValue != Convert.ToSingle(currentValue))
             {
                 data[key] = newValue;
-                needsSave = true;
+                SetNeedToSave(true);
             }
         }
         catch(Exception ex)
@@ -511,7 +510,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             if (value != newValue)
             {
                 floatList[index] = newValue;
-                needsSave = true;
+                SetNeedToSave(true);
             }
         } 
         catch (Exception ex)
@@ -542,7 +541,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             if (newValue != (string)currentValue)
             {
                 data[key] = newValue;
-                needsSave = true;
+                SetNeedToSave(true);
             }
         }
         catch(Exception ex)
@@ -568,7 +567,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             if (value != newValue)
             {
                 stringList[index] = newValue;
-                needsSave = true;
+                SetNeedToSave(true);
             }
         } 
         catch (Exception ex)
@@ -603,7 +602,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
                 vectDict["x"] = newValue.x;
                 vectDict["y"] = newValue.y;
                 data[key] = vectDict;
-                needsSave = true;
+                SetNeedToSave(true);
             }
         }
         catch(Exception ex)
@@ -631,7 +630,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
                 value["x"] = newValue.x;
                 value["y"] = newValue.y;
                 vectorList[index] = value;
-                needsSave = true;
+                SetNeedToSave(true);
             }
         } 
         catch (Exception ex)
@@ -668,7 +667,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
                 vectDict["y"] = newValue.y;
                 vectDict["z"] = newValue.z;
                 data[key] = vectDict;
-                needsSave = true;
+                SetNeedToSave(true);
             }
         }
         catch(Exception ex)
@@ -698,7 +697,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
                 value["y"] = newValue.y;
                 value["z"] = newValue.z;
                 vectorList[index] = value;
-                needsSave = true;
+                SetNeedToSave(true);
             }
         } 
         catch (Exception ex)
@@ -737,7 +736,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
                 vectDict["z"] = newValue.z;
                 vectDict["w"] = newValue.w;
                 data[key] = vectDict;
-                needsSave = true;
+                SetNeedToSave(true);
             }
         }
         catch(Exception ex)
@@ -769,7 +768,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
                 value["z"] = newValue.z;
                 value["w"] = newValue.w;
                 vectorList[index] = value;
-                needsSave = true;
+                SetNeedToSave(true);
             }
         } 
         catch (Exception ex)
@@ -806,7 +805,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
                 if (newIndex != currentIndex)   
                 {
                     data[key] = possibleValues[newIndex];                    
-                    needsSave = true;
+                    SetNeedToSave(true);
                 }
             }
             else
@@ -846,7 +845,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
                 if (newIndex != currentIndex)     
                 {
                     customList[index] = possibleValues[newIndex];
-                    needsSave = true;
+                    SetNeedToSave(true);
                 }
             }
             else
@@ -905,7 +904,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
         if (list.Count > size)
         {
             list.RemoveRange(size, list.Count-size);
-            needsSave = true;
+            SetNeedToSave(true);
         }
         else if (list.Count < size)
         {
@@ -917,7 +916,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
                 else
                     list.Add(defaultValue);
             }
-            needsSave = true;
+            SetNeedToSave(true);
         }
     }
 
@@ -972,6 +971,9 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected abstract void DrawCreateSection();
 
     protected abstract bool ShouldFilter(string key, Dictionary<string, object> data);
+
+    protected abstract bool NeedToSave();
+    protected abstract void SetNeedToSave(bool shouldSave);
 
     protected abstract float CalculateGroupHeightsTotal();
     #endregion

@@ -23,6 +23,7 @@ public enum BasicFieldType
 public class EZItemManager
 {
     #region Item Dictionary
+    public static bool ItemsNeedSave;
     public static string ItemFilePath 
     {
         get
@@ -48,6 +49,7 @@ public class EZItemManager
     #endregion
 
     #region Schema Dictionary
+    public static bool SchemasNeedSave;
     public static string SchemaFilePath
     {
         get
@@ -311,6 +313,8 @@ public class EZItemManager
             string prettyJson = JsonHelper.FormatJson(rawJson);
 
             File.WriteAllText(ItemFilePath, prettyJson);
+
+            ItemsNeedSave = false;
         }
         catch(Exception ex)
         {
@@ -326,6 +330,8 @@ public class EZItemManager
             string prettyJson = JsonHelper.FormatJson(rawJson);
 
             File.WriteAllText(SchemaFilePath, prettyJson);
+
+            SchemasNeedSave = false;
         }
         catch(Exception ex)
         {
@@ -354,6 +360,8 @@ public class EZItemManager
             {
                 AddItem(pair.Key, pair.Value as Dictionary<string, object>);
             }
+
+            ItemsNeedSave = false;
         }
         catch (Exception ex)
         {
@@ -380,6 +388,8 @@ public class EZItemManager
                 Dictionary<string, object> schemaData = pair.Value as Dictionary<string, object>;
                 AddSchema(pair.Key, schemaData);
             }
+
+            SchemasNeedSave = false;
         }
         catch (Exception ex)
         {
@@ -427,6 +437,7 @@ public class EZItemManager
         if (result)
         {
             AddItemToListBySchema(key, GetSchemaForItem(key));
+            ItemsNeedSave = true;
         }
 
         return result;
@@ -444,6 +455,8 @@ public class EZItemManager
         }
 
         AllItems.Remove(key);
+
+        ItemsNeedSave = true;
     }
 
     public static bool AddSchema(string name, Dictionary<string, object> data = null)
@@ -456,7 +469,10 @@ public class EZItemManager
             result = false;
 
         if (result)
+        {
             BuildSortingAndLookupListFor(name, data);
+            SchemasNeedSave = true;
+        }
 
         return result;
     }
@@ -482,6 +498,7 @@ public class EZItemManager
             RemoveField(key, field);
         
         AllSchemas.Remove(key);
+        SchemasNeedSave = true;
     }
 
     public static bool AddBasicField(BasicFieldType type, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList = false, object defaultValue = null)

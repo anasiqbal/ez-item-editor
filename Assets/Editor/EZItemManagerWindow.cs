@@ -541,15 +541,11 @@ public class EZItemManagerWindow : EZManagerWindowBase
     {
         EZItemManager.Load();
         groupHeights.Clear();
-
-        needsSave = false;
-        SetNeedsSaveForSchemaWindow(needsSave);
     }
 
     protected override void Save()
     {
         EZItemManager.SaveItems();
-        needsSave = false;
     }
 
     protected override bool Create(object data)
@@ -568,7 +564,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
             if (EZItemManager.AddItem(itemName, itemData))
             {
                 SetFoldout(true, itemName);
-                needsSave = true;
+                SetNeedToSave(true);
             }
             else
             {
@@ -588,7 +584,17 @@ public class EZItemManagerWindow : EZManagerWindowBase
     protected override void Remove(string key)
     {
         EZItemManager.RemoveItem(key);
-        needsSave = true;
+        SetNeedToSave(true);
+    }
+
+    protected override bool NeedToSave()
+    {
+        return EZItemManager.ItemsNeedSave;
+    }
+
+    protected override void SetNeedToSave(bool shouldSave)
+    {
+        EZItemManager.ItemsNeedSave = shouldSave;
     }
     #endregion
 
@@ -627,12 +633,6 @@ public class EZItemManagerWindow : EZManagerWindowBase
         }
         
         return totalHeight;
-    }
-
-    void SetNeedsSaveForSchemaWindow(bool needsSave)
-    {
-       EZSchemaManagerWindow window = EditorWindow.GetWindow<EZSchemaManagerWindow>();
-       window.needsSave = needsSave;
     }
     #endregion
 }
