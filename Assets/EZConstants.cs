@@ -21,6 +21,8 @@ public class EZConstants {
     public const float LeftBuffer = 2f;
     public const float RightBuffer = 2f;
     public const float VectorFieldBuffer = 0.75f;
+    public const float MinTextAreaWidth = 100f;
+    public const float MinTextAreaHeight = LineHeight;
     #endregion
 
     #region Preference Keys

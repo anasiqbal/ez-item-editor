@@ -230,6 +230,11 @@ public abstract class EZManagerWindowBase : EditorWindow {
         return this.position.width-EZConstants.LeftBuffer-EZConstants.RightBuffer;
     }
 
+    protected virtual float WidthLeftOnCurrentLine()
+    {
+        return FullWindowWidth() - EZConstants.LeftBuffer - EZConstants.RightBuffer - currentLinePosition;
+    }
+
     protected virtual float ScrollViewWidth()
     {
         return FullWindowWidth() - 20;
@@ -530,13 +535,20 @@ public abstract class EZManagerWindowBase : EditorWindow {
             data.TryGetValue(key, out currentValue);
 
             GUIContent content = new GUIContent(label);
-            float width = labelStyle.CalcSize(content).x;
-            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content);
-            currentLinePosition += (width + 2);
+            Vector2 size = labelStyle.CalcSize(content);
+            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), size.x, StandardHeight()), content);
+            currentLinePosition += (size.x + 2);
 
-            width = 100;
-            newValue = EditorGUI.TextField(new Rect(currentLinePosition, TopOfLine(), width, TextBoxHeight()), currentValue as string);
-            currentLinePosition += (width + 2);
+            content.text = currentValue as string;
+            size = GUI.skin.textField.CalcSize(content);
+            size.x = Math.Min(Math.Max(size.x, EZConstants.MinTextAreaWidth), WidthLeftOnCurrentLine() - 62); 
+            size.y = Math.Max(size.y, EZConstants.MinTextAreaHeight);
+            newValue = EditorGUI.TextArea(new Rect(currentLinePosition, TopOfLine(), size.x, size.y), content.text);
+            currentLinePosition += (size.x + 2);
+
+            float tempLinePosition = currentLinePosition;
+            NewLine(size.y/EZConstants.LineHeight - 1);
+            currentLinePosition = tempLinePosition;
 
             if (newValue != (string)currentValue)
             {
@@ -560,9 +572,16 @@ public abstract class EZManagerWindowBase : EditorWindow {
             EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), string.Format("{0}:", index));
             currentLinePosition += (width + 2);
 
-            width = 100;
-            newValue = EditorGUI.TextField(new Rect(currentLinePosition, TopOfLine(), width, TextBoxHeight()), value);
-            currentLinePosition += (width + 2);
+            GUIContent content = new GUIContent(value);
+            Vector2 size = GUI.skin.textField.CalcSize(content);
+            size.x = Math.Min(Math.Max(size.x, EZConstants.MinTextAreaWidth), WidthLeftOnCurrentLine() - 62); 
+            size.y = Math.Max(size.y, EZConstants.MinTextAreaHeight);
+            newValue = EditorGUI.TextArea(new Rect(currentLinePosition, TopOfLine(), size.x, size.y), content.text);
+            currentLinePosition += (size.x + 2);
+            
+            float tempLinePosition = currentLinePosition;
+            NewLine(size.y/EZConstants.LineHeight - 1);
+            currentLinePosition = tempLinePosition;
 
             if (value != newValue)
             {
