@@ -120,7 +120,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             Load();
         currentLinePosition += (width + 2);
 
-        GUIContent filePath = new GUIContent(EZItemManager.ItemFilePath + Environment.NewLine + EZItemManager.SchemaFilePath);
+        GUIContent filePath = new GUIContent(FilePath());
         Vector2 size = labelStyle.CalcSize(filePath);
         EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), size.x, size.y), filePath);
         currentLinePosition += (size.x + 2);
@@ -974,6 +974,8 @@ public abstract class EZManagerWindowBase : EditorWindow {
 
     protected abstract bool NeedToSave();
     protected abstract void SetNeedToSave(bool shouldSave);
+
+    protected abstract string FilePath();
 
     protected abstract float CalculateGroupHeightsTotal();
     #endregion

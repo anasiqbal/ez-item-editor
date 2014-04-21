@@ -634,5 +634,10 @@ public class EZItemManagerWindow : EZManagerWindowBase
         
         return totalHeight;
     }
+
+    protected override string FilePath()
+    {
+        return EZItemManager.ItemFilePath;
+    }
     #endregion
 }

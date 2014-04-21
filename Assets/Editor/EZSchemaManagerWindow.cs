@@ -710,5 +710,10 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         
         return totalHeight;
     }
+
+    protected override string FilePath()
+    {
+        return EZItemManager.SchemaFilePath;
+    }
     #endregion
 }
