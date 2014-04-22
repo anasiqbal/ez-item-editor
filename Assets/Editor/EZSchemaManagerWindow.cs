@@ -21,6 +21,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     
     private List<string> deletedFields = new List<string>();
     private List<string> deletedSchemas = new List<string>();
+    private Dictionary<string, string> renamedSchemas = new Dictionary<string, string>();
     
     [MenuItem(menuItemLocation)]
     private static void showEditor()
@@ -68,6 +69,15 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         foreach(string deletedSchemaKey in deletedSchemas)        
             Remove(deletedSchemaKey);
         deletedSchemas.Clear();
+
+        // Rename any schemas that were renamed
+        string error;
+        foreach(KeyValuePair<string, string> pair in renamedSchemas)
+        {
+            if (!EZItemManager.RenameSchema(pair.Key, pair.Value, out error))
+                EditorUtility.DisplayDialog("Error!", string.Format("Couldn't rename {0} to {1}: {2}", pair.Key, pair.Value, error), "Ok");
+        }
+        renamedSchemas.Clear();
     }
     #endregion
 
@@ -244,7 +254,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         float beginningHeight = CurrentHeight();
 
         // Start drawing below
-        if (DrawFoldout(string.Format("Schema: {0}", schemaKey), schemaKey))
+        if (DrawFoldout("Schema: ", schemaKey, schemaKey, schemaKey, RenameSchema))
         {
             bool shouldDrawSpace = false;
             bool didDrawSpaceForSection = false;
@@ -653,15 +663,17 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     {
         bool result = true;
         string key = data as string;
+        string error;
 
-        if (EZItemManager.AddSchema(key, new Dictionary<string, object>()))
+        result = EZItemManager.AddSchema(key, new Dictionary<string, object>(), out error);
+        if (result)
         {
             SetNeedToSave(true);
             SetFoldout(true, key);
         }
         else
         {
-            EditorUtility.DisplayDialog("Error creating Schema!", "Schema name is invalid or schema name already exists.", "Ok");
+            EditorUtility.DisplayDialog("Error creating Schema!", error, "Ok");
             result = false;
         }
 
@@ -704,6 +716,15 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     protected override string FilePath()
     {
         return EZItemManager.SchemaFilePath;
+    }
+    #endregion
+
+    #region Rename Methods
+    protected bool RenameSchema(string oldSchemaKey, string newSchemaKey, out string error)
+    {
+        error = "";
+        renamedSchemas.Add(oldSchemaKey, newSchemaKey);
+        return true;
     }
     #endregion
 }

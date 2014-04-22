@@ -23,6 +23,7 @@ public class EZConstants {
     public const float VectorFieldBuffer = 0.75f;
     public const float MinTextAreaWidth = 100f;
     public const float MinTextAreaHeight = LineHeight;
+    public const double DoubleClickTime = 0.5;
     #endregion
 
     #region Preference Keys

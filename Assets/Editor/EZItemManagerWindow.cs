@@ -10,11 +10,9 @@ public class EZItemManagerWindow : EZManagerWindowBase
 {
     private const string menuItemLocation = rootMenuLocation + "/EZ Create Data";
 
-    private string[] schemaKeys = null;
     private string newItemName = "";
     private int schemaIndex = 0;
 
-    private string[] filterSchemaKeys = null;
     private int filterSchemaIndex = 0;
 
     private List<string> deletedItems = new List<string>();
@@ -34,16 +32,6 @@ public class EZItemManagerWindow : EZManagerWindowBase
     #region OnGUI Method
     protected override void OnGUI()
     {
-        if (schemaKeys == null || schemaKeys.Length != EZItemManager.AllSchemas.Keys.Count)
-        {
-            schemaKeys = EZItemManager.AllSchemas.Keys.ToArray();
-
-            List<string> temp = EZItemManager.AllSchemas.Keys.ToList();
-            temp.Add("_All");
-            temp.Sort();
-            filterSchemaKeys = temp.ToArray();
-        }
-
         mainHeaderText = "Create Game Data";
         headerColor = EditorPrefs.GetString(EZConstants.CreateDataColorKey, EZConstants.CreateDataColor);
 
@@ -88,7 +76,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
         currentLinePosition += (width + 2);
         
         width = 100;
-        schemaIndex = EditorGUI.Popup(new Rect(currentLinePosition, PopupTop(), width, StandardHeight()), schemaIndex, schemaKeys);
+        schemaIndex = EditorGUI.Popup(new Rect(currentLinePosition, PopupTop(), width, StandardHeight()), schemaIndex, EZItemManager.SchemaKeyArray);
         currentLinePosition += (width + 6);
         
         width = 65;
@@ -103,7 +91,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
         if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Create New Item"))
         {
             List<object> args = new List<object>();
-            args.Add(schemaKeys[schemaIndex]);
+            args.Add(EZItemManager.SchemaKeyArray[schemaIndex]);
             args.Add(newItemName);
             
             if (Create(args))
@@ -126,7 +114,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
         int totalItems = EZItemManager.AllItems.Count;
         string itemText = totalItems != 1 ? "items" : "item";
         if (!string.IsNullOrEmpty(filterText) || 
-            (filterSchemaKeys.IsValidIndex(filterSchemaIndex) && !filterSchemaKeys[filterSchemaIndex].Equals("_All")))
+            (EZItemManager.FilterSchemaKeyArray.IsValidIndex(filterSchemaIndex) && !EZItemManager.FilterSchemaKeyArray[filterSchemaIndex].Equals("_All")))
         {
             string resultText = string.Format("{0} of {1} {2} displayed", NumberOfItemsBeingShown(EZItemManager.AllItems), totalItems, itemText);
             EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), resultText);
@@ -142,7 +130,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
         currentLinePosition += (width + 8);
 
         width = 100;
-        filterSchemaIndex = EditorGUI.Popup(new Rect(currentLinePosition, PopupTop(), width, StandardHeight()), filterSchemaIndex, filterSchemaKeys);
+        filterSchemaIndex = EditorGUI.Popup(new Rect(currentLinePosition, PopupTop(), width, StandardHeight()), filterSchemaIndex, EZItemManager.FilterSchemaKeyArray);
 
         NewLine();
     }
@@ -518,9 +506,9 @@ public class EZItemManagerWindow : EZManagerWindowBase
             schemaType = temp as string;
         
         // Return if we don't match any of the filter types
-        if (filterSchemaKeys.IsValidIndex(filterSchemaIndex) &&
-            !filterSchemaKeys[filterSchemaIndex].Equals("_All") &&
-            !schemaType.Equals(filterSchemaKeys[filterSchemaIndex]))
+        if (EZItemManager.FilterSchemaKeyArray.IsValidIndex(filterSchemaIndex) &&
+            !EZItemManager.FilterSchemaKeyArray[filterSchemaIndex].Equals("_All") &&
+            !schemaType.Equals(EZItemManager.FilterSchemaKeyArray[filterSchemaIndex]))
             return true;
         
         bool schemaKeyMatch = schemaType.ToLower().Contains(filterText.ToLower());

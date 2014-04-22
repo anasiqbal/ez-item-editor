@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System;
+using System.Linq;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
@@ -72,6 +73,39 @@ public class EZItemManager
             return _schema;
         } 
     }
+    private static string[] _filterSchemaKeyArray;
+    public static string[] FilterSchemaKeyArray
+    {
+        private set
+        {
+            _filterSchemaKeyArray = value;
+        }
+
+        get
+        {
+            if (_filterSchemaKeyArray == null)
+                _filterSchemaKeyArray = BuildSchemaFilterKeyArray();
+
+            return _filterSchemaKeyArray;
+        }
+    }
+    private static string[] _schemaKeyArray;
+    public static string[] SchemaKeyArray
+    {
+        private set
+        {
+            _schemaKeyArray = value;
+        }
+
+        get
+        {
+            if (_schemaKeyArray == null)
+                _schemaKeyArray = BuildSchemaKeyArray();
+
+            return _schemaKeyArray;
+        }
+    }
+
     #endregion
 
     #region Sorting and Lookup
@@ -101,6 +135,20 @@ public class EZItemManager
     }
 
 #if UNITY_EDITOR
+    private static string[] BuildSchemaFilterKeyArray()
+    {
+        List<string> temp = EZItemManager.AllSchemas.Keys.ToList();
+        temp.Add("_All");
+        temp.Sort();
+            
+        return temp.ToArray();
+    }
+
+    private static string[] BuildSchemaKeyArray()
+    {
+        return EZItemManager.AllSchemas.Keys.ToArray();
+    }
+
     public static string GetSchemaForItem(string itemKey)
     {
         string schema = "";
@@ -269,6 +317,9 @@ public class EZItemManager
         
         // Create empty list for the Item by Schema list
         ItemListBySchema.Add(schemaKey, new List<string>());
+
+        SchemaKeyArray = BuildSchemaKeyArray();
+        FilterSchemaKeyArray = BuildSchemaFilterKeyArray();
     }
 
     private static void AddFieldToListByFieldName(string fieldKey, string schemaKey)
@@ -389,10 +440,11 @@ public class EZItemManager
             ListByFieldName.Clear();
             ItemListBySchema.Clear();
 
+            string error;
             foreach(KeyValuePair<string, object> pair in data)
             {
                 Dictionary<string, object> schemaData = pair.Value as Dictionary<string, object>;
-                AddSchema(pair.Key, schemaData);
+                AddSchema(pair.Key, schemaData, out error);
             }
 
             SchemasNeedSave = false;
@@ -465,11 +517,11 @@ public class EZItemManager
         ItemsNeedSave = true;
     }
 
-    public static bool AddSchema(string name, Dictionary<string, object> data = null)
+    public static bool AddSchema(string name, Dictionary<string, object> data, out string error)
     {
         bool result = true;
 
-        if (IsSchemaNameValid(name))
+        if (IsSchemaNameValid(name, out error))
             result = AllSchemas.TryAddValue(name, data);
         else
             result = false;
@@ -495,16 +547,19 @@ public class EZItemManager
                 foreach(string itemKey in itemListCopy)
                     RemoveItem(itemKey);
             }
-            ItemListBySchema.Remove(key);
         }
+        ItemListBySchema.Remove(key);
 
         // Remove all the fields so the lookup lists get updated
         List<string> allFields = GetAllFieldKeys(key, AllSchemas);
         foreach(string field in allFields)
-            RemoveFieldFromSchema(key, field);
+            RemoveFieldFromSchema(key, field, deleteItems);
         
         AllSchemas.Remove(key);
         SchemasNeedSave = true;
+
+        SchemaKeyArray = BuildSchemaKeyArray();
+        FilterSchemaKeyArray = BuildSchemaFilterKeyArray();
     }
     #endregion
 
@@ -564,14 +619,14 @@ public class EZItemManager
         return result;
     }
 
-    public static void RemoveFieldFromSchema(string schemaKey, string deletedFieldKey)
+    public static void RemoveFieldFromSchema(string schemaKey, string deletedFieldKey, bool deleteFromItem = true)
     {
         Dictionary<string, object> schemaData;
         if (AllSchemas.TryGetValue(schemaKey, out schemaData))
-            RemoveFieldFromSchema(schemaKey, schemaData, deletedFieldKey);
+            RemoveFieldFromSchema(schemaKey, schemaData, deletedFieldKey, deleteFromItem);
     }
 
-    public static void RemoveFieldFromSchema(string schemaKey, Dictionary<string, object> schemaData, string deletedFieldKey)
+    public static void RemoveFieldFromSchema(string schemaKey, Dictionary<string, object> schemaData, string deletedFieldKey, bool deleteFromItem = true)
     {
         schemaData.Remove(deletedFieldKey);
         schemaData.Remove(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, deletedFieldKey));
@@ -586,7 +641,8 @@ public class EZItemManager
                 ListByFieldName.Remove(deletedFieldKey);
         }
 
-        RemoveFieldFromItems(schemaKey, deletedFieldKey);
+        if (deleteFromItem)
+            RemoveFieldFromItems(schemaKey, deletedFieldKey);
     }
     #endregion
 
@@ -662,6 +718,64 @@ public class EZItemManager
     }
     #endregion
 
+    #region Rename Methods
+    public static bool RenameSchema(string oldSchemaKey, string newSchemaKey, out string error)
+    {
+        bool result = true;
+        if (IsSchemaNameValid(newSchemaKey, out error))
+        {
+            Debug.Log(string.Format("Renaming {0} to {1} :)", oldSchemaKey, newSchemaKey));
+
+            Dictionary<string, object> schemaData;
+            if (AllSchemas.TryGetValue(oldSchemaKey, out schemaData))
+            {
+                List<string> itemsWithSchema = GetItemsOfSchemaType(oldSchemaKey);
+                Dictionary<string, object> schemaDataCopy = new Dictionary<string, object>(schemaData);
+
+                // First remove the schema from the dictionary
+                RemoveSchema(oldSchemaKey, false);
+
+                // Then add the schema data under the new schema key
+                if(!AddSchema(newSchemaKey, schemaDataCopy, out error))
+                {
+                    result = false;
+
+                    // Add the schema back under the old key if this step failed
+                    AddSchema(oldSchemaKey, schemaDataCopy, out error);
+                }
+                else
+                {
+                    List<string> itemBySchemaList;
+                    ItemListBySchema.TryGetValue(newSchemaKey, out itemBySchemaList);
+
+                    // Lastly update the schema key on any existing items
+                    foreach(string itemKey in itemsWithSchema)
+                    {
+                        Dictionary<string, object> itemData;
+                        if (AllItems.TryGetValue(itemKey, out itemData))                        
+                            itemData.TryAddOrUpdateValue(EZConstants.SchemaKey, newSchemaKey);
+                        itemBySchemaList.Add(itemKey);
+                    }
+                }
+            }
+            else
+            {
+                error = "Failed to read schema data.";
+                result = false;
+            }
+        }
+        else
+        {
+            result = false;
+        }
+
+        SchemasNeedSave = result;
+        ItemsNeedSave = result;
+
+        return result;
+    }
+    #endregion
+
     #region Filter Methods
     // Returns false if any fields in the given schema start with the given field name
     // Returns true otherwise
@@ -683,13 +797,21 @@ public class EZItemManager
     #endregion
 
     #region Validation Methods
-    public static bool IsSchemaNameValid(string name)
+    public static bool IsSchemaNameValid(string name, out string error)
     {
         bool result = true;
+        error = "";
 
-        if (AllSchemas.ContainsKey(name) ||
-            !ValidateIdentifier.IsValidIdentifier(name))
+        if (AllSchemas.ContainsKey(name))
+        {
+            error = "Schema name already exists.";
             result = false;
+        }
+        else if (!ValidateIdentifier.IsValidIdentifier(name))
+        {
+            error = "Schema name is invalid.";
+            result = false;
+        }
 
         return result;
     }    

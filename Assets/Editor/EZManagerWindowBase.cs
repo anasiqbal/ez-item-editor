@@ -41,6 +41,12 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected string mainHeaderText = "Oops";
 
     protected string highlightColor;
+
+    protected double lastClickTime = 0;
+    protected string lastClickedKey = "";
+    protected HashSet<string> editingFields = new HashSet<string>();
+    protected Dictionary<string, string> editFieldTextDict = new Dictionary<string, string>();
+    protected delegate bool DoRenameDelgate(string oldValue, string newValue, out string errorMsg);
      
     #region OnGUI and DrawHeader Methods
     protected virtual void OnGUI()
@@ -286,13 +292,85 @@ public abstract class EZManagerWindowBase : EditorWindow {
     #endregion
 
     #region Foldout Methods
-    protected virtual bool DrawFoldout(string label, string key)
+    protected virtual bool DrawFoldout(string foldoutLabel, string key, string editableLabel = "", string editFieldKey = "", DoRenameDelgate doRename = null)
     {
         bool currentFoldoutState = entryFoldoutState.Contains(key);
 
-        float width = 200;
+        GUIContent content = new GUIContent(foldoutLabel);
+        float width = foldoutStyle.CalcSize(content).x;
         bool newFoldoutState = EditorGUI.Foldout(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), currentFoldoutState, 
-                                                 label.HighlightSubstring(filterText, highlightColor), true, foldoutStyle);
+                                                 foldoutLabel.HighlightSubstring(filterText, highlightColor), true, foldoutStyle);
+        currentLinePosition += (width + 2);
+
+        if (!editingFields.Contains(editFieldKey))
+        {
+            content.text = editableLabel;
+            width = labelStyle.CalcSize(content).x;
+            if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content, labelStyle))
+            {
+                if (EditorApplication.timeSinceStartup - lastClickTime < EZConstants.DoubleClickTime && lastClickedKey.Equals(editFieldKey))
+                {
+                    Debug.Log("Clicked on "+editFieldKey);                
+                    lastClickedKey = "";
+                    editingFields.Add(editFieldKey);
+                }
+                else
+                {
+                    lastClickedKey = editFieldKey;
+                    editingFields.Remove(editFieldKey);
+                }
+
+                lastClickTime = EditorApplication.timeSinceStartup;
+            }
+        }
+        else
+        {
+            string editFieldText;
+            if (!editFieldTextDict.TryGetValue(editFieldKey, out editFieldText))
+                editFieldText = editableLabel;
+
+            string newValue = DrawResizableTextBox(editFieldText);
+            editFieldTextDict.TryAddOrUpdateValue(editFieldKey, newValue);
+
+            if (!newValue.Equals(editableLabel))
+            {
+                width = 55;
+                if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Rename") && doRename != null)
+                {
+                    string error;
+                    if (doRename(editableLabel, newValue, out error))
+                    {
+                        editingFields.Remove(editFieldKey);
+                        editFieldTextDict.Remove(editFieldKey);                    
+                        GUI.FocusControl("");
+                    }
+                    else
+                        EditorUtility.DisplayDialog("Error!", string.Format("Couldn't rename {0} to {1}: {2}", editableLabel, newValue, error), "Ok");
+                }
+                currentLinePosition += (width + 2);
+
+                width = 50;
+                if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Cancel"))
+                {
+                    editingFields.Remove(editFieldKey);
+                    editFieldTextDict.Remove(editFieldKey);                    
+                    GUI.FocusControl("");
+                }
+                currentLinePosition += (width + 2);
+            }
+            else
+            {
+                width = 50;
+                if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Cancel"))
+                {
+                    editingFields.Remove(editFieldKey);
+                    editFieldTextDict.Remove(editFieldKey);                    
+                    GUI.FocusControl("");
+                }
+                currentLinePosition += (width + 2);
+            }
+        }
+
         SetFoldout(newFoldoutState, key);
 
         NewLine();
@@ -528,9 +606,8 @@ public abstract class EZManagerWindowBase : EditorWindow {
     {
         try
         {
-            object currentValue;
-            string newValue;
             string key = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName);
+            object currentValue;
             
             data.TryGetValue(key, out currentValue);
 
@@ -539,16 +616,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), size.x, StandardHeight()), content);
             currentLinePosition += (size.x + 2);
 
-            content.text = currentValue as string;
-            size = GUI.skin.textField.CalcSize(content);
-            size.x = Math.Min(Math.Max(size.x, EZConstants.MinTextAreaWidth), WidthLeftOnCurrentLine() - 62); 
-            size.y = Math.Max(size.y, EZConstants.MinTextAreaHeight);
-            newValue = EditorGUI.TextArea(new Rect(currentLinePosition, TopOfLine(), size.x, size.y), content.text);
-            currentLinePosition += (size.x + 2);
-
-            float tempLinePosition = currentLinePosition;
-            NewLine(size.y/EZConstants.LineHeight - 1);
-            currentLinePosition = tempLinePosition;
+            string newValue = DrawResizableTextBox(currentValue as string);
 
             if (newValue != (string)currentValue)
             {
@@ -562,28 +630,34 @@ public abstract class EZManagerWindowBase : EditorWindow {
         }
     }
 
+    protected virtual string DrawResizableTextBox(string text)
+    {
+        GUIContent content = new GUIContent(text);
+        Vector2 size = GUI.skin.textField.CalcSize(content);
+        size.x = Math.Min(Math.Max(size.x, EZConstants.MinTextAreaWidth), WidthLeftOnCurrentLine() - 62); 
+        size.y = Math.Max(size.y, EZConstants.MinTextAreaHeight);
+
+        string newValue = EditorGUI.TextArea(new Rect(currentLinePosition, TopOfLine(), size.x, size.y), content.text);
+        currentLinePosition += (size.x + 2);
+        
+        float tempLinePosition = currentLinePosition;
+        NewLine(size.y/EZConstants.LineHeight - 1);
+        currentLinePosition = tempLinePosition;
+
+        return newValue;
+    }
+
     protected virtual void DrawListString(int index, string value, List<object> stringList)
     {
         try
         {
-            string newValue;
-
             float width = 20;
             EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), string.Format("{0}:", index));
             currentLinePosition += (width + 2);
 
-            GUIContent content = new GUIContent(value);
-            Vector2 size = GUI.skin.textField.CalcSize(content);
-            size.x = Math.Min(Math.Max(size.x, EZConstants.MinTextAreaWidth), WidthLeftOnCurrentLine() - 62); 
-            size.y = Math.Max(size.y, EZConstants.MinTextAreaHeight);
-            newValue = EditorGUI.TextArea(new Rect(currentLinePosition, TopOfLine(), size.x, size.y), content.text);
-            currentLinePosition += (size.x + 2);
-            
-            float tempLinePosition = currentLinePosition;
-            NewLine(size.y/EZConstants.LineHeight - 1);
-            currentLinePosition = tempLinePosition;
+            string newValue = DrawResizableTextBox(value);
 
-            if (value != newValue)
+            if (!value.Equals(newValue))
             {
                 stringList[index] = newValue;
                 SetNeedToSave(true);
