@@ -160,7 +160,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
             schemaType = temp as string;
 
         // Start drawing below
-        if (DrawFoldout(schemaType, key, key, key, RenameItem))
+        if (DrawFoldout(schemaType+":", key, key, key, RenameItem))
         {
             bool shouldDrawSpace = false;
             bool didDrawSpaceForSection = false;

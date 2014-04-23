@@ -306,7 +306,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
         {
             content.text = editableLabel;
             width = labelStyle.CalcSize(content).x;
-            if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content, labelStyle))
+            if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content.text.HighlightSubstring(filterText, highlightColor), labelStyle))
             {
                 if (EditorApplication.timeSinceStartup - lastClickTime < EZConstants.DoubleClickTime && lastClickedKey.Equals(editFieldKey))
                 {
