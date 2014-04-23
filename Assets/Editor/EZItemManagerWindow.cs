@@ -16,6 +16,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
     private int filterSchemaIndex = 0;
 
     private List<string> deletedItems = new List<string>();
+    private Dictionary<string, string> renamedItems = new Dictionary<string, string>();
 
     [MenuItem(menuItemLocation)]
     private static void showEditor()
@@ -63,6 +64,16 @@ public class EZItemManagerWindow : EZManagerWindowBase
         foreach(string deletedkey in deletedItems)        
             Remove(deletedkey);
         deletedItems.Clear();
+
+        //Rename any items that were renamed
+        string error;
+        foreach(KeyValuePair<string, string> pair in renamedItems)
+        {
+            if (!EZItemManager.RenameItem(pair.Key, pair.Value, out error))
+                EditorUtility.DisplayDialog("Error!", string.Format("Couldn't rename {0} to {1}: {2}", pair.Key, pair.Value, error), "Ok");
+        }
+
+        renamedItems.Clear();
     }
     #endregion
 
@@ -149,7 +160,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
             schemaType = temp as string;
 
         // Start drawing below
-        if (DrawFoldout(string.Format("{0}: {1}", schemaType, key), key))
+        if (DrawFoldout(schemaType, key, key, key, RenameItem))
         {
             bool shouldDrawSpace = false;
             bool didDrawSpaceForSection = false;
@@ -544,7 +555,8 @@ public class EZItemManagerWindow : EZManagerWindowBase
             Dictionary<string, object> itemData = new Dictionary<string, object>(schemaData);
             itemData.Add(EZConstants.SchemaKey, schemaKey);
 
-            if (EZItemManager.AddItem(itemName, itemData))
+            string error;
+            if (EZItemManager.AddItem(itemName, itemData, out error))
             {
                 SetFoldout(true, itemName);
                 SetNeedToSave(true);
@@ -552,7 +564,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
             else
             {
                 result = false;
-                EditorUtility.DisplayDialog("Error Creating Item!", "Item name not valid or name already exists.", "Ok");
+                EditorUtility.DisplayDialog("Error Creating Item!", error, "Ok");
             }
         }
         else
@@ -621,6 +633,15 @@ public class EZItemManagerWindow : EZManagerWindowBase
     protected override string FilePath()
     {
         return EZItemManager.ItemFilePath;
+    }
+    #endregion
+
+    #region Rename Methods
+    protected bool RenameItem(string oldItemKey, string newItemKey, out string error)
+    {
+        error = "";
+        renamedItems.Add(oldItemKey, newItemKey);
+        return true;
     }
     #endregion
 }

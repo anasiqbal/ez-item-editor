@@ -413,9 +413,10 @@ public class EZItemManager
 
             AllItems.Clear();
 
+            string error;
             foreach(KeyValuePair<string, object> pair in data)
             {
-                AddItem(pair.Key, pair.Value as Dictionary<string, object>);
+                AddItem(pair.Key, pair.Value as Dictionary<string, object>, out error);
             }
 
             ItemsNeedSave = false;
@@ -483,11 +484,12 @@ public class EZItemManager
     #endregion
 
     #region Add/Remove Methods
-    public static bool AddItem(string key, Dictionary<string, object> data)
+    public static bool AddItem(string key, Dictionary<string, object> data, out string error)
     {
         bool result = true;
+        error = "";
 
-        if (IsItemNameValid(key) && SchemaExistsForItem(key, data))
+        if (IsItemNameValid(key, out error) && SchemaExistsForItem(key, data))
             result = AllItems.TryAddValue(key, data);
         else
             result = false;
@@ -564,12 +566,13 @@ public class EZItemManager
     #endregion
 
     #region Add/Remove Schema Field Methods
-    public static bool AddBasicFieldToSchema(BasicFieldType type, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList = false, object defaultValue = null)
+    public static bool AddBasicFieldToSchema(BasicFieldType type, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, out string error, bool isList = false, object defaultValue = null)
     {
         bool result = true;
         string valueKey = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldName);
-        
-        if (IsFieldNameValid(schemaKey, newFieldName))
+        error = "";
+
+        if (IsFieldNameValid(schemaKey, newFieldName, out error))
             result = schemaData.TryAddValue(newFieldName, type);
         else
             result = false;
@@ -593,11 +596,11 @@ public class EZItemManager
         return result;
     }
 
-    public static bool AddCustomFieldToSchema(string customType, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList)
+    public static bool AddCustomFieldToSchema(string customType, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList, out string error)
     {
         bool result = true;
 
-        if (IsFieldNameValid(schemaKey, newFieldName))
+        if (IsFieldNameValid(schemaKey, newFieldName, out error))
             result = schemaData.TryAddValue(newFieldName, customType);
         else
             result = false;
@@ -736,18 +739,11 @@ public class EZItemManager
                 RemoveSchema(oldSchemaKey, false);
 
                 // Then add the schema data under the new schema key
-                if(!AddSchema(newSchemaKey, schemaDataCopy, out error))
-                {
-                    result = false;
-
-                    // Add the schema back under the old key if this step failed
-                    AddSchema(oldSchemaKey, schemaDataCopy, out error);
-                }
-                else
+                if(AddSchema(newSchemaKey, schemaDataCopy, out error))
                 {
                     List<string> itemBySchemaList;
                     ItemListBySchema.TryGetValue(newSchemaKey, out itemBySchemaList);
-
+                    
                     // Lastly update the schema key on any existing items
                     foreach(string itemKey in itemsWithSchema)
                     {
@@ -756,6 +752,12 @@ public class EZItemManager
                             itemData.TryAddOrUpdateValue(EZConstants.SchemaKey, newSchemaKey);
                         itemBySchemaList.Add(itemKey);
                     }
+                }
+                else
+                {
+                    // Add the schema back under the old key if this step failed
+                    AddSchema(oldSchemaKey, schemaDataCopy, out error);
+                    result = false;
                 }
             }
             else
@@ -769,8 +771,47 @@ public class EZItemManager
             result = false;
         }
 
-        SchemasNeedSave = result;
-        ItemsNeedSave = result;
+        SchemasNeedSave |= result;
+        ItemsNeedSave |= result;
+
+        return result;
+    }
+
+    public static bool RenameItem(string oldItemKey, string newItemKey, out string error)
+    {
+        bool result = true;
+        if (IsItemNameValid(newItemKey, out error))
+        {
+            Debug.Log(string.Format("Renaming {0} to {1} :)", oldItemKey, newItemKey));
+
+            Dictionary<string, object> itemData;
+            if (AllItems.TryGetValue(oldItemKey, out itemData))
+            {
+                Dictionary<string, object> itemDataCopy = new Dictionary<string, object>(itemData);
+
+                // First remove the item from the dictionary
+                RemoveItem(oldItemKey);
+
+                // Then add the item data under the new item key
+                if (!AddItem(newItemKey, itemDataCopy, out error))                
+                {
+                    // Add the item back under the old key if this step failed
+                    AddItem(oldItemKey, itemDataCopy, out error);
+                    result = false;
+                }
+            }
+            else
+            {
+                error = "Failted to read item data.";
+                result = false;
+            }
+        }
+        else
+        {
+            result = false;
+        }
+
+        ItemsNeedSave |= result;
 
         return result;
     }
@@ -816,26 +857,51 @@ public class EZItemManager
         return result;
     }    
 
-    public static bool IsFieldNameValid(string schemaKey, string fieldName)
+    public static bool IsFieldNameValid(string schemaKey, string fieldName, out string error)
     {
         bool result = true;
+        error = "";
 
         Dictionary<string, object> data;
         if (AllSchemas.TryGetValue(schemaKey, out data))
         {
-            if (data.ContainsKey(fieldName) || 
-                !ValidateIdentifier.IsValidIdentifier(fieldName))
+            if (data.ContainsKey(fieldName))
+            {
+                error = "Field name already exits.";
                 result = false;
+            } 
+            else if (!ValidateIdentifier.IsValidIdentifier(fieldName))
+            {
+                error = "Field name is invalid.";
+                result = false;
+            }
         }
         else 
+        {
             result = false;
+            error = "Error reading item data.";
+        }
 
         return result;
     }
 
-    public static bool IsItemNameValid(string name)
+    public static bool IsItemNameValid(string name, out string error)
     {
-        return !string.IsNullOrEmpty(name) && !AllItems.ContainsKey(name);
+        bool result = true;
+        error = "";
+
+        if(string.IsNullOrEmpty(name))
+        {
+            error = "Item name is invalid.";
+            result = false;
+        }
+        else if(AllItems.ContainsKey(name))
+        {
+            error = "Item name already exists.";
+            result = false;
+        }
+
+        return result;
     }
     #endregion
 }

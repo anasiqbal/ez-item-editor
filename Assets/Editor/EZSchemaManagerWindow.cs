@@ -20,6 +20,8 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     private HashSet<string> isCustomList = new HashSet<string>();
     
     private List<string> deletedFields = new List<string>();
+    private Dictionary<string, string> renamedFields = new Dictionary<string, string>();
+
     private List<string> deletedSchemas = new List<string>();
     private Dictionary<string, string> renamedSchemas = new Dictionary<string, string>();
     
@@ -601,15 +603,16 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     {
         bool result = true;
         object defaultValue = null;
+        string error;
 
         if (isList)
             defaultValue = GetDefaultValueForType(type);        
 
-        if (EZItemManager.AddBasicFieldToSchema(type, schemaKey, schemaData, newFieldName, isList, defaultValue))
+        if (EZItemManager.AddBasicFieldToSchema(type, schemaKey, schemaData, newFieldName, out error, isList, defaultValue))
             SetNeedToSave(true);
         else
         {
-            EditorUtility.DisplayDialog("Error creating field!", "Field name is invalid or field name already exists.", "Ok");
+            EditorUtility.DisplayDialog("Error creating field!", error, "Ok");
             result = false;
         }
 
@@ -619,12 +622,13 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     private bool AddCustomField(string customType, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList)
     {
         bool result = true;
+        string error;
 
-        if (EZItemManager.AddCustomFieldToSchema(customType, schemaKey, schemaData, newFieldName, isList))        
+        if (EZItemManager.AddCustomFieldToSchema(customType, schemaKey, schemaData, newFieldName, isList, out error))        
             SetNeedToSave(true);
         else
         {
-            EditorUtility.DisplayDialog("Error creating field!", "Field name is invalid or field name already exists.", "Ok");
+            EditorUtility.DisplayDialog("Error creating field!", error, "Ok");
             result = false;
         }
 
