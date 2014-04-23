@@ -727,8 +727,6 @@ public class EZItemManager
         bool result = true;
         if (IsSchemaNameValid(newSchemaKey, out error))
         {
-            Debug.Log(string.Format("Renaming {0} to {1} :)", oldSchemaKey, newSchemaKey));
-
             Dictionary<string, object> schemaData;
             if (AllSchemas.TryGetValue(oldSchemaKey, out schemaData))
             {
@@ -777,13 +775,11 @@ public class EZItemManager
         return result;
     }
 
-    public static bool RenameItem(string oldItemKey, string newItemKey, out string error)
+    public static bool RenameItem(string oldItemKey, string newItemKey, Dictionary<string, object> data, out string error)
     {
         bool result = true;
         if (IsItemNameValid(newItemKey, out error))
         {
-            Debug.Log(string.Format("Renaming {0} to {1} :)", oldItemKey, newItemKey));
-
             Dictionary<string, object> itemData;
             if (AllItems.TryGetValue(oldItemKey, out itemData))
             {
@@ -814,6 +810,84 @@ public class EZItemManager
         ItemsNeedSave |= result;
 
         return result;
+    }
+
+    public static bool RenameSchemaField(string oldFieldKey, string newFieldKey, string schemaKey, Dictionary<string, object> schemaData, out string error)
+    {
+        bool result = true;
+
+        if (!IsFieldNameValid(schemaData, newFieldKey, out error))
+        {
+            result = false;
+        }
+        else if (schemaData.ContainsKey(newFieldKey))
+        {
+            result = false;
+            error = "Field name already exists.";
+        }
+        else
+        {
+            // Do rename
+            RenameField(oldFieldKey, newFieldKey, schemaData);
+
+            // Remove the schema key from the listbyfieldname List
+            List<string> schemaKeyList;
+            if(ListByFieldName.TryGetValue(oldFieldKey, out schemaKeyList))
+            {
+                schemaKeyList.Remove(schemaKey);
+                if (schemaKeyList.Count == 0)
+                    ListByFieldName.Remove(oldFieldKey);
+            }
+
+            // Add the schema key to the listbyfieldname List under the new field name
+            if (ListByFieldName.TryGetValue(newFieldKey, out schemaKeyList))            
+                schemaKeyList.Add(schemaKey);
+            else
+            {
+                List<string> newListByFieldName = new List<string>(){schemaKey};
+                ListByFieldName.Add(newFieldKey, newListByFieldName);
+            }
+
+            // Rename the fields in any existing items with this schema
+            List<string> itemKeys = GetItemsOfSchemaType(schemaKey);
+            foreach(string itemKey in itemKeys)
+            {
+                Dictionary<string, object> itemData;
+                if (AllItems.TryGetValue(itemKey, out itemData))                
+                    RenameField(oldFieldKey, newFieldKey, itemData);
+            }
+        }
+
+        ItemsNeedSave |= result;
+        SchemasNeedSave |= result;
+
+        return result;
+    }
+
+    private static void RenameField(string oldFieldKey, string newFieldKey, Dictionary<string, object> data)
+    {
+        object value;
+        if (data.TryGetValue(oldFieldKey, out value))
+        {
+            data.Add(newFieldKey, value);
+            data.Remove(oldFieldKey);
+        }
+        
+        string oldKey = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, oldFieldKey);
+        string newKey = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, newFieldKey);
+        if (data.TryGetValue(oldKey, out value))
+        {
+            data.Add(newKey, value);
+            data.Remove(oldKey);
+        }
+
+        oldKey = string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, oldFieldKey);
+        newKey = string.Format(EZConstants.MetaDataFormat, EZConstants.IsListPrefix, newFieldKey);
+        if (data.TryGetValue(oldKey, out value))
+        {
+            data.Add(newKey, value);
+            data.Remove(oldKey);
+        }
     }
     #endregion
 
@@ -865,21 +939,31 @@ public class EZItemManager
         Dictionary<string, object> data;
         if (AllSchemas.TryGetValue(schemaKey, out data))
         {
-            if (data.ContainsKey(fieldName))
-            {
-                error = "Field name already exits.";
-                result = false;
-            } 
-            else if (!ValidateIdentifier.IsValidIdentifier(fieldName))
-            {
-                error = "Field name is invalid.";
-                result = false;
-            }
+            result = IsFieldNameValid(data, fieldName, out error);
         }
         else 
         {
             result = false;
             error = "Error reading item data.";
+        }
+
+        return result;
+    }
+
+    public static bool IsFieldNameValid(Dictionary<string, object> data, string fieldName, out string error)
+    {
+        bool result = true;
+        error = "";
+
+        if (data.ContainsKey(fieldName))
+        {
+            error = "Field name already exits.";
+            result = false;
+        } 
+        else if (!ValidateIdentifier.IsValidIdentifier(fieldName))
+        {
+            error = "Field name is invalid.";
+            result = false;
         }
 
         return result;

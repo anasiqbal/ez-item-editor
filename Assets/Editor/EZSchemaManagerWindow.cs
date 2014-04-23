@@ -20,7 +20,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     private HashSet<string> isCustomList = new HashSet<string>();
     
     private List<string> deletedFields = new List<string>();
-    private Dictionary<string, string> renamedFields = new Dictionary<string, string>();
+    private Dictionary<List<string>, Dictionary<string, object>> renamedFields = new Dictionary<List<string>, Dictionary<string, object>>();
 
     private List<string> deletedSchemas = new List<string>();
     private Dictionary<string, string> renamedSchemas = new Dictionary<string, string>();
@@ -268,7 +268,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
                 foreach(string fieldKey in fieldKeys)
                 {
                     currentLinePosition += EZConstants.Indent;
-                    DrawSingleField(fieldKey, schemaData);
+                    DrawSingleField(schemaKey, fieldKey, schemaData);
                     shouldDrawSpace = true;
                 }
             }
@@ -283,7 +283,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
                 }
 
                 currentLinePosition += EZConstants.Indent;
-                DrawSingleField(fieldKey, schemaData);
+                DrawSingleField(schemaKey, fieldKey, schemaData);
                 shouldDrawSpace = true;
             }
             didDrawSpaceForSection = false;
@@ -329,6 +329,19 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
             }
             deletedFields.Clear();
 
+            // Rename any fields that were renamed
+            string error;
+            string oldFieldKey;
+            string newFieldKey;
+            foreach(KeyValuePair<List<string>, Dictionary<string, object>> pair in renamedFields)
+            {
+                oldFieldKey = pair.Key[0];
+                newFieldKey = pair.Key[1];
+                if (!EZItemManager.RenameSchemaField(oldFieldKey, newFieldKey, schemaKey, pair.Value, out error))
+                    EditorUtility.DisplayDialog("Error!", string.Format("Couldn't rename {0} to {1}: {2}", oldFieldKey, newFieldKey, error), "Ok");
+            }
+            renamedFields.Clear();
+
             NewLine();
 
             DrawAddFieldSection(schemaKey, schemaData);
@@ -350,7 +363,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         SetGroupHeight(schemaKey, groupHeight);
     }
 
-    void DrawSingleField(string fieldKey, Dictionary<string, object> schemaData)
+    void DrawSingleField(string schemaKey, string fieldKey, Dictionary<string, object> schemaData)
     {
         string fieldType = schemaData[fieldKey].ToString();
         BasicFieldType fieldTypeEnum = BasicFieldType.Undefined;
@@ -367,9 +380,8 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
         EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), fieldType);
         currentLinePosition += (width + 2);
 
-        width = 100;
-        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), fieldKey.HighlightSubstring(filterText, highlightColor), labelStyle);
-        currentLinePosition += (width + 2);
+        string editFieldKey = string.Format(EZConstants.MetaDataFormat, schemaKey, fieldKey);
+        DrawEditableLabel(fieldKey, editFieldKey, RenameSchemaField, schemaData);
 
         switch(fieldTypeEnum)
         {
@@ -446,9 +458,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
             newFoldoutState = EditorGUI.Foldout(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), currentFoldoutState, string.Format("List<{0}>", fieldType), true);
             currentLinePosition += (width + 2);
             
-            width = 100;
-            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), fieldKey.HighlightSubstring(filterText, highlightColor), labelStyle);
-            currentLinePosition += (width + 2);
+            DrawEditableLabel(fieldKey, string.Format(EZConstants.MetaDataFormat, schemaKey, fieldKey), RenameSchemaField, schemaData);
 
             if (newFoldoutState != currentFoldoutState)
             {
@@ -724,10 +734,18 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     #endregion
 
     #region Rename Methods
-    protected bool RenameSchema(string oldSchemaKey, string newSchemaKey, out string error)
+    protected bool RenameSchema(string oldSchemaKey, string newSchemaKey, Dictionary<string, object> data, out string error)
     {
         error = "";
         renamedSchemas.Add(oldSchemaKey, newSchemaKey);
+        return true;
+    }
+
+    protected bool RenameSchemaField(string oldFieldKey, string newFieldKey, Dictionary<string, object> schemaData, out string error)
+    {
+        error = "";
+        List<string> fieldKeys = new List<string>(){oldFieldKey, newFieldKey};
+        renamedFields.Add(fieldKeys, schemaData);
         return true;
     }
     #endregion

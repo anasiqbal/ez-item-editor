@@ -46,7 +46,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected string lastClickedKey = "";
     protected HashSet<string> editingFields = new HashSet<string>();
     protected Dictionary<string, string> editFieldTextDict = new Dictionary<string, string>();
-    protected delegate bool DoRenameDelgate(string oldValue, string newValue, out string errorMsg);
+    protected delegate bool DoRenameDelgate(string oldValue, string newValue, Dictionary<string, object> data, out string errorMsg);
      
     #region OnGUI and DrawHeader Methods
     protected virtual void OnGUI()
@@ -267,7 +267,6 @@ public abstract class EZManagerWindowBase : EditorWindow {
         float bottomThreshold = CurrentHeight() + groupHeight;            
         if (topSkip >= bottomThreshold) {                
             // the group is above our current window                
-            //Debug.Log(string.Format("Group is above topSkip:{0} bottomLine:{1}", topSkip,  bottomThreshold));
             return false;                
         }
         
@@ -275,7 +274,6 @@ public abstract class EZManagerWindowBase : EditorWindow {
         float topThreshold = CurrentHeight() - EZConstants.LineHeight;
         if (topThreshold >= bottomSkip) {                
             // the group is below our current window
-            //Debug.Log(string.Format("Group is below bottomSkip:{0} topLine:{1}", bottomSkip,  topThreshold));
             return false;
         }
         
@@ -292,25 +290,22 @@ public abstract class EZManagerWindowBase : EditorWindow {
     #endregion
 
     #region Foldout Methods
-    protected virtual bool DrawFoldout(string foldoutLabel, string key, string editableLabel = "", string editFieldKey = "", DoRenameDelgate doRename = null)
+    protected virtual void DrawEditableLabel(string editableLabel, string editFieldKey, DoRenameDelgate doRename)
     {
-        bool currentFoldoutState = entryFoldoutState.Contains(key);
+        DrawEditableLabel(editableLabel, editFieldKey, doRename, null);
+    }
 
-        GUIContent content = new GUIContent(foldoutLabel);
-        float width = foldoutStyle.CalcSize(content).x;
-        bool newFoldoutState = EditorGUI.Foldout(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), currentFoldoutState, 
-                                                 foldoutLabel.HighlightSubstring(filterText, highlightColor), true, foldoutStyle);
-        currentLinePosition += (width + 2);
-
+    protected virtual void DrawEditableLabel(string editableLabel, string editFieldKey, DoRenameDelgate doRename, Dictionary<string, object> data)
+    {
+        float width;
+        
         if (!editingFields.Contains(editFieldKey))
         {
-            content.text = editableLabel;
-            width = labelStyle.CalcSize(content).x;
-            if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content.text.HighlightSubstring(filterText, highlightColor), labelStyle))
+            width = 120;
+            if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), editableLabel.HighlightSubstring(filterText, highlightColor), labelStyle))
             {
                 if (EditorApplication.timeSinceStartup - lastClickTime < EZConstants.DoubleClickTime && lastClickedKey.Equals(editFieldKey))
                 {
-                    Debug.Log("Clicked on "+editFieldKey);                
                     lastClickedKey = "";
                     editingFields.Add(editFieldKey);
                 }
@@ -319,26 +314,27 @@ public abstract class EZManagerWindowBase : EditorWindow {
                     lastClickedKey = editFieldKey;
                     editingFields.Remove(editFieldKey);
                 }
-
+                
                 lastClickTime = EditorApplication.timeSinceStartup;
             }
+            currentLinePosition += (width + 2);
         }
         else
         {
             string editFieldText;
             if (!editFieldTextDict.TryGetValue(editFieldKey, out editFieldText))
                 editFieldText = editableLabel;
-
+            
             string newValue = DrawResizableTextBox(editFieldText);
             editFieldTextDict.TryAddOrUpdateValue(editFieldKey, newValue);
-
+            
             if (!newValue.Equals(editableLabel))
             {
                 width = 55;
                 if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Rename") && doRename != null)
                 {
                     string error;
-                    if (doRename(editableLabel, newValue, out error))
+                    if (doRename(editableLabel, newValue, data, out error))
                     {
                         editingFields.Remove(editFieldKey);
                         editFieldTextDict.Remove(editFieldKey);                    
@@ -348,7 +344,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
                         EditorUtility.DisplayDialog("Error!", string.Format("Couldn't rename {0} to {1}: {2}", editableLabel, newValue, error), "Ok");
                 }
                 currentLinePosition += (width + 2);
-
+                
                 width = 50;
                 if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Cancel"))
                 {
@@ -370,7 +366,20 @@ public abstract class EZManagerWindowBase : EditorWindow {
                 currentLinePosition += (width + 2);
             }
         }
+    }
 
+    protected virtual bool DrawFoldout(string foldoutLabel, string key, string editableLabel, string editFieldKey, DoRenameDelgate doRename)
+    {
+        bool currentFoldoutState = entryFoldoutState.Contains(key);
+
+        GUIContent content = new GUIContent(foldoutLabel);
+        float width = foldoutStyle.CalcSize(content).x;
+        bool newFoldoutState = EditorGUI.Foldout(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), currentFoldoutState, 
+                                                 foldoutLabel.HighlightSubstring(filterText, highlightColor), true, foldoutStyle);
+        currentLinePosition += (width + 2);
+
+        DrawEditableLabel(editableLabel, editFieldKey, doRename);
+       
         SetFoldout(newFoldoutState, key);
 
         NewLine();

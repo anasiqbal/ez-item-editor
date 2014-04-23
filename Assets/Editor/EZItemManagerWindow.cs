@@ -69,7 +69,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
         string error;
         foreach(KeyValuePair<string, string> pair in renamedItems)
         {
-            if (!EZItemManager.RenameItem(pair.Key, pair.Value, out error))
+            if (!EZItemManager.RenameItem(pair.Key, pair.Value, null, out error))
                 EditorUtility.DisplayDialog("Error!", string.Format("Couldn't rename {0} to {1}: {2}", pair.Key, pair.Value, error), "Ok");
         }
 
@@ -570,7 +570,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
         else
         {
             result = false;
-            Debug.LogError("Schema data not found: " + schemaKey);
+            EditorUtility.DisplayDialog("Error!", "Schema data not found: " + schemaKey, "Ok");
         }
 
         return result;
@@ -637,7 +637,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
     #endregion
 
     #region Rename Methods
-    protected bool RenameItem(string oldItemKey, string newItemKey, out string error)
+    protected bool RenameItem(string oldItemKey, string newItemKey, Dictionary<string, object> data, out string error)
     {
         error = "";
         renamedItems.Add(oldItemKey, newItemKey);
