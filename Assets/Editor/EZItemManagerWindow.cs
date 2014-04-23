@@ -277,7 +277,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
         EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), fieldType);
         currentLinePosition += (width + 2);
 
-        width = 100;
+        width = 120;
         EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), fieldKey.HighlightSubstring(filterText, highlightColor), labelStyle);
         currentLinePosition += (width + 2);
 
@@ -362,7 +362,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
             newFoldoutState = EditorGUI.Foldout(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), currentFoldoutState, string.Format("List<{0}>", fieldType), true);
             currentLinePosition += (width + 2);
 
-            width = 100;
+            width = 120;
             EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), fieldKey.HighlightSubstring(filterText, highlightColor), labelStyle);
             currentLinePosition += (width + 2);
 
