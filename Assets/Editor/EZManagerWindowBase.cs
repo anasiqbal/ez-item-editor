@@ -7,7 +7,7 @@ using EZExtensionMethods;
 
 public abstract class EZManagerWindowBase : EditorWindow {
 
-    public const string rootMenuLocation = "Assets/EZ Game Data Editor";
+    public const string rootMenuLocation = "Window/Game Data Editor";
 
     protected HashSet<string> entryFoldoutState = new HashSet<string>();
     protected HashSet<string> listFieldFoldoutState = new HashSet<string>();

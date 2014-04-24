@@ -8,7 +8,7 @@ using EZExtensionMethods;
 
 public class EZSchemaManagerWindow : EZManagerWindowBase {
 
-    private const string menuItemLocation = rootMenuLocation + "/EZ Define Data";
+    private const string menuItemLocation = rootMenuLocation + "/Define Data";
 
     private string newSchemaName = "";
     private BasicFieldType basicFieldTypeSelected = BasicFieldType.Int;
@@ -28,13 +28,7 @@ public class EZSchemaManagerWindow : EZManagerWindowBase {
     [MenuItem(menuItemLocation)]
     private static void showEditor()
     {
-        EditorWindow.GetWindow<EZSchemaManagerWindow>(false, "EZ Define Data");
-    }
-    
-    [MenuItem(menuItemLocation, true)]
-    private static bool showEditorValidator()
-    {
-        return true;
+        EditorWindow.GetWindow<EZSchemaManagerWindow>(false, "Define Data");
     }
 
     #region OnGUI/Header Methods

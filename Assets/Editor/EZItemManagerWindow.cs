@@ -8,7 +8,7 @@ using EZExtensionMethods;
 
 public class EZItemManagerWindow : EZManagerWindowBase
 {
-    private const string menuItemLocation = rootMenuLocation + "/EZ Create Data";
+    private const string menuItemLocation = rootMenuLocation + "/Create Data";
 
     private string newItemName = "";
     private int schemaIndex = 0;
@@ -21,13 +21,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
     [MenuItem(menuItemLocation)]
     private static void showEditor()
     {
-        EditorWindow.GetWindow<EZItemManagerWindow>(false, "EZ Create Data");
-    }
-
-    [MenuItem(menuItemLocation, true)]
-    private static bool showEditorValidator()
-    {
-        return true;
+        EditorWindow.GetWindow<EZItemManagerWindow>(false, "Create Data");
     }
 
     #region OnGUI Method

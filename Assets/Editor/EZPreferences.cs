@@ -5,7 +5,7 @@ using EZExtensionMethods;
 
 public class EZPreferences : EditorWindow {
 
-    private const string menuItemLocation = EZManagerWindowBase.rootMenuLocation + "/EZ Preferences";
+    private const string menuItemLocation = EZManagerWindowBase.rootMenuLocation + "/Preferences";
     private GUIStyle headerStyle = null;
 
     private Color32 createDataColor;
@@ -18,7 +18,7 @@ public class EZPreferences : EditorWindow {
     [MenuItem(menuItemLocation)]
     private static void showEditor()
     {
-        var window = EditorWindow.GetWindow<EZPreferences>(true, "EZ Preferences");
+        var window = EditorWindow.GetWindow<EZPreferences>(true, "Game Data Editor Preferences");
         window.LoadPreferences();
         window.Show();
     }
