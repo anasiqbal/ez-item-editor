@@ -1,11 +1,12 @@
 using UnityEngine;
 using UnityEditor;
 using System;
-using EZExtensionMethods;
+using GameDataEditor;
+using GameDataEditor.GDEExtensionMethods;
 
-public class EZPreferences : EditorWindow {
+public class GDEPreferences : EditorWindow {
 
-    private const string menuItemLocation = EZManagerWindowBase.rootMenuLocation + "/Preferences";
+    private const string menuItemLocation = GDEManagerWindowBase.rootMenuLocation + "/Preferences";
     private GUIStyle headerStyle = null;
 
     private Color32 createDataColor;
@@ -18,7 +19,7 @@ public class EZPreferences : EditorWindow {
     [MenuItem(menuItemLocation)]
     private static void showEditor()
     {
-        var window = EditorWindow.GetWindow<EZPreferences>(true, "Game Data Editor Preferences");
+        var window = EditorWindow.GetWindow<GDEPreferences>(true, "Game Data Editor Preferences");
         window.LoadPreferences();
         window.Show();
     }
@@ -64,39 +65,39 @@ public class EZPreferences : EditorWindow {
 
     void LoadPreferences()
     {
-        dataFilePath = EditorPrefs.GetString(EZConstants.CreateDataFileKey, EZConstants.CreateDataFile);
-        defineDataFilePath = EditorPrefs.GetString(EZConstants.DefineDataFileKey, EZConstants.DefineDataFile);
+        dataFilePath = EditorPrefs.GetString(GDEConstants.CreateDataFileKey, GDEConstants.CreateDataFile);
+        defineDataFilePath = EditorPrefs.GetString(GDEConstants.DefineDataFileKey, GDEConstants.DefineDataFile);
         
-        string color = EditorPrefs.GetString(EZConstants.CreateDataColorKey, EZConstants.CreateDataColor);
+        string color = EditorPrefs.GetString(GDEConstants.CreateDataColorKey, GDEConstants.CreateDataColor);
         createDataColor = color.ToColor();
         
-        color = EditorPrefs.GetString(EZConstants.DefineDataColorKey, EZConstants.DefineDataColor);
+        color = EditorPrefs.GetString(GDEConstants.DefineDataColorKey, GDEConstants.DefineDataColor);
         defineDataColor = color.ToColor();
         
-        color = EditorPrefs.GetString(EZConstants.HighlightColorKey, EZConstants.HighlightColor);
+        color = EditorPrefs.GetString(GDEConstants.HighlightColorKey, GDEConstants.HighlightColor);
         highlightColor = color.ToColor();
     }
 
     void LoadDefaults()
     {
-        dataFilePath = EZConstants.CreateDataFile;
-        defineDataFilePath = EZConstants.DefineDataFile;
+        dataFilePath = GDEConstants.CreateDataFile;
+        defineDataFilePath = GDEConstants.DefineDataFile;
 
-        createDataColor = EZConstants.CreateDataColor.ToColor();
-        defineDataColor = EZConstants.DefineDataColor.ToColor();
-        highlightColor = EZConstants.HighlightColor.ToColor();
+        createDataColor = GDEConstants.CreateDataColor.ToColor();
+        defineDataColor = GDEConstants.DefineDataColor.ToColor();
+        highlightColor = GDEConstants.HighlightColor.ToColor();
 
         SavePreferences();
     }
 
     void SavePreferences()
     {
-        EditorPrefs.SetString(EZConstants.CreateDataFileKey, dataFilePath);
-        EditorPrefs.SetString(EZConstants.DefineDataFileKey, defineDataFilePath);
+        EditorPrefs.SetString(GDEConstants.CreateDataFileKey, dataFilePath);
+        EditorPrefs.SetString(GDEConstants.DefineDataFileKey, defineDataFilePath);
 
-        EditorPrefs.SetString(EZConstants.CreateDataColorKey, "#" + createDataColor.ToHexString());
-        EditorPrefs.SetString(EZConstants.DefineDataColorKey, "#" + defineDataColor.ToHexString());
-        EditorPrefs.SetString(EZConstants.HighlightColorKey, "#" + highlightColor.ToHexString());
+        EditorPrefs.SetString(GDEConstants.CreateDataColorKey, "#" + createDataColor.ToHexString());
+        EditorPrefs.SetString(GDEConstants.DefineDataColorKey, "#" + defineDataColor.ToHexString());
+        EditorPrefs.SetString(GDEConstants.HighlightColorKey, "#" + highlightColor.ToHexString());
     }
 }
 

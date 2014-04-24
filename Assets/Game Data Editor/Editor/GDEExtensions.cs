@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace EZExtensionMethods
+namespace GameDataEditor.GDEExtensionMethods
 {
     public static class FlagExtensions
     {

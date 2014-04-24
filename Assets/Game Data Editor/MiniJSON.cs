@@ -33,7 +33,7 @@ using System.IO;
 using System.Text;
 using System.Linq;
 
-namespace MiniJSON {
+namespace GameDataEditor.MiniJSON {
     // Example usage:
     //
     //  using UnityEngine;
