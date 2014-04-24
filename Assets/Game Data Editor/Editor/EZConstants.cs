@@ -6,12 +6,12 @@ public class EZConstants {
     public const string MetaDataFormat = "{0}_{1}"; //{0} is the metadata prefix, {1} is the field the metadata is for
 
     // Field metadata prefixes
-    public const string ValuePrefix = "_ezValue";
-    public const string IsListPrefix = "_ezIsList";
+    public const string ValuePrefix = "_gdeValue";
+    public const string IsListPrefix = "_gdeIsList";
     #endregion
 
     #region Item Metadata Constants
-    public const string SchemaKey = "_ezSchema";
+    public const string SchemaKey = "_gdeSchema";
     #endregion
 
     #region Window Constants
@@ -27,12 +27,12 @@ public class EZConstants {
     #endregion
 
     #region Preference Keys
-    public const string CreateDataColorKey = "ez_createdatacolor";
-    public const string DefineDataColorKey = "ez_definedatacolor";
-    public const string HighlightColorKey = "ez_highlightcolor";
+    public const string CreateDataColorKey = "gde_createdatacolor";
+    public const string DefineDataColorKey = "gde_definedatacolor";
+    public const string HighlightColorKey = "gde_highlightcolor";
 
-    public const string CreateDataFileKey = "ez_createdatafile";
-    public const string DefineDataFileKey = "ez_definedatafile";
+    public const string CreateDataFileKey = "gde_createdatafile";
+    public const string DefineDataFileKey = "gde_definedatafile";
     #endregion
 
     #region Default Preference Settings
@@ -40,7 +40,7 @@ public class EZConstants {
     public const string DefineDataColor = "#185e65";
     public const string HighlightColor = "#f15c25";
 
-    public const string CreateDataFile = "ezitems.json";
-    public const string DefineDataFile = "ezschema.json";
+    public const string CreateDataFile = "gde_data.json";
+    public const string DefineDataFile = "gde_schema.json";
     #endregion
 }
