@@ -546,7 +546,7 @@ namespace MiniJSON {
         }
     }
 
-    class JsonHelper
+    public static class JsonHelper
     {
         private const string INDENT_STRING = "    ";
         public static string FormatJson(string str)
