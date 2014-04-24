@@ -232,7 +232,11 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         width = 110;
         if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Add Custom Field"))
         {
-            if (AddCustomField(customTypes[customSchemaTypeSelected], schemaKey, schemaData, newCustomFieldNameText, isCustomListTemp))
+            if (!customTypes.IsValidIndex(customSchemaTypeSelected) || customTypes.Length.Equals(0))
+            {
+                EditorUtility.DisplayDialog("Error!", "Invalid custom field type selected.", "Ok");
+            }
+            else if (AddCustomField(customTypes[customSchemaTypeSelected], schemaKey, schemaData, newCustomFieldNameText, isCustomListTemp))
             {
                 isCustomList.Remove(schemaKey);
                 newCustomFieldName.TryAddOrUpdateValue(schemaKey, "");
