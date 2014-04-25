@@ -3,11 +3,12 @@ using UnityEditor;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using EZExtensionMethods;
+using GameDataEditor;
+using GameDataEditor.GDEExtensionMethods;
 
-public abstract class EZManagerWindowBase : EditorWindow {
+public abstract class GDEManagerWindowBase : EditorWindow {
 
-    public const string rootMenuLocation = "Assets/EZ Game Data Editor";
+    public const string rootMenuLocation = "Window/Game Data Editor";
 
     protected HashSet<string> entryFoldoutState = new HashSet<string>();
     protected HashSet<string> listFieldFoldoutState = new HashSet<string>();
@@ -20,7 +21,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
     protected Vector2 verticalScrollbarPosition;
 
     protected float currentLine = 0;
-    protected float currentLinePosition = EZConstants.LeftBuffer;
+    protected float currentLinePosition = GDEConstants.LeftBuffer;
 
     protected Dictionary<string, float> groupHeights = new Dictionary<string, float>();
     protected float scrollViewHeight = 0;
@@ -91,7 +92,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             subHeaderStyle.richText = true;
         }
 
-        highlightColor = EditorPrefs.GetString(EZConstants.HighlightColorKey, EZConstants.HighlightColor);
+        highlightColor = EditorPrefs.GetString(GDEConstants.HighlightColorKey, GDEConstants.HighlightColor);
 
         ResetToTop();
 
@@ -114,7 +115,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
         EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), headerLabelWidth, headerLabelHeight), labelContent, mainHeaderStyle);
         currentLinePosition += (headerLabelWidth + 2);
         
-        NewLine(headerLabelHeight/EZConstants.LineHeight);
+        NewLine(headerLabelHeight/GDEConstants.LineHeight);
     }
 
     protected virtual void DrawHeader()
@@ -173,7 +174,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
         EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, height), subHeaderContent, subHeaderStyle);
         currentLinePosition += (width + 2);
         
-        NewLine(height/EZConstants.LineHeight+0.5f);
+        NewLine(height/GDEConstants.LineHeight+0.5f);
     }
 
     protected virtual void DrawSectionSeparator()
@@ -186,29 +187,29 @@ public abstract class EZManagerWindowBase : EditorWindow {
     #region GUI Position Methods
     protected virtual void ResetToTop()
     {
-        currentLine = EZConstants.TopBuffer/EZConstants.LineHeight;
-        currentLinePosition = EZConstants.LeftBuffer;
+        currentLine = GDEConstants.TopBuffer/GDEConstants.LineHeight;
+        currentLinePosition = GDEConstants.LeftBuffer;
     }
 
     protected virtual void NewLine(float numNewLines = 1)
     {
         currentLine += numNewLines;
-        currentLinePosition = EZConstants.LeftBuffer;
+        currentLinePosition = GDEConstants.LeftBuffer;
     }
 
     protected virtual float TopOfLine()
     {
-        return EZConstants.LineHeight*currentLine;
+        return GDEConstants.LineHeight*currentLine;
     }
 
     protected virtual float VerticalMiddleOfLine()
     {
-        return EZConstants.LineHeight*currentLine + EZConstants.LineHeight/2;
+        return GDEConstants.LineHeight*currentLine + GDEConstants.LineHeight/2;
     }
 
     protected virtual float HorizontalMiddleOfLine()
     {
-        return FullSeparatorWidth()/2f + EZConstants.LeftBuffer;
+        return FullSeparatorWidth()/2f + GDEConstants.LeftBuffer;
     }
 
     protected virtual float PopupTop()
@@ -218,27 +219,27 @@ public abstract class EZManagerWindowBase : EditorWindow {
 
     protected virtual float StandardHeight()
     {
-        return EZConstants.LineHeight-2;
+        return GDEConstants.LineHeight-2;
     }
 
     protected virtual float TextBoxHeight()
     {
-        return EZConstants.LineHeight-4;
+        return GDEConstants.LineHeight-4;
     }
 
     protected virtual float VectorFieldHeight()
     {
-        return EZConstants.LineHeight*1.2f;
+        return GDEConstants.LineHeight*1.2f;
     }
 
     protected virtual float FullSeparatorWidth()
     {
-        return this.position.width-EZConstants.LeftBuffer-EZConstants.RightBuffer;
+        return this.position.width-GDEConstants.LeftBuffer-GDEConstants.RightBuffer;
     }
 
     protected virtual float WidthLeftOnCurrentLine()
     {
-        return FullWindowWidth() - EZConstants.LeftBuffer - EZConstants.RightBuffer - currentLinePosition;
+        return FullWindowWidth() - GDEConstants.LeftBuffer - GDEConstants.RightBuffer - currentLinePosition;
     }
 
     protected virtual float ScrollViewWidth()
@@ -253,12 +254,12 @@ public abstract class EZManagerWindowBase : EditorWindow {
 
     protected virtual float HeightToBottomOfWindow()
     {
-        return this.position.height - (currentLine*EZConstants.LineHeight);
+        return this.position.height - (currentLine*GDEConstants.LineHeight);
     }
 
     protected virtual float CurrentHeight()
     {
-        return currentLine*EZConstants.LineHeight;
+        return currentLine*GDEConstants.LineHeight;
     }
 
     protected virtual bool IsVisible(float groupHeight)
@@ -271,7 +272,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
         }
         
         float bottomSkip = topSkip + scrollViewHeight + scrollViewY;            
-        float topThreshold = CurrentHeight() - EZConstants.LineHeight;
+        float topThreshold = CurrentHeight() - GDEConstants.LineHeight;
         if (topThreshold >= bottomSkip) {                
             // the group is below our current window
             return false;
@@ -304,7 +305,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             width = 120;
             if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), editableLabel.HighlightSubstring(filterText, highlightColor), labelStyle))
             {
-                if (EditorApplication.timeSinceStartup - lastClickTime < EZConstants.DoubleClickTime && lastClickedKey.Equals(editFieldKey))
+                if (EditorApplication.timeSinceStartup - lastClickTime < GDEConstants.DoubleClickTime && lastClickedKey.Equals(editFieldKey))
                 {
                     lastClickedKey = "";
                     editingFields.Add(editFieldKey);
@@ -434,7 +435,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             entryFoldoutState.Remove(forKey);
 
             // Reset the group height to be a single line for the root foldout
-            SetGroupHeight(forKey, EZConstants.LineHeight);
+            SetGroupHeight(forKey, GDEConstants.LineHeight);
         }
     }
     #endregion
@@ -446,7 +447,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
         {
             object currentValue;
             bool newValue;
-            string key = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName);
+            string key = string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, fieldName);
             
             data.TryGetValue(key, out currentValue);
 
@@ -503,7 +504,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
         {
             object currentValue;
             int newValue;
-            string key = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName);
+            string key = string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, fieldName);
             
             data.TryGetValue(key, out currentValue);
 
@@ -560,7 +561,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
         {
             object currentValue;
             float newValue;
-            string key = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName);
+            string key = string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, fieldName);
             
             data.TryGetValue(key, out currentValue);
 
@@ -615,7 +616,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
     {
         try
         {
-            string key = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName);
+            string key = string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, fieldName);
             object currentValue;
             
             data.TryGetValue(key, out currentValue);
@@ -643,14 +644,14 @@ public abstract class EZManagerWindowBase : EditorWindow {
     {
         GUIContent content = new GUIContent(text);
         Vector2 size = GUI.skin.textField.CalcSize(content);
-        size.x = Math.Min(Math.Max(size.x, EZConstants.MinTextAreaWidth), WidthLeftOnCurrentLine() - 62); 
-        size.y = Math.Max(size.y, EZConstants.MinTextAreaHeight);
+        size.x = Math.Min(Math.Max(size.x, GDEConstants.MinTextAreaWidth), WidthLeftOnCurrentLine() - 62); 
+        size.y = Math.Max(size.y, GDEConstants.MinTextAreaHeight);
 
         string newValue = EditorGUI.TextArea(new Rect(currentLinePosition, TopOfLine(), size.x, size.y), content.text);
         currentLinePosition += (size.x + 2);
         
         float tempLinePosition = currentLinePosition;
-        NewLine(size.y/EZConstants.LineHeight - 1);
+        NewLine(size.y/GDEConstants.LineHeight - 1);
         currentLinePosition = tempLinePosition;
 
         return newValue;
@@ -686,7 +687,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             Dictionary<string, object> vectDict = null;
             Vector2 currentValue = Vector2.zero;
             Vector2 newValue;
-            string key = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName);
+            string key = string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, fieldName);
             
             if (data.TryGetValue(key, out temp))
             {
@@ -749,7 +750,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             Dictionary<string, object> vectDict = null;
             Vector3 currentValue = Vector3.zero;
             Vector3 newValue;
-            string key = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName);
+            string key = string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, fieldName);
             
             if (data.TryGetValue(key, out temp))
             {
@@ -816,7 +817,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             Dictionary<string, object> vectDict = null;
             Vector4 currentValue = Vector4.zero;
             Vector4 newValue;
-            string key = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName);
+            string key = string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, fieldName);
             
             if (data.TryGetValue(key, out temp))
             {
@@ -886,7 +887,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
             object currentValue;
             int newIndex;
             int currentIndex;
-            string key = string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldName);
+            string key = string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, fieldName);
 
             data.TryGetValue(key, out currentValue);
 
@@ -981,7 +982,7 @@ public abstract class EZManagerWindowBase : EditorWindow {
 
         // Text search
         width = 180;
-        filterText = EditorGUI.TextField(new Rect(currentLinePosition, TopOfLine()+(height-EZConstants.LineHeight+2), width, TextBoxHeight()), filterText);
+        filterText = EditorGUI.TextField(new Rect(currentLinePosition, TopOfLine()+(height-GDEConstants.LineHeight+2), width, TextBoxHeight()), filterText);
         currentLinePosition += (width + 2);
     }
 
@@ -1066,12 +1067,12 @@ public abstract class EZManagerWindowBase : EditorWindow {
     #region Save/Load methods
     protected virtual void Load()
     {
-        EZItemManager.Load();
+        GDEItemManager.Load();
     }
 
     protected virtual void Save()
     {
-        EZItemManager.Save();
+        GDEItemManager.Save();
     }
     #endregion
     

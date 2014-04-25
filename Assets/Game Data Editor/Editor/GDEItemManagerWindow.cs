@@ -4,11 +4,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using EZExtensionMethods;
+using GameDataEditor;
+using GameDataEditor.GDEExtensionMethods;
 
-public class EZItemManagerWindow : EZManagerWindowBase
+public class GDEItemManagerWindow : GDEManagerWindowBase
 {
-    private const string menuItemLocation = rootMenuLocation + "/EZ Create Data";
+    private const string menuItemLocation = rootMenuLocation + "/Create Data";
 
     private string newItemName = "";
     private int schemaIndex = 0;
@@ -21,41 +22,35 @@ public class EZItemManagerWindow : EZManagerWindowBase
     [MenuItem(menuItemLocation)]
     private static void showEditor()
     {
-        EditorWindow.GetWindow<EZItemManagerWindow>(false, "EZ Create Data");
-    }
-
-    [MenuItem(menuItemLocation, true)]
-    private static bool showEditorValidator()
-    {
-        return true;
+        EditorWindow.GetWindow<GDEItemManagerWindow>(false, "Create Data");
     }
 
     #region OnGUI Method
     protected override void OnGUI()
     {
         mainHeaderText = "Create Game Data";
-        headerColor = EditorPrefs.GetString(EZConstants.CreateDataColorKey, EZConstants.CreateDataColor);
+        headerColor = EditorPrefs.GetString(GDEConstants.CreateDataColorKey, GDEConstants.CreateDataColor);
 
         base.OnGUI();
 
-        DrawExpandCollapseAllFoldout(EZItemManager.AllItems.Keys.ToArray(), "Item List");
+        DrawExpandCollapseAllFoldout(GDEItemManager.AllItems.Keys.ToArray(), "Item List");
 
         scrollViewHeight = HeightToBottomOfWindow();
         scrollViewY = TopOfLine();
         verticalScrollbarPosition = GUI.BeginScrollView(new Rect(currentLinePosition, scrollViewY, FullWindowWidth(), scrollViewHeight), 
                                                         verticalScrollbarPosition,
                                                         new Rect(currentLinePosition, scrollViewY, ScrollViewWidth(), CalculateGroupHeightsTotal()));
-        foreach (KeyValuePair<string, Dictionary<string, object>> item in EZItemManager.AllItems)
+        foreach (KeyValuePair<string, Dictionary<string, object>> item in GDEItemManager.AllItems)
         {
             float currentGroupHeight;
             if (!groupHeights.TryGetValue(item.Key, out currentGroupHeight))
-                currentGroupHeight = EZConstants.LineHeight;
+                currentGroupHeight = GDEConstants.LineHeight;
 
             if (IsVisible(currentGroupHeight))
                 DrawEntry(item.Key, item.Value);
             else
             {
-                NewLine(currentGroupHeight/EZConstants.LineHeight);
+                NewLine(currentGroupHeight/GDEConstants.LineHeight);
             }
         }
         GUI.EndScrollView();
@@ -69,7 +64,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
         string error;
         foreach(KeyValuePair<string, string> pair in renamedItems)
         {
-            if (!EZItemManager.RenameItem(pair.Key, pair.Value, null, out error))
+            if (!GDEItemManager.RenameItem(pair.Key, pair.Value, null, out error))
                 EditorUtility.DisplayDialog("Error!", string.Format("Couldn't rename {0} to {1}: {2}", pair.Key, pair.Value, error), "Ok");
         }
 
@@ -87,7 +82,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
         currentLinePosition += (width + 2);
         
         width = 100;
-        schemaIndex = EditorGUI.Popup(new Rect(currentLinePosition, PopupTop(), width, StandardHeight()), schemaIndex, EZItemManager.SchemaKeyArray);
+        schemaIndex = EditorGUI.Popup(new Rect(currentLinePosition, PopupTop(), width, StandardHeight()), schemaIndex, GDEItemManager.SchemaKeyArray);
         currentLinePosition += (width + 6);
         
         width = 65;
@@ -102,7 +97,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
         if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Create New Item"))
         {
             List<object> args = new List<object>();
-            args.Add(EZItemManager.SchemaKeyArray[schemaIndex]);
+            args.Add(GDEItemManager.SchemaKeyArray[schemaIndex]);
             args.Add(newItemName);
             
             if (Create(args))
@@ -122,12 +117,12 @@ public class EZItemManagerWindow : EZManagerWindowBase
 
         float width = 200;
 
-        int totalItems = EZItemManager.AllItems.Count;
+        int totalItems = GDEItemManager.AllItems.Count;
         string itemText = totalItems != 1 ? "items" : "item";
         if (!string.IsNullOrEmpty(filterText) || 
-            (EZItemManager.FilterSchemaKeyArray.IsValidIndex(filterSchemaIndex) && !EZItemManager.FilterSchemaKeyArray[filterSchemaIndex].Equals("_All")))
+            (GDEItemManager.FilterSchemaKeyArray.IsValidIndex(filterSchemaIndex) && !GDEItemManager.FilterSchemaKeyArray[filterSchemaIndex].Equals("_All")))
         {
-            string resultText = string.Format("{0} of {1} {2} displayed", NumberOfItemsBeingShown(EZItemManager.AllItems), totalItems, itemText);
+            string resultText = string.Format("{0} of {1} {2} displayed", NumberOfItemsBeingShown(GDEItemManager.AllItems), totalItems, itemText);
             EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), resultText);
             currentLinePosition += (width + 2);
         }
@@ -141,7 +136,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
         currentLinePosition += (width + 8);
 
         width = 100;
-        filterSchemaIndex = EditorGUI.Popup(new Rect(currentLinePosition, PopupTop(), width, StandardHeight()), filterSchemaIndex, EZItemManager.FilterSchemaKeyArray);
+        filterSchemaIndex = EditorGUI.Popup(new Rect(currentLinePosition, PopupTop(), width, StandardHeight()), filterSchemaIndex, GDEItemManager.FilterSchemaKeyArray);
 
         NewLine();
     }
@@ -156,7 +151,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
         string schemaType = "<unknown>";
         object temp;
         
-        if (data.TryGetValue(EZConstants.SchemaKey, out temp))
+        if (data.TryGetValue(GDEConstants.SchemaKey, out temp))
             schemaType = temp as string;
 
         // Start drawing below
@@ -168,17 +163,17 @@ public class EZItemManagerWindow : EZManagerWindowBase
             // Draw the basic types
             foreach(BasicFieldType fieldType in Enum.GetValues(typeof(BasicFieldType)))
             {
-                List<string> fieldKeys = EZItemManager.ItemFieldKeysOfType(key, fieldType.ToString());                
+                List<string> fieldKeys = GDEItemManager.ItemFieldKeysOfType(key, fieldType.ToString());                
                 foreach(string fieldKey in fieldKeys)
                 {
-                    currentLinePosition += EZConstants.Indent;
+                    currentLinePosition += GDEConstants.Indent;
                     DrawSingleField(schemaType, fieldKey, data);
                     shouldDrawSpace = true;
                 }
             }
             
             // Draw the custom types
-            foreach(string fieldKey in EZItemManager.ItemCustomFieldKeys(key))
+            foreach(string fieldKey in GDEItemManager.ItemCustomFieldKeys(key))
             {
                 if (shouldDrawSpace && !didDrawSpaceForSection)
                 {
@@ -186,7 +181,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
                     didDrawSpaceForSection = true;
                 }
                 
-                currentLinePosition += EZConstants.Indent;
+                currentLinePosition += GDEConstants.Indent;
                 DrawSingleField(schemaType, fieldKey, data);
                 shouldDrawSpace = true;
             }
@@ -195,7 +190,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
             // Draw the lists
             foreach(BasicFieldType fieldType in Enum.GetValues(typeof(BasicFieldType)))
             {
-                List<string> fieldKeys = EZItemManager.ItemListFieldKeysOfType(key, fieldType.ToString());                
+                List<string> fieldKeys = GDEItemManager.ItemListFieldKeysOfType(key, fieldType.ToString());                
                 foreach(string fieldKey in fieldKeys)
                 {
                     if (shouldDrawSpace && !didDrawSpaceForSection)
@@ -204,7 +199,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
                         didDrawSpaceForSection = true;
                     }
 
-                    currentLinePosition += EZConstants.Indent;
+                    currentLinePosition += GDEConstants.Indent;
                     DrawListField(schemaType, key, fieldKey, data);
                     shouldDrawSpace = true;
                 }
@@ -212,7 +207,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
             didDrawSpaceForSection = false;
             
             // Draw the custom lists
-            foreach(string fieldKey in EZItemManager.ItemCustomListFields(key))
+            foreach(string fieldKey in GDEItemManager.ItemCustomListFields(key))
             {
                 if (shouldDrawSpace && !didDrawSpaceForSection)
                 {
@@ -220,7 +215,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
                     didDrawSpaceForSection = true;
                 }
 
-                currentLinePosition += EZConstants.Indent;
+                currentLinePosition += GDEConstants.Indent;
                 DrawListField(schemaType, key, fieldKey, data);
                 shouldDrawSpace = true;
             }
@@ -240,11 +235,11 @@ public class EZItemManagerWindow : EZManagerWindowBase
         else
         {
             // Collapse any list foldouts as well
-            List<string> listKeys = EZItemManager.ItemListFieldKeys(key);
+            List<string> listKeys = GDEItemManager.ItemListFieldKeys(key);
             string foldoutKey;
             foreach(string listKey in listKeys)
             {
-                foldoutKey = string.Format(EZConstants.MetaDataFormat, key, listKey);
+                foldoutKey = string.Format(GDEConstants.MetaDataFormat, key, listKey);
                 listFieldFoldoutState.Remove(foldoutKey);
             }
         }
@@ -254,7 +249,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
         groupHeights.TryGetValue(key, out currentGroupHeight);
 
         // Set the minimum height for the schema type
-        if (currentGroupHeight.NearlyEqual(EZConstants.LineHeight) && !newGroupHeight.NearlyEqual(EZConstants.LineHeight))
+        if (currentGroupHeight.NearlyEqual(GDEConstants.LineHeight) && !newGroupHeight.NearlyEqual(GDEConstants.LineHeight))
             SetSchemaHeight(schemaType, newGroupHeight);
 
         SetGroupHeight(key, newGroupHeight);
@@ -310,19 +305,19 @@ public class EZItemManagerWindow : EZManagerWindowBase
             case BasicFieldType.Vector2:
             {
                 DrawVector2(fieldKey, itemData, "Values:");
-                NewLine(EZConstants.VectorFieldBuffer+1);
+                NewLine(GDEConstants.VectorFieldBuffer+1);
                 break;
             }
             case BasicFieldType.Vector3:
             {
                 DrawVector3(fieldKey, itemData, "Values:");
-                NewLine(EZConstants.VectorFieldBuffer+1);
+                NewLine(GDEConstants.VectorFieldBuffer+1);
                 break;
             }
             case BasicFieldType.Vector4:
             {
                 DrawVector4(fieldKey, itemData, "Values:");
-                NewLine(EZConstants.VectorFieldBuffer+1);
+                NewLine(GDEConstants.VectorFieldBuffer+1);
                 break;
             }
                 
@@ -340,7 +335,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
     {
         try
         {
-            string foldoutKey = string.Format(EZConstants.MetaDataFormat, itemKey, fieldKey);
+            string foldoutKey = string.Format(GDEConstants.MetaDataFormat, itemKey, fieldKey);
             bool newFoldoutState;
             bool currentFoldoutState = listFieldFoldoutState.Contains(foldoutKey);
             object defaultResizeValue = null;
@@ -377,7 +372,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
             object temp = null;
             List<object> list = null;
             
-            if (itemData.TryGetValue(string.Format(EZConstants.MetaDataFormat, EZConstants.ValuePrefix, fieldKey), out temp))
+            if (itemData.TryGetValue(string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, fieldKey), out temp))
                 list = temp as List<object>;
 
             width = 40;
@@ -385,7 +380,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
             currentLinePosition += (width + 2);
 
             int newListCount;
-            string listCountKey = string.Format(EZConstants.MetaDataFormat, itemKey, fieldKey);
+            string listCountKey = string.Format(GDEConstants.MetaDataFormat, itemKey, fieldKey);
             if (newListCountDict.ContainsKey(listCountKey))
             {
                 newListCount = newListCountDict[listCountKey];
@@ -415,7 +410,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
             {
                 for (int i = 0; i < list.Count; i++) 
                 {
-                   currentLinePosition += EZConstants.Indent*2;
+                   currentLinePosition += GDEConstants.Indent*2;
                     
                     switch (fieldTypeEnum) {
                         case BasicFieldType.Bool:
@@ -445,19 +440,19 @@ public class EZItemManagerWindow : EZManagerWindowBase
                         case BasicFieldType.Vector2:
                         {
                             DrawListVector2(i, list[i] as Dictionary<string, object>, list);
-                            NewLine(EZConstants.VectorFieldBuffer+1);
+                            NewLine(GDEConstants.VectorFieldBuffer+1);
                             break;
                         }
                         case BasicFieldType.Vector3:
                         {
                             DrawListVector3(i, list[i] as Dictionary<string, object>, list);
-                            NewLine(EZConstants.VectorFieldBuffer+1);
+                            NewLine(GDEConstants.VectorFieldBuffer+1);
                             break;
                         }
                         case BasicFieldType.Vector4:
                         {
                             DrawListVector4(i, list[i] as Dictionary<string, object>, list);
-                            NewLine(EZConstants.VectorFieldBuffer+1);
+                            NewLine(GDEConstants.VectorFieldBuffer+1);
                             break; 
                         }
                         default:
@@ -486,12 +481,12 @@ public class EZItemManagerWindow : EZManagerWindowBase
         // Build a list of possible custom field values
         // All items that match the schema type of the custom field type
         // will be added to the selection list
-        foreach(KeyValuePair<string, Dictionary<string, object>> item in EZItemManager.AllItems)
+        foreach(KeyValuePair<string, Dictionary<string, object>> item in GDEItemManager.AllItems)
         {
             string itemType = "<unknown>";
             Dictionary<string, object> itemData = item.Value as Dictionary<string, object>;
             
-            if (itemData.TryGetValue(EZConstants.SchemaKey, out temp))
+            if (itemData.TryGetValue(GDEConstants.SchemaKey, out temp))
                 itemType = temp as string;
             
             if (item.Key.Equals(fieldKey) || !itemType.Equals(fieldType))
@@ -513,17 +508,17 @@ public class EZItemManagerWindow : EZManagerWindowBase
         string schemaType = "<unknown>";
         object temp;
         
-        if (itemData.TryGetValue(EZConstants.SchemaKey, out temp))
+        if (itemData.TryGetValue(GDEConstants.SchemaKey, out temp))
             schemaType = temp as string;
         
         // Return if we don't match any of the filter types
-        if (EZItemManager.FilterSchemaKeyArray.IsValidIndex(filterSchemaIndex) &&
-            !EZItemManager.FilterSchemaKeyArray[filterSchemaIndex].Equals("_All") &&
-            !schemaType.Equals(EZItemManager.FilterSchemaKeyArray[filterSchemaIndex]))
+        if (GDEItemManager.FilterSchemaKeyArray.IsValidIndex(filterSchemaIndex) &&
+            !GDEItemManager.FilterSchemaKeyArray[filterSchemaIndex].Equals("_All") &&
+            !schemaType.Equals(GDEItemManager.FilterSchemaKeyArray[filterSchemaIndex]))
             return true;
         
         bool schemaKeyMatch = schemaType.ToLower().Contains(filterText.ToLower());
-        bool fieldKeyMatch = !EZItemManager.ShouldFilterByField(schemaType, filterText);
+        bool fieldKeyMatch = !GDEItemManager.ShouldFilterByField(schemaType, filterText);
         bool itemKeyMatch = itemKey.ToLower().Contains(filterText.ToLower());
         
         // Return if the schema keys don't contain the filter text or
@@ -550,13 +545,13 @@ public class EZItemManagerWindow : EZManagerWindowBase
         string itemName = args[1] as string;
 
         Dictionary<string, object> schemaData = null;       
-        if (EZItemManager.AllSchemas.TryGetValue(schemaKey, out schemaData))
+        if (GDEItemManager.AllSchemas.TryGetValue(schemaKey, out schemaData))
         {
             Dictionary<string, object> itemData = new Dictionary<string, object>(schemaData);
-            itemData.Add(EZConstants.SchemaKey, schemaKey);
+            itemData.Add(GDEConstants.SchemaKey, schemaKey);
 
             string error;
-            if (EZItemManager.AddItem(itemName, itemData, out error))
+            if (GDEItemManager.AddItem(itemName, itemData, out error))
             {
                 SetFoldout(true, itemName);
                 SetNeedToSave(true);
@@ -578,18 +573,18 @@ public class EZItemManagerWindow : EZManagerWindowBase
 
     protected override void Remove(string key)
     {
-        EZItemManager.RemoveItem(key);
+        GDEItemManager.RemoveItem(key);
         SetNeedToSave(true);
     }
 
     protected override bool NeedToSave()
     {
-        return EZItemManager.ItemsNeedSave;
+        return GDEItemManager.ItemsNeedSave;
     }
 
     protected override void SetNeedToSave(bool shouldSave)
     {
-        EZItemManager.ItemsNeedSave = shouldSave;
+        GDEItemManager.ItemsNeedSave = shouldSave;
     }
     #endregion
 
@@ -611,15 +606,15 @@ public class EZItemManagerWindow : EZManagerWindowBase
         foreach(KeyValuePair<string, float> pair in groupHeights)
         {
             Dictionary<string, object> itemData;
-            EZItemManager.AllItems.TryGetValue(pair.Key, out itemData);
+            GDEItemManager.AllItems.TryGetValue(pair.Key, out itemData);
             if (ShouldFilter(pair.Key, itemData))
                 continue;
 
             //Check to see if this item's height has been updated
             //otherwise use the min height for the schema
-            if (entryFoldoutState.Contains(pair.Key) && pair.Value.NearlyEqual(EZConstants.LineHeight))
+            if (entryFoldoutState.Contains(pair.Key) && pair.Value.NearlyEqual(GDEConstants.LineHeight))
             {
-                schema = EZItemManager.GetSchemaForItem(pair.Key);
+                schema = GDEItemManager.GetSchemaForItem(pair.Key);
                 groupHeightBySchema.TryGetValue(schema, out schemaHeight);
                 totalHeight += schemaHeight;
             }
@@ -632,7 +627,7 @@ public class EZItemManagerWindow : EZManagerWindowBase
 
     protected override string FilePath()
     {
-        return EZItemManager.ItemFilePath;
+        return GDEItemManager.ItemFilePath;
     }
     #endregion
 

@@ -33,7 +33,7 @@ using System.IO;
 using System.Text;
 using System.Linq;
 
-namespace MiniJSON {
+namespace GameDataEditor.MiniJSON {
     // Example usage:
     //
     //  using UnityEngine;
@@ -546,7 +546,7 @@ namespace MiniJSON {
         }
     }
 
-    class JsonHelper
+    public static class JsonHelper
     {
         private const string INDENT_STRING = "    ";
         public static string FormatJson(string str)
