@@ -440,6 +440,8 @@ namespace GameDataEditor
                 AllSchemas.Clear();
                 ListByFieldName.Clear();
                 ItemListBySchema.Clear();
+                FilterSchemaKeyArray = null;
+                SchemaKeyArray = null;
 
                 string error;
                 foreach(KeyValuePair<string, object> pair in data)
