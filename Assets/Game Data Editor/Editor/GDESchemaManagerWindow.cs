@@ -12,7 +12,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
     private const string menuItemLocation = rootMenuLocation + "/Define Data";
 
     private string newSchemaName = "";
-    private BasicFieldType basicFieldTypeSelected = BasicFieldType.Int;
+    private int basicFieldTypeSelected = 0;
     private int customSchemaTypeSelected = 0;
 
     private Dictionary<string, string> newBasicFieldName = new Dictionary<string, string>();
@@ -125,7 +125,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         currentLinePosition += (width + 2);
 
         width = 80;
-        basicFieldTypeSelected = (BasicFieldType)EditorGUI.EnumPopup(new Rect(currentLinePosition, PopupTop(), width, StandardHeight()), basicFieldTypeSelected);
+        basicFieldTypeSelected = EditorGUI.Popup(new Rect(currentLinePosition, PopupTop(), width, StandardHeight()), basicFieldTypeSelected, GDEItemManager.BasicFieldTypeStringArray);
         currentLinePosition += (width + 6);
 
         // Basic field type name field
@@ -166,7 +166,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         width = 65;
         if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Add Field"))
         {
-            if (AddBasicField(basicFieldTypeSelected, schemaKey, schemaData, newBasicFieldNameText, isBasicListTemp))
+            if (AddBasicField(GDEItemManager.BasicFieldTypes[basicFieldTypeSelected], schemaKey, schemaData, newBasicFieldNameText, isBasicListTemp))
             {
                 isBasicList.Remove(schemaKey);
                 newBasicFieldName.TryAddOrUpdateValue(schemaKey, "");
@@ -261,7 +261,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
             bool didDrawSpaceForSection = false;
 
             // Draw the basic types
-            foreach(BasicFieldType fieldType in Enum.GetValues(typeof(BasicFieldType)))
+            foreach(BasicFieldType fieldType in GDEItemManager.BasicFieldTypes)
             {
                 List<string> fieldKeys = GDEItemManager.SchemaFieldKeysOfType(schemaKey, fieldType.ToString());
                 foreach(string fieldKey in fieldKeys)
@@ -288,7 +288,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
             didDrawSpaceForSection = false;
 
             // Draw the lists
-            foreach(BasicFieldType fieldType in Enum.GetValues(typeof(BasicFieldType)))
+            foreach(BasicFieldType fieldType in GDEItemManager.BasicFieldTypes)
             {
                 List<string> fieldKeys = GDEItemManager.SchemaListFieldKeysOfType(schemaKey, fieldType.ToString());
                 
@@ -364,7 +364,9 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
 
     void DrawSingleField(string schemaKey, string fieldKey, Dictionary<string, object> schemaData)
     {
-        string fieldType = schemaData[fieldKey].ToString();
+        string fieldType;
+        schemaData.TryGetString(string.Format(GDEConstants.MetaDataFormat, GDEConstants.TypePrefix, fieldKey), out fieldType);
+
         BasicFieldType fieldTypeEnum = BasicFieldType.Undefined;
         if (Enum.IsDefined(typeof(BasicFieldType), fieldType))
         {
@@ -440,8 +442,10 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
             bool currentFoldoutState = listFieldFoldoutState.Contains(foldoutKey);
             object defaultResizeValue = null;
 
+            string fieldType;
+            schemaData.TryGetString(string.Format(GDEConstants.MetaDataFormat, GDEConstants.TypePrefix, fieldKey), out fieldType);
+
             BasicFieldType fieldTypeEnum = BasicFieldType.Undefined;
-            string fieldType = schemaData[fieldKey].ToString();
             if (Enum.IsDefined(typeof(BasicFieldType), fieldType))
             {
                 fieldTypeEnum = (BasicFieldType)Enum.Parse(typeof(BasicFieldType), fieldType);
@@ -470,7 +474,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
             object temp = null;
             List<object> list = null;
 
-            if (schemaData.TryGetValue(string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, fieldKey), out temp))
+            if (schemaData.TryGetValue(fieldKey, out temp))
                 list = temp as List<object>;
 
             width = 40;
@@ -611,11 +615,8 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
     private bool AddBasicField(BasicFieldType type, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList)
     {
         bool result = true;
-        object defaultValue = null;
+        object defaultValue = GetDefaultValueForType(type);
         string error;
-
-        if (isList)
-            defaultValue = GetDefaultValueForType(type);        
 
         if (GDEItemManager.AddBasicFieldToSchema(type, schemaKey, schemaData, newFieldName, out error, isList, defaultValue))
             SetNeedToSave(true);

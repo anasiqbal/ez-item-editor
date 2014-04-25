@@ -448,7 +448,7 @@ public abstract class GDEManagerWindowBase : EditorWindow {
         {
             object currentValue;
             bool newValue;
-            string key = string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, fieldName);
+            string key = fieldName;
             
             data.TryGetValue(key, out currentValue);
 
@@ -505,7 +505,7 @@ public abstract class GDEManagerWindowBase : EditorWindow {
         {
             object currentValue;
             int newValue;
-            string key = string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, fieldName);
+            string key = fieldName;
             
             data.TryGetValue(key, out currentValue);
 
@@ -562,7 +562,7 @@ public abstract class GDEManagerWindowBase : EditorWindow {
         {
             object currentValue;
             float newValue;
-            string key = string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, fieldName);
+            string key = fieldName;
             
             data.TryGetValue(key, out currentValue);
 
@@ -617,7 +617,7 @@ public abstract class GDEManagerWindowBase : EditorWindow {
     {
         try
         {
-            string key = string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, fieldName);
+            string key = fieldName;
             object currentValue;
             
             data.TryGetValue(key, out currentValue);
@@ -688,7 +688,7 @@ public abstract class GDEManagerWindowBase : EditorWindow {
             Dictionary<string, object> vectDict = null;
             Vector2 currentValue = Vector2.zero;
             Vector2 newValue;
-            string key = string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, fieldName);
+            string key = fieldName;
             
             if (data.TryGetValue(key, out temp))
             {
@@ -751,7 +751,7 @@ public abstract class GDEManagerWindowBase : EditorWindow {
             Dictionary<string, object> vectDict = null;
             Vector3 currentValue = Vector3.zero;
             Vector3 newValue;
-            string key = string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, fieldName);
+            string key = fieldName;
             
             if (data.TryGetValue(key, out temp))
             {
@@ -818,7 +818,7 @@ public abstract class GDEManagerWindowBase : EditorWindow {
             Dictionary<string, object> vectDict = null;
             Vector4 currentValue = Vector4.zero;
             Vector4 newValue;
-            string key = string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, fieldName);
+            string key = fieldName;
             
             if (data.TryGetValue(key, out temp))
             {
@@ -888,7 +888,7 @@ public abstract class GDEManagerWindowBase : EditorWindow {
             object currentValue;
             int newIndex;
             int currentIndex;
-            string key = string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, fieldName);
+            string key = fieldName;
 
             data.TryGetValue(key, out currentValue);
 

@@ -149,6 +149,24 @@ namespace GameDataEditor.GDEExtensionMethods
             return result;
         }
 
+        public static bool TryGetString<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out string value)
+        {
+            bool result = true;
+            value = "";
+
+            try
+            {
+                TValue origValue;
+                variable.TryGetValue(key, out origValue);
+                value = origValue.ToString();
+            }
+            catch
+            {
+                result = false;
+            }
+            return result;
+        }
+
         public static MethodInfo DeepCopyMethodInfo = typeof(DictionaryExtensions).GetMethod("DeepCopy");
         public static Dictionary<TKey, TValue> DeepCopy<TKey, TValue>(this Dictionary<TKey, TValue> variable)
         {

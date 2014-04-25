@@ -166,7 +166,7 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
             bool didDrawSpaceForSection = false;
 
             // Draw the basic types
-            foreach(BasicFieldType fieldType in Enum.GetValues(typeof(BasicFieldType)))
+            foreach(BasicFieldType fieldType in GDEItemManager.BasicFieldTypes)
             {
                 List<string> fieldKeys = GDEItemManager.ItemFieldKeysOfType(key, fieldType.ToString());                
                 foreach(string fieldKey in fieldKeys)
@@ -193,7 +193,7 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
             didDrawSpaceForSection = false;
             
             // Draw the lists
-            foreach(BasicFieldType fieldType in Enum.GetValues(typeof(BasicFieldType)))
+            foreach(BasicFieldType fieldType in GDEItemManager.BasicFieldTypes)
             {
                 List<string> fieldKeys = GDEItemManager.ItemListFieldKeysOfType(key, fieldType.ToString());                
                 foreach(string fieldKey in fieldKeys)
@@ -262,7 +262,9 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
 
     void DrawSingleField(string schemaKey, string fieldKey, Dictionary<string, object> itemData)
     {
-        string fieldType = itemData[fieldKey].ToString();
+        string fieldType;
+        itemData.TryGetString(string.Format(GDEConstants.MetaDataFormat, GDEConstants.TypePrefix, fieldKey), out fieldType);
+
         BasicFieldType fieldTypeEnum = BasicFieldType.Undefined;
         if (Enum.IsDefined(typeof(BasicFieldType), fieldType))
         {
@@ -345,7 +347,9 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
             bool currentFoldoutState = listFieldFoldoutState.Contains(foldoutKey);
             object defaultResizeValue = null;
             
-            string fieldType = itemData[fieldKey].ToString();
+            string fieldType;
+            itemData.TryGetString(string.Format(GDEConstants.MetaDataFormat, GDEConstants.TypePrefix, fieldKey), out fieldType);
+
             BasicFieldType fieldTypeEnum = BasicFieldType.Undefined;
             if (Enum.IsDefined(typeof(BasicFieldType), fieldType))
             {
@@ -377,7 +381,7 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
             object temp = null;
             List<object> list = null;
             
-            if (itemData.TryGetValue(string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, fieldKey), out temp))
+            if (itemData.TryGetValue(fieldKey, out temp))
                 list = temp as List<object>;
 
             width = 40;

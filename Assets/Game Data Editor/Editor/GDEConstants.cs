@@ -5,11 +5,11 @@ namespace GameDataEditor
 {
     public class GDEConstants {
         #region Metadata Constants
-        public const string MetaDataFormat = "{0}_{1}"; //{0} is the metadata prefix, {1} is the field the metadata is for
+        public const string MetaDataFormat = "{0}{1}"; //{0} is the metadata prefix, {1} is the field the metadata is for
 
         // Field metadata prefixes
-        public const string ValuePrefix = "_gdeValue";
-        public const string IsListPrefix = "_gdeIsList";
+        public const string TypePrefix = "_gdeType_";
+        public const string IsListPrefix = "_gdeIsList_";
         #endregion
 
         #region Item Metadata Constants

@@ -111,6 +111,34 @@ namespace GameDataEditor
         #endregion
 
         #region Sorting and Lookup
+        // Basic Field Type string[]
+        private static string[] _basicFieldTypeStringArray = null;
+        public static string[] BasicFieldTypeStringArray
+        {
+            private set { _basicFieldTypeStringArray = value; }
+            get
+            {
+                if (_basicFieldTypeStringArray == null)
+                    _basicFieldTypeStringArray = BuildBasicTypeStringArray();  
+
+                return _basicFieldTypeStringArray;
+            }
+        }
+
+        //Basic Field Type List
+        private static List<BasicFieldType> _basicFieldTypes = null;
+        public static List<BasicFieldType> BasicFieldTypes
+        {
+            private set { _basicFieldTypes = value; }
+            get
+            {
+                if (_basicFieldTypes == null)
+                    _basicFieldTypes = BuildBasicTypeList();
+
+                return _basicFieldTypes;
+            }
+        }
+
         // Key: field name, List: contains the schema keys that contain that field name
         private static Dictionary<string, List<string>> _listByFieldName;
         private static Dictionary<string, List<string>> ListByFieldName
@@ -148,6 +176,22 @@ namespace GameDataEditor
         private static string[] BuildSchemaKeyArray()
         {
             return GDEItemManager.AllSchemas.Keys.ToArray();
+        }
+
+        private static List<BasicFieldType> BuildBasicTypeList()
+        {
+            List<BasicFieldType> basicTypes = Enum.GetValues(typeof(BasicFieldType)).Cast<BasicFieldType>().ToList();
+            basicTypes.Remove(BasicFieldType.Undefined);
+            return basicTypes;
+        }
+
+        private static string[] BuildBasicTypeStringArray()
+        {
+            string[] basicTypeArray = new string[BasicFieldTypes.Count];
+            for(int index=0; index<basicTypeArray.Length;  index++)
+                basicTypeArray[index] = BasicFieldTypes[index].ToString();
+
+            return basicTypeArray;
         }
 
         public static string GetSchemaForItem(string itemKey)
@@ -195,18 +239,21 @@ namespace GameDataEditor
         {
             List<string> fieldKeys = new List<string>();
             Dictionary<string, object> data;
+            string fieldName;
+            string isListKey;
 
             if (dict.TryGetValue(key, out data))
             {
                 foreach(KeyValuePair<string, object> field in data)
                 {
-                    if (field.Key.StartsWith(GDEConstants.IsListPrefix) ||
-                        field.Key.StartsWith(GDEConstants.ValuePrefix) ||
-                        field.Key.StartsWith(GDEConstants.SchemaKey))
+                    if (!field.Key.StartsWith(GDEConstants.TypePrefix))
                         continue;
 
-                    if (field.Value.ToString().ToLower().Equals(fieldType.ToLower()) && (data.ContainsKey(string.Format(GDEConstants.MetaDataFormat, GDEConstants.IsListPrefix, field.Key)) == onlyLists))
-                        fieldKeys.Add(field.Key);
+                    fieldName = field.Key.Replace(GDEConstants.TypePrefix, "");
+                    isListKey = string.Format(GDEConstants.MetaDataFormat, GDEConstants.IsListPrefix, fieldName);
+
+                    if (field.Value.ToString().ToLower().Equals(fieldType.ToLower()) && (data.ContainsKey(isListKey) == onlyLists))
+                        fieldKeys.Add(fieldName);
                 }
             }
 
@@ -217,24 +264,28 @@ namespace GameDataEditor
         {
             List<string> fieldKeys = new List<string>();
             Dictionary<string, object> data;
+            string fieldName;
+            string isListKey;
             
             if (dict.TryGetValue(key, out data))
             {
                 foreach(KeyValuePair<string, object> field in data)
                 {
-                    if (field.Key.StartsWith(GDEConstants.IsListPrefix) ||
-                        field.Key.StartsWith(GDEConstants.ValuePrefix)||
-                        field.Key.StartsWith(GDEConstants.SchemaKey))
+                    if (!field.Key.StartsWith(GDEConstants.TypePrefix))
                         continue;
 
-                    if (!Enum.IsDefined(typeof(BasicFieldType), field.Value) && (data.ContainsKey(string.Format(GDEConstants.MetaDataFormat, GDEConstants.IsListPrefix, field.Key)) == onlyLists))
-                        fieldKeys.Add(field.Key);
+                    fieldName = field.Key.Replace(GDEConstants.TypePrefix, "");
+                    isListKey = string.Format(GDEConstants.MetaDataFormat, GDEConstants.IsListPrefix, fieldName);
+
+                    if (!Enum.IsDefined(typeof(BasicFieldType), field.Value) && (data.ContainsKey(isListKey) == onlyLists))
+                        fieldKeys.Add(fieldName);
                 }
             }
 
             return fieldKeys;
         }
 
+        // Returns a list of item keys that are of the List<> type
         public static List<string> ItemListFieldKeys(string itemKey)
         {
             List<string> fieldKeys = new List<string>();
@@ -245,7 +296,7 @@ namespace GameDataEditor
                 foreach(KeyValuePair<string, object> field in data)
                 {
                     if (field.Key.StartsWith(GDEConstants.IsListPrefix))
-                        fieldKeys.Add(field.Key.Replace(GDEConstants.IsListPrefix+"_", ""));
+                        fieldKeys.Add(field.Key.Replace(GDEConstants.IsListPrefix, ""));
                 }
             }
 
@@ -282,7 +333,7 @@ namespace GameDataEditor
                 foreach(KeyValuePair<string, object> field in data)
                 {
                     if (field.Key.StartsWith(GDEConstants.IsListPrefix) ||
-                        field.Key.StartsWith(GDEConstants.ValuePrefix) ||
+                        field.Key.StartsWith(GDEConstants.TypePrefix) ||
                         field.Key.StartsWith(GDEConstants.SchemaKey))
                         continue;
                     
@@ -309,7 +360,7 @@ namespace GameDataEditor
             foreach(KeyValuePair<string, object> field in schemaData)
             {
                 // Skip over any metadata
-                if (field.Key.StartsWith(GDEConstants.ValuePrefix) ||
+                if (field.Key.StartsWith(GDEConstants.TypePrefix) ||
                     field.Key.StartsWith(GDEConstants.IsListPrefix))
                     continue;
                 
@@ -571,24 +622,21 @@ namespace GameDataEditor
         public static bool AddBasicFieldToSchema(BasicFieldType type, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, out string error, bool isList = false, object defaultValue = null)
         {
             bool result = true;
-            string valueKey = string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, newFieldName);
+            string typeKey = string.Format(GDEConstants.MetaDataFormat, GDEConstants.TypePrefix, newFieldName);
             error = "";
 
             if (IsFieldNameValid(schemaKey, newFieldName, out error))
-                result = schemaData.TryAddValue(newFieldName, type);
-            else
-                result = false;
-
-            if (result)
             {
                 if (isList)
                 {
-                    schemaData.Add(valueKey, new List<object>());
+                    result = schemaData.TryAddValue(newFieldName, new List<object>());
+                    schemaData.Add(typeKey, type);
                     schemaData.Add(string.Format(GDEConstants.MetaDataFormat, GDEConstants.IsListPrefix, newFieldName), true);
                 }
                 else
                 {
-                    schemaData.Add(valueKey, defaultValue);
+                    result = schemaData.TryAddValue(newFieldName, defaultValue);
+                    schemaData.Add(typeKey, type);
                 }
 
                 AddFieldToListByFieldName(newFieldName, schemaKey);
@@ -603,19 +651,18 @@ namespace GameDataEditor
             bool result = true;
 
             if (IsFieldNameValid(schemaKey, newFieldName, out error))
-                result = schemaData.TryAddValue(newFieldName, customType);
-            else
-                result = false;
-
-            if (result)
             {
                 if (isList)
                 {
-                    schemaData.Add(string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, newFieldName), new List<object>());
+                    result = schemaData.TryAddValue(newFieldName, new List<object>());
+                    schemaData.Add(string.Format(GDEConstants.MetaDataFormat, GDEConstants.TypePrefix, newFieldName), customType);
                     schemaData.Add(string.Format(GDEConstants.MetaDataFormat, GDEConstants.IsListPrefix, newFieldName), true);
                 }
                 else
-                    schemaData.Add(string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, newFieldName), "null");
+                {
+                    result = schemaData.TryAddValue(newFieldName, "null");
+                    schemaData.Add(string.Format(GDEConstants.MetaDataFormat, GDEConstants.TypePrefix, newFieldName), customType);
+                }
 
                 AddFieldToListByFieldName(newFieldName, schemaKey);
                 AddCustomFieldToItems(customType, schemaKey, newFieldName, isList);
@@ -634,7 +681,7 @@ namespace GameDataEditor
         public static void RemoveFieldFromSchema(string schemaKey, Dictionary<string, object> schemaData, string deletedFieldKey, bool deleteFromItem = true)
         {
             schemaData.Remove(deletedFieldKey);
-            schemaData.Remove(string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, deletedFieldKey));
+            schemaData.Remove(string.Format(GDEConstants.MetaDataFormat, GDEConstants.TypePrefix, deletedFieldKey));
             schemaData.Remove(string.Format(GDEConstants.MetaDataFormat, GDEConstants.IsListPrefix, deletedFieldKey));
 
             // Remove the schema key from the listbyfieldname List
@@ -661,16 +708,16 @@ namespace GameDataEditor
             {
                 if (AllItems.TryGetValue(itemKey, out itemData))
                 {
-                    itemData.Add(newFieldName, type);
-
                     if (isList)
                     {
-                        itemData.Add(string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, newFieldName), new List<object>());
+                        itemData.Add(newFieldName, new List<object>());
+                        itemData.Add(string.Format(GDEConstants.MetaDataFormat, GDEConstants.TypePrefix, newFieldName), type);
                         itemData.Add(string.Format(GDEConstants.MetaDataFormat, GDEConstants.IsListPrefix, newFieldName), true);
                     }
                     else
                     {
-                        itemData.Add(string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, newFieldName), defaultValue);
+                        itemData.Add(newFieldName, defaultValue);
+                        itemData.Add(string.Format(GDEConstants.MetaDataFormat, GDEConstants.TypePrefix, newFieldName), type);
                     }
 
                     ItemsNeedSave = true;
@@ -687,16 +734,16 @@ namespace GameDataEditor
             {
                 if (AllItems.TryGetValue(itemKey, out itemData))
                 {
-                    itemData.Add(newFieldName, customType);
-                    
                     if (isList)
                     {
-                        itemData.Add(string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, newFieldName), new List<object>());
+                        itemData.Add(newFieldName, new List<object>());
+                        itemData.Add(string.Format(GDEConstants.MetaDataFormat, GDEConstants.TypePrefix, newFieldName), customType);
                         itemData.Add(string.Format(GDEConstants.MetaDataFormat, GDEConstants.IsListPrefix, newFieldName), true);
                     }
                     else
                     {
-                        itemData.Add(string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, newFieldName), "null");
+                        itemData.Add(newFieldName, "null");
+                        itemData.Add(string.Format(GDEConstants.MetaDataFormat, GDEConstants.TypePrefix, newFieldName), customType);
                     }
                     
                     ItemsNeedSave = true;
@@ -714,7 +761,7 @@ namespace GameDataEditor
                 if (AllItems.TryGetValue(itemKey, out itemData))
                 {
                     itemData.Remove(deleteFieldName);
-                    itemData.Remove(string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, deleteFieldName));
+                    itemData.Remove(string.Format(GDEConstants.MetaDataFormat, GDEConstants.TypePrefix, deleteFieldName));
                     itemData.Remove(string.Format(GDEConstants.MetaDataFormat, GDEConstants.IsListPrefix, deleteFieldName));
 
                     ItemsNeedSave = true;
@@ -875,8 +922,8 @@ namespace GameDataEditor
                 data.Remove(oldFieldKey);
             }
             
-            string oldKey = string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, oldFieldKey);
-            string newKey = string.Format(GDEConstants.MetaDataFormat, GDEConstants.ValuePrefix, newFieldKey);
+            string oldKey = string.Format(GDEConstants.MetaDataFormat, GDEConstants.TypePrefix, oldFieldKey);
+            string newKey = string.Format(GDEConstants.MetaDataFormat, GDEConstants.TypePrefix, newFieldKey);
             if (data.TryGetValue(oldKey, out value))
             {
                 data.Add(newKey, value);
