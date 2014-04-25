@@ -26,7 +26,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
     private List<string> deletedSchemas = new List<string>();
     private Dictionary<string, string> renamedSchemas = new Dictionary<string, string>();
     
-    [MenuItem(menuItemLocation)]
+    [MenuItem(menuItemLocation, false, menuItemStartPriority+2)]
     private static void showEditor()
     {
         EditorWindow.GetWindow<GDESchemaManagerWindow>(false, "Define Data");

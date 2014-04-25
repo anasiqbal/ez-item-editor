@@ -731,7 +731,7 @@ namespace GameDataEditor
                 if (AllSchemas.TryGetValue(oldSchemaKey, out schemaData))
                 {
                     List<string> itemsWithSchema = GetItemsOfSchemaType(oldSchemaKey);
-                    Dictionary<string, object> schemaDataCopy = new Dictionary<string, object>(schemaData);
+                    Dictionary<string, object> schemaDataCopy = schemaData.DeepCopy();
 
                     // First remove the schema from the dictionary
                     RemoveSchema(oldSchemaKey, false);
@@ -783,7 +783,7 @@ namespace GameDataEditor
                 Dictionary<string, object> itemData;
                 if (AllItems.TryGetValue(oldItemKey, out itemData))
                 {
-                    Dictionary<string, object> itemDataCopy = new Dictionary<string, object>(itemData);
+                    Dictionary<string, object> itemDataCopy = itemData.DeepCopy();
 
                     // First remove the item from the dictionary
                     RemoveItem(oldItemKey);

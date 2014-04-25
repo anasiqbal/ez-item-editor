@@ -19,7 +19,7 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
     private List<string> deletedItems = new List<string>();
     private Dictionary<string, string> renamedItems = new Dictionary<string, string>();
 
-    [MenuItem(menuItemLocation)]
+    [MenuItem(menuItemLocation, false, menuItemStartPriority+1)]
     private static void showEditor()
     {
         EditorWindow.GetWindow<GDEItemManagerWindow>(false, "Create Data");
@@ -547,7 +547,7 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
         Dictionary<string, object> schemaData = null;       
         if (GDEItemManager.AllSchemas.TryGetValue(schemaKey, out schemaData))
         {
-            Dictionary<string, object> itemData = new Dictionary<string, object>(schemaData);
+            Dictionary<string, object> itemData = schemaData.DeepCopy();
             itemData.Add(GDEConstants.SchemaKey, schemaKey);
 
             string error;

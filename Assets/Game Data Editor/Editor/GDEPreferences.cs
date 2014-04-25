@@ -16,7 +16,7 @@ public class GDEPreferences : EditorWindow {
     private string dataFilePath;
     private string defineDataFilePath;
 
-    [MenuItem(menuItemLocation)]
+    [MenuItem(menuItemLocation, false, GDEManagerWindowBase.menuItemStartPriority)]
     private static void showEditor()
     {
         var window = EditorWindow.GetWindow<GDEPreferences>(true, "Game Data Editor Preferences");

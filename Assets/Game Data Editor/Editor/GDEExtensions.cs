@@ -1,10 +1,44 @@
+using UnityEngine;
 using System;
 using System.Globalization;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Linq;
+using System.Reflection;
 
 namespace GameDataEditor.GDEExtensionMethods
 {
+    public static class GenericExtensions
+    {
+        public static bool IsCloneableType<T>(this T variable)
+        {
+            return typeof(ICloneable).IsAssignableFrom(variable.GetType());
+        }
+
+        public static bool IsGenericList<T>(this T variable)
+        {
+            foreach (Type @interface in variable.GetType().GetInterfaces()) {
+                if (@interface.IsGenericType) {
+                    if (@interface.GetGenericTypeDefinition() == typeof(IList<>)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public static bool IsGenericDictionary<T>(this T variable)
+        {
+            foreach (Type @interface in variable.GetType().GetInterfaces()) {
+                if (@interface.IsGenericType) {
+                    if (@interface.GetGenericTypeDefinition() == typeof(IDictionary<,>)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+    }
+
     public static class FlagExtensions
     {
         public static bool IsSet(this Enum variable, Enum flag)
@@ -29,6 +63,50 @@ namespace GameDataEditor.GDEExtensionMethods
         public static bool IsValidIndex(this Array variable, int index)
         {
             return index > -1 && index < variable.Length;
+        }
+    }
+
+    public static class ListExtensions
+    {
+        public static MethodInfo DeepCopyMethodInfo = typeof(ListExtensions).GetMethod("DeepCopy");
+        public static List<T> DeepCopy<T>(this List<T> variable)
+        {
+            List<T> newList = new List<T>();
+
+            T newEntry = default(T);
+            foreach (T entry in variable)
+            {
+                if (entry == null)
+                {
+                    newEntry = entry;
+                }
+                else if (entry.IsCloneableType())
+                {
+                    newEntry = (T)((ICloneable)(entry)).Clone();
+                }
+                else if (entry.IsGenericList())
+                {
+                    Type listType = entry.GetType().GetGenericArguments()[0];
+                    MethodInfo deepCopyMethod = DeepCopyMethodInfo.MakeGenericMethod(new Type[] { listType });
+                    newEntry = (T)deepCopyMethod.Invoke(entry, new object[] {entry});
+                }
+                else if (entry.IsGenericDictionary())
+                {
+                    Type[] genericArgs = entry.GetType().GetGenericArguments();
+                    Type keyType = genericArgs[0];
+                    Type valueType = genericArgs[1];
+
+                    MethodInfo deepCopyMethod = DictionaryExtensions.DeepCopyMethodInfo.MakeGenericMethod(new Type[] { keyType, valueType });
+                    newEntry = (T)deepCopyMethod.Invoke(entry, new object[] {entry});
+                }
+                else
+                {
+                    newEntry = entry;
+                }
+                
+                newList.Add(newEntry);
+            }
+            return newList;
         }
     }
 
@@ -69,6 +147,71 @@ namespace GameDataEditor.GDEExtensionMethods
                 result = false;
             }
             return result;
+        }
+
+        public static MethodInfo DeepCopyMethodInfo = typeof(DictionaryExtensions).GetMethod("DeepCopy");
+        public static Dictionary<TKey, TValue> DeepCopy<TKey, TValue>(this Dictionary<TKey, TValue> variable)
+        {
+            Dictionary<TKey, TValue> newDictionary = new Dictionary<TKey, TValue>();
+
+            TKey newKey = default(TKey);
+            TValue newValue = default(TValue);
+
+            foreach (KeyValuePair<TKey, TValue> pair in variable)
+            {
+                if (pair.Key == null)
+                    newKey = pair.Key;
+                else if (pair.Key.IsCloneableType())
+                {
+                    newKey = (TKey)((ICloneable)(pair.Key)).Clone();
+                }
+                else if (pair.Key.IsGenericList())
+                {
+                    Type listType = pair.Key.GetType().GetGenericArguments()[0];                   
+                    MethodInfo deepCopyMethod = ListExtensions.DeepCopyMethodInfo.MakeGenericMethod(new Type[] { listType });
+                    newKey = (TKey)deepCopyMethod.Invoke(pair.Key, new object[] {pair.Key});
+                }
+                else if (pair.Key.IsGenericDictionary())
+                {
+                    Type[] genericArgs = pair.Key.GetType().GetGenericArguments();
+                    Type keyType = genericArgs[0];
+                    Type valueType = genericArgs[1];
+                    
+                    MethodInfo deepCopyMethod = DeepCopyMethodInfo.MakeGenericMethod(new Type[] { keyType, valueType });
+                    newKey = (TKey)deepCopyMethod.Invoke(pair.Key, new object[] {pair.Key});
+                }
+                else
+                    newKey = pair.Key;
+
+                if (pair.Value == null)
+                    newValue = pair.Value;
+                else if (pair.Value.IsCloneableType())
+                {
+                    newValue = (TValue)((ICloneable)(pair.Value)).Clone();
+                }
+                else if (pair.Value.IsGenericList())
+                {
+                    Type listType = pair.Value.GetType().GetGenericArguments()[0];                   
+                    MethodInfo deepCopyMethod = ListExtensions.DeepCopyMethodInfo.MakeGenericMethod(new Type[] { listType });
+                    newValue = (TValue)deepCopyMethod.Invoke(pair.Value, new object[] {pair.Value});
+                }
+                else if (pair.Value.IsGenericDictionary())
+                {
+                    Type[] genericArgs = pair.Value.GetType().GetGenericArguments();
+                    Type keyType = genericArgs[0];
+                    Type valueType = genericArgs[1];
+                    
+                    MethodInfo deepCopyMethod = DeepCopyMethodInfo.MakeGenericMethod(new Type[] { keyType, valueType });
+                    newValue = (TValue)deepCopyMethod.Invoke(pair.Value, new object[] {pair.Value});
+                }
+                else
+                {
+                    newValue = pair.Value;
+                }
+
+                newDictionary.Add(newKey, newValue);
+            }
+            return newDictionary;
         }
     }
 

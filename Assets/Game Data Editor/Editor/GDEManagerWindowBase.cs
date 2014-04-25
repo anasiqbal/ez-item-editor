@@ -9,6 +9,7 @@ using GameDataEditor.GDEExtensionMethods;
 public abstract class GDEManagerWindowBase : EditorWindow {
 
     public const string rootMenuLocation = "Window/Game Data Editor";
+    public const int menuItemStartPriority = 300;
 
     protected HashSet<string> entryFoldoutState = new HashSet<string>();
     protected HashSet<string> listFieldFoldoutState = new HashSet<string>();
@@ -1015,7 +1016,7 @@ public abstract class GDEManagerWindowBase : EditorWindow {
             for (int i = list.Count; i < size; i++) 
             {
                 if (defaultValue != null && defaultValue.GetType().Equals(typeof(Dictionary<string, object>)))
-                    list.Add(new Dictionary<string, object>((defaultValue as Dictionary<string, object>)));
+                    list.Add(new Dictionary<string, object>((defaultValue as Dictionary<string, object>).DeepCopy()));
                 else
                     list.Add(defaultValue);
             }
