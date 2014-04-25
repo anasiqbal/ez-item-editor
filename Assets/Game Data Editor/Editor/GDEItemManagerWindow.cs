@@ -96,15 +96,20 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
         width = 100;
         if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Create New Item"))
         {
-            List<object> args = new List<object>();
-            args.Add(GDEItemManager.SchemaKeyArray[schemaIndex]);
-            args.Add(newItemName);
-            
-            if (Create(args))
-            {            
-                newItemName = "";
-                GUI.FocusControl("");
+            if (GDEItemManager.SchemaKeyArray.IsValidIndex(schemaIndex))
+            {
+                List<object> args = new List<object>();
+                args.Add(GDEItemManager.SchemaKeyArray[schemaIndex]);
+                args.Add(newItemName);
+                
+                if (Create(args))
+                {            
+                    newItemName = "";
+                    GUI.FocusControl("");
+                }
             }
+            else
+                EditorUtility.DisplayDialog("Error creating item!", "No schema or invalid schema selected.", "Ok");
         }
 
         NewLine();
