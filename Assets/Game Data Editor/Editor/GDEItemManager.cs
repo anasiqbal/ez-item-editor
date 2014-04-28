@@ -621,11 +621,11 @@ namespace GameDataEditor
         #region Add/Remove Schema Field Methods
         public static bool AddBasicFieldToSchema(BasicFieldType type, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, out string error, bool isList = false, object defaultValue = null)
         {
-            bool result = true;
             string typeKey = string.Format(GDEConstants.MetaDataFormat, GDEConstants.TypePrefix, newFieldName);
             error = "";
+            bool result = IsFieldNameValid(schemaKey, newFieldName, out error);
 
-            if (IsFieldNameValid(schemaKey, newFieldName, out error))
+            if (result)
             {
                 if (isList)
                 {
@@ -648,9 +648,9 @@ namespace GameDataEditor
 
         public static bool AddCustomFieldToSchema(string customType, string schemaKey, Dictionary<string, object> schemaData, string newFieldName, bool isList, out string error)
         {
-            bool result = true;
+            bool result = IsFieldNameValid(schemaKey, newFieldName, out error);
 
-            if (IsFieldNameValid(schemaKey, newFieldName, out error))
+            if (result)
             {
                 if (isList)
                 {

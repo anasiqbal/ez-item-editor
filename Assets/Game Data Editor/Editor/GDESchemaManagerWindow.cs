@@ -162,6 +162,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         if (!newBasicFieldNameText.Equals(newBasicFieldName[schemaKey]))
             newBasicFieldName[schemaKey] = newBasicFieldNameText;
 
+
         // Basic field type isList checkbox
         bool isBasicListTemp = isBasicList.Contains(schemaKey);
 
@@ -193,6 +194,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
 
         NewLine();
 
+
         // ****** Custom Field Type Group ****** //
         currentLinePosition += GDEConstants.Indent;
 
@@ -212,6 +214,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
             customSchemaTypeSelectedDict.TryAddValue(schemaKey, customSchemaTypeIndex);
         }
 
+        // Custom schema type selected
         width = 80;
         int newCustomSchemaTypeSelected = EditorGUI.Popup(new Rect(currentLinePosition, PopupTop(), width, StandardHeight()), customSchemaTypeIndex, customTypes);
         currentLinePosition += (width + 6);
@@ -221,6 +224,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
             customSchemaTypeIndex = newCustomSchemaTypeSelected;
             customSchemaTypeSelectedDict.TryAddOrUpdateValue(schemaKey, customSchemaTypeIndex);
         }
+
 
         // Custom field type name field
         string newCustomFieldNameText = "";
@@ -240,6 +244,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
 
         if (!newCustomFieldNameText.Equals(newCustomFieldName[schemaKey]))
             newCustomFieldName[schemaKey] = newCustomFieldNameText;
+
 
         // Custom field type isList checkbox
         bool isCustomListTemp = isCustomList.Contains(schemaKey);
