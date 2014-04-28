@@ -791,13 +791,51 @@ namespace GameDataEditor
                         List<string> itemBySchemaList;
                         ItemListBySchema.TryGetValue(newSchemaKey, out itemBySchemaList);
                         
-                        // Lastly update the schema key on any existing items
+                        // Update the schema key on any existing items
                         foreach(string itemKey in itemsWithSchema)
                         {
                             Dictionary<string, object> itemData;
                             if (AllItems.TryGetValue(itemKey, out itemData))                        
                                 itemData.TryAddOrUpdateValue(GDEConstants.SchemaKey, newSchemaKey);
                             itemBySchemaList.Add(itemKey);
+                        }
+
+                        // Update any custom fields in schemas that had the old schema name
+                        foreach(string curSchemaKey in AllSchemas.Keys)
+                        {
+                            List<string> fieldsOfSchemaType = SchemaFieldKeysOfType(curSchemaKey, oldSchemaKey);
+                            fieldsOfSchemaType.AddRange(SchemaListFieldKeysOfType(curSchemaKey, oldSchemaKey));
+                            
+                            if (fieldsOfSchemaType.Count > 0)
+                            {
+                                Dictionary<string, object> curSchemaData;
+                                AllSchemas.TryGetValue(curSchemaKey, out curSchemaData);
+                                
+                                if (curSchemaData == null)
+                                    continue;
+                                
+                                foreach(string schemaFieldKey in fieldsOfSchemaType)
+                                    curSchemaData.TryAddOrUpdateValue(string.Format(GDEConstants.MetaDataFormat, GDEConstants.TypePrefix, schemaFieldKey), newSchemaKey);
+                            }
+                        }
+
+                        // Lastly, update any custom fields that had the old schema name
+                        foreach(string curItemKey in AllItems.Keys)
+                        {
+                            List<string> fieldsOfSchemaType = ItemFieldKeysOfType(curItemKey, oldSchemaKey);
+                            fieldsOfSchemaType.AddRange(ItemListFieldKeysOfType(curItemKey, oldSchemaKey));
+
+                            if (fieldsOfSchemaType.Count > 0)
+                            {
+                                Dictionary<string, object> curItemData;
+                                AllItems.TryGetValue(curItemKey, out curItemData);
+
+                                if (curItemData == null)
+                                    continue;
+
+                                foreach(string itemFieldKey in fieldsOfSchemaType)
+                                    curItemData.TryAddOrUpdateValue(string.Format(GDEConstants.MetaDataFormat, GDEConstants.TypePrefix, itemFieldKey), newSchemaKey);
+                            }
                         }
                     }
                     else
