@@ -108,6 +108,20 @@ namespace GameDataEditor.GDEExtensionMethods
             }
             return newList;
         }
+
+        public static List<int> AllIndexesOf<T>(this List<T> variable, T searchValue) 
+        {
+            List<int> indexes = new List<int>();
+            for (int index = 0; index<= variable.Count; index ++) 
+            {
+                index = variable.IndexOf(searchValue, index);
+                if (index == -1)
+                    break;
+
+                indexes.Add(index);
+            }
+            return indexes;
+        }
     }
 
     public static class DictionaryExtensions

@@ -882,6 +882,46 @@ namespace GameDataEditor
                         AddItem(oldItemKey, itemDataCopy, out error);
                         result = false;
                     }
+
+                    // Update any items that have a reference to this item
+                    string itemSchemaType;
+                    itemDataCopy.TryGetString(GDEConstants.SchemaKey, out itemSchemaType);
+                    foreach(string curItemKey in AllItems.Keys)
+                    {
+                        Dictionary<string, object> curItemData;
+                        AllItems.TryGetValue(curItemKey, out curItemData);
+                        
+                        if (curItemData == null)
+                            continue;
+
+                        // Update any single field references: ex. custom_type myField = "oldKey"
+                        List<string> fieldsOfSchemaType = ItemFieldKeysOfType(curItemKey, itemSchemaType);
+                        foreach(string itemFieldKey in fieldsOfSchemaType)
+                        {
+                            string curItemFieldValue;
+                            curItemData.TryGetString(itemFieldKey, out curItemFieldValue);
+
+                            if (!string.IsNullOrEmpty(curItemFieldValue) && curItemFieldValue.Equals(oldItemKey))
+                                curItemData.TryAddOrUpdateValue(itemFieldKey, newItemKey);
+                        }
+
+                        // Update any references that are part of a list
+                        fieldsOfSchemaType = ItemListFieldKeysOfType(curItemKey, itemSchemaType);
+                        foreach(string itemFieldKey in fieldsOfSchemaType)
+                        {
+                            object temp;
+                            List<object> valueList = null;
+                            curItemData.TryGetValue(itemFieldKey, out temp);
+                            valueList = temp as List<object>;
+
+                            if (valueList != null)
+                            {
+                                List<int> indexes = valueList.AllIndexesOf(oldItemKey);
+                                foreach(int index in indexes)
+                                    valueList[index] = newItemKey;
+                            }
+                        }
+                    }
                 }
                 else
                 {
