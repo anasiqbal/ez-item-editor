@@ -65,8 +65,8 @@ public class GDEPreferences : EditorWindow {
 
     void LoadPreferences()
     {
-        dataFilePath = EditorPrefs.GetString(GDEConstants.CreateDataFileKey, GDEConstants.CreateDataFile);
-        defineDataFilePath = EditorPrefs.GetString(GDEConstants.DefineDataFileKey, GDEConstants.DefineDataFile);
+        dataFilePath = EditorPrefs.GetString(GDEConstants.CreateDataFileKey, Application.dataPath + "/" + GDEConstants.CreateDataFile);
+        defineDataFilePath = EditorPrefs.GetString(GDEConstants.DefineDataFileKey, Application.dataPath + "/" + GDEConstants.DefineDataFile);
         
         string color = EditorPrefs.GetString(GDEConstants.CreateDataColorKey, GDEConstants.CreateDataColor);
         createDataColor = color.ToColor();
@@ -80,8 +80,8 @@ public class GDEPreferences : EditorWindow {
 
     void LoadDefaults()
     {
-        dataFilePath = GDEConstants.CreateDataFile;
-        defineDataFilePath = GDEConstants.DefineDataFile;
+        dataFilePath = Application.dataPath + "/" + GDEConstants.CreateDataFile;
+        defineDataFilePath = Application.dataPath + "/" + GDEConstants.DefineDataFile;
 
         createDataColor = GDEConstants.CreateDataColor.ToColor();
         defineDataColor = GDEConstants.DefineDataColor.ToColor();

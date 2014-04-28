@@ -31,7 +31,7 @@ namespace GameDataEditor
         {
             get
             {
-                return Application.dataPath + "/" + EditorPrefs.GetString(GDEConstants.CreateDataFileKey, GDEConstants.CreateDataFile);
+                return EditorPrefs.GetString(GDEConstants.CreateDataFileKey, GDEConstants.CreateDataFile);
             }
         }
         private static Dictionary<string, Dictionary<string, object>> _allItems;
@@ -57,7 +57,7 @@ namespace GameDataEditor
         {
             get
             {
-                return Application.dataPath + "/" + EditorPrefs.GetString(GDEConstants.DefineDataFileKey, GDEConstants.DefineDataFile);
+                return EditorPrefs.GetString(GDEConstants.DefineDataFileKey, GDEConstants.DefineDataFile);
             }
         }
         private static Dictionary<string, Dictionary<string, object>> _schema;
