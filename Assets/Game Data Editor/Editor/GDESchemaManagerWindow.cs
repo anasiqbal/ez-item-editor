@@ -12,8 +12,8 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
     private const string menuItemLocation = rootMenuLocation + "/Define Data";
 
     private string newSchemaName = "";
-    private int basicFieldTypeSelected = 0;
-    private int customSchemaTypeSelected = 0;
+    private Dictionary<string, int> basicFieldTypeSelectedDict = new Dictionary<string, int>();
+    private Dictionary<string, int> customSchemaTypeSelectedDict = new Dictionary<string, int>();
 
     private Dictionary<string, string> newBasicFieldName = new Dictionary<string, string>();
     private HashSet<string> isBasicList = new HashSet<string>();
@@ -119,14 +119,29 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
 
         currentLinePosition += GDEConstants.Indent;
 
-        // Basic Field Type Group
+        // ***** Basic Field Type Group ***** //
         width = 120;
         EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Basic Field Type:");
         currentLinePosition += (width + 2);
 
+        // Basic field type selected
+        int basicFieldTypeIndex;
+        if (!basicFieldTypeSelectedDict.TryGetValue(schemaKey, out basicFieldTypeIndex))
+        {
+            basicFieldTypeIndex = 0;
+            basicFieldTypeSelectedDict.TryAddValue(schemaKey, basicFieldTypeIndex);
+        }
+
         width = 80;
-        basicFieldTypeSelected = EditorGUI.Popup(new Rect(currentLinePosition, PopupTop(), width, StandardHeight()), basicFieldTypeSelected, GDEItemManager.BasicFieldTypeStringArray);
+        int newBasicFieldTypeIndex = EditorGUI.Popup(new Rect(currentLinePosition, PopupTop(), width, StandardHeight()), basicFieldTypeIndex, GDEItemManager.BasicFieldTypeStringArray);
         currentLinePosition += (width + 6);
+
+        if (newBasicFieldTypeIndex != basicFieldTypeIndex && GDEItemManager.BasicFieldTypeStringArray.IsValidIndex(newBasicFieldTypeIndex))
+        {
+            basicFieldTypeIndex = newBasicFieldTypeIndex;
+            basicFieldTypeSelectedDict.TryAddOrUpdateValue(schemaKey, basicFieldTypeIndex);
+        }
+
 
         // Basic field type name field
         string newBasicFieldNameText = "";
@@ -166,7 +181,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         width = 65;
         if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Add Field"))
         {
-            if (AddBasicField(GDEItemManager.BasicFieldTypes[basicFieldTypeSelected], schemaKey, schemaData, newBasicFieldNameText, isBasicListTemp))
+            if (AddBasicField(GDEItemManager.BasicFieldTypes[basicFieldTypeIndex], schemaKey, schemaData, newBasicFieldNameText, isBasicListTemp))
             {
                 isBasicList.Remove(schemaKey);
                 newBasicFieldName.TryAddOrUpdateValue(schemaKey, "");
@@ -178,7 +193,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
 
         NewLine();
 
-        // Custom Field Type Group
+        // ****** Custom Field Type Group ****** //
         currentLinePosition += GDEConstants.Indent;
 
         width = 120;
@@ -190,9 +205,22 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
 
         string[] customTypes = customTypeList.ToArray();
 
+        int customSchemaTypeIndex;
+        if (!customSchemaTypeSelectedDict.TryGetValue(schemaKey, out customSchemaTypeIndex))
+        {
+            customSchemaTypeIndex = 0;
+            customSchemaTypeSelectedDict.TryAddValue(schemaKey, customSchemaTypeIndex);
+        }
+
         width = 80;
-        customSchemaTypeSelected = EditorGUI.Popup(new Rect(currentLinePosition, PopupTop(), width, StandardHeight()), customSchemaTypeSelected, customTypes);
+        int newCustomSchemaTypeSelected = EditorGUI.Popup(new Rect(currentLinePosition, PopupTop(), width, StandardHeight()), customSchemaTypeIndex, customTypes);
         currentLinePosition += (width + 6);
+
+        if (newCustomSchemaTypeSelected != customSchemaTypeIndex && customTypes.IsValidIndex(newCustomSchemaTypeSelected))
+        {
+            customSchemaTypeIndex = newCustomSchemaTypeSelected;
+            customSchemaTypeSelectedDict.TryAddOrUpdateValue(schemaKey, customSchemaTypeIndex);
+        }
 
         // Custom field type name field
         string newCustomFieldNameText = "";
@@ -232,11 +260,11 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         width = 110;
         if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Add Custom Field"))
         {
-            if (!customTypes.IsValidIndex(customSchemaTypeSelected) || customTypes.Length.Equals(0))
+            if (!customTypes.IsValidIndex(customSchemaTypeIndex) || customTypes.Length.Equals(0))
             {
                 EditorUtility.DisplayDialog("Error!", "Invalid custom field type selected.", "Ok");
             }
-            else if (AddCustomField(customTypes[customSchemaTypeSelected], schemaKey, schemaData, newCustomFieldNameText, isCustomListTemp))
+            else if (AddCustomField(customTypes[customSchemaTypeIndex], schemaKey, schemaData, newCustomFieldNameText, isCustomListTemp))
             {
                 isCustomList.Remove(schemaKey);
                 newCustomFieldName.TryAddOrUpdateValue(schemaKey, "");
