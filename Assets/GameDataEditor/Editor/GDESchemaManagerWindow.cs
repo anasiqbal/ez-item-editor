@@ -510,8 +510,8 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
             if (schemaData.TryGetValue(fieldKey, out temp))
                 list = temp as List<object>;
 
-            width = 40;
-            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Count:");
+            width = 70;
+            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Default Size:");
             currentLinePosition += (width + 2);
 
             int newListCount;

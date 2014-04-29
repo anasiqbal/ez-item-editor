@@ -385,7 +385,7 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
                 list = temp as List<object>;
 
             width = 40;
-            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Count:");
+            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Size:");
             currentLinePosition += (width + 2);
 
             int newListCount;
