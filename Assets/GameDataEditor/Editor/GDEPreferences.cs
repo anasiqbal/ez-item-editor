@@ -37,8 +37,27 @@ public class GDEPreferences : EditorWindow {
         Vector2 size = headerStyle.CalcSize(content);
         EditorGUILayout.LabelField("File Locations", headerStyle, GUILayout.Width(size.x), GUILayout.Height(size.y));
 
-        dataFilePath = EditorGUILayout.TextField("Create Data File", dataFilePath);
-        defineDataFilePath = EditorGUILayout.TextField("Define Data File", defineDataFilePath);
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("Create Data File", GUILayout.Width(100));
+        dataFilePath = EditorGUILayout.TextField(dataFilePath);
+        if (GUILayout.Button("Browse ...", GUILayout.Width(70)))
+        {
+            string newDataFilePath = EditorUtility.OpenFilePanel("Open Data File", dataFilePath, "json");
+            if (!string.IsNullOrEmpty(newDataFilePath) && !newDataFilePath.Equals(dataFilePath))
+                dataFilePath = newDataFilePath;
+        }
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("Define Data File", GUILayout.Width(100));
+        defineDataFilePath = EditorGUILayout.TextField(defineDataFilePath);
+        if (GUILayout.Button("Browse ...", GUILayout.Width(70)))
+        {
+            string newDefineDataPath = EditorUtility.OpenFilePanel("Open Schema File", defineDataFilePath, "json");
+            if (!string.IsNullOrEmpty(newDefineDataPath) && !newDefineDataPath.Equals(defineDataFilePath))
+                defineDataFilePath = newDefineDataPath;
+        }
+        EditorGUILayout.EndHorizontal();
 
         GUILayout.Space(20);
 
@@ -98,6 +117,8 @@ public class GDEPreferences : EditorWindow {
         EditorPrefs.SetString(GDEConstants.CreateDataColorKey, "#" + createDataColor.ToHexString());
         EditorPrefs.SetString(GDEConstants.DefineDataColorKey, "#" + defineDataColor.ToHexString());
         EditorPrefs.SetString(GDEConstants.HighlightColorKey, "#" + highlightColor.ToHexString());
+
+        GDEItemManager.Load();
     }
 }
 
