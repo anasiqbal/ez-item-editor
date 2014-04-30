@@ -1,0 +1,30 @@
+{
+    "GuiText": {
+        "text": "<set me>",
+        "_gdeType_text": "String",
+        "size": 16,
+        "_gdeType_size": "Int"
+    },
+    "Object": {
+        "_gdeType_minScale": "Vector3",
+        "maxScale": {
+            "x": 2,
+            "y": 2,
+            "z": 2
+        },
+        "_gdeType_maxScale": "Vector3",
+        "position": {
+            "x": 0,
+            "y": 100,
+            "z": 0
+        },
+        "minScale": {
+            "x": 0.5,
+            "y": 0.5,
+            "z": 0.5
+        },
+        "_gdeType_position": "Vector3",
+        "_gdeType_scaleSpeed": "Float",
+        "scaleSpeed": 2
+    }
+}

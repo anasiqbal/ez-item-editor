@@ -49,6 +49,12 @@ public abstract class GDEManagerWindowBase : EditorWindow {
     protected HashSet<string> editingFields = new HashSet<string>();
     protected Dictionary<string, string> editFieldTextDict = new Dictionary<string, string>();
     protected delegate bool DoRenameDelgate(string oldValue, string newValue, Dictionary<string, object> data, out string errorMsg);
+   
+    void OnFocus()
+    {
+        if (GDEItemManager.AllItems.Count.Equals(0) && GDEItemManager.AllSchemas.Count.Equals(0))
+            GDEItemManager.Load();
+    }
      
     #region OnGUI and DrawHeader Methods
     protected virtual void OnGUI()

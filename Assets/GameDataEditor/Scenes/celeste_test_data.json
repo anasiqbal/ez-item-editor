@@ -1,0 +1,32 @@
+{
+    "headerText": {
+        "text": "Hello World!\nYay for MultiLine\nStrings!",
+        "_gdeType_text": "String",
+        "size": 32,
+        "_gdeType_size": "Int",
+        "_gdeSchema": "GuiText"
+    },
+    "square": {
+        "_gdeType_minScale": "Vector3",
+        "maxScale": {
+            "x": 15,
+            "y": 15,
+            "z": 15
+        },
+        "_gdeType_maxScale": "Vector3",
+        "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "minScale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+        },
+        "_gdeType_position": "Vector3",
+        "_gdeSchema": "Object",
+        "_gdeType_scaleSpeed": "Float",
+        "scaleSpeed": 10
+    }
+}
