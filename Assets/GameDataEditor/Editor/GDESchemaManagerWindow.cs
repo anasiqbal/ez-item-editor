@@ -42,11 +42,13 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
 
         DrawExpandCollapseAllFoldout(GDEItemManager.AllSchemas.Keys.ToArray(), "Schema List");
 
+        float currentGroupHeightTotal = CalculateGroupHeightsTotal();
         scrollViewHeight = HeightToBottomOfWindow();
         scrollViewY = TopOfLine();
         verticalScrollbarPosition = GUI.BeginScrollView(new Rect(currentLinePosition, scrollViewY, FullWindowWidth(), scrollViewHeight), 
                                                         verticalScrollbarPosition,
-                                                        new Rect(currentLinePosition, scrollViewY, ScrollViewWidth(), CalculateGroupHeightsTotal()));
+                                                        new Rect(currentLinePosition, scrollViewY, ScrollViewWidth(), currentGroupHeightTotal));
+
         foreach(KeyValuePair<string, Dictionary<string, object>> schema in GDEItemManager.AllSchemas)
         {   
             float currentGroupHeight;

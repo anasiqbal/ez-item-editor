@@ -35,23 +35,39 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
 
         DrawExpandCollapseAllFoldout(GDEItemManager.AllItems.Keys.ToArray(), "Item List");
 
+
+        float currentGroupHeightTotal = CalculateGroupHeightsTotal();
         scrollViewHeight = HeightToBottomOfWindow();
         scrollViewY = TopOfLine();
         verticalScrollbarPosition = GUI.BeginScrollView(new Rect(currentLinePosition, scrollViewY, FullWindowWidth(), scrollViewHeight), 
                                                         verticalScrollbarPosition,
-                                                        new Rect(currentLinePosition, scrollViewY, ScrollViewWidth(), CalculateGroupHeightsTotal()));
+                                                        new Rect(currentLinePosition, scrollViewY, ScrollViewWidth(), currentGroupHeightTotal));
+
+        int count = 0;
         foreach (KeyValuePair<string, Dictionary<string, object>> item in GDEItemManager.AllItems)
         {
             float currentGroupHeight;
-            if (!groupHeights.TryGetValue(item.Key, out currentGroupHeight))
-                currentGroupHeight = GDEConstants.LineHeight;
+            groupHeights.TryGetValue(item.Key, out currentGroupHeight);
 
-            if (IsVisible(currentGroupHeight))
+            if (currentGroupHeight == 0f || 
+                (currentGroupHeight.NearlyEqual(GDEConstants.LineHeight) && entryFoldoutState.Contains(item.Key)))
+            {
+                string itemSchema = GDEItemManager.GetSchemaForItem(item.Key);
+                if (!groupHeightBySchema.TryGetValue(itemSchema, out currentGroupHeight))
+                    currentGroupHeight = GDEConstants.LineHeight;
+            }
+
+            if (IsVisible(currentGroupHeight) || 
+                (count == GDEItemManager.AllItems.Count-1 && verticalScrollbarPosition.y.NearlyEqual(currentGroupHeightTotal - GDEConstants.LineHeight)))
+            {
                 DrawEntry(item.Key, item.Value);
+            }
             else
             {
                 NewLine(currentGroupHeight/GDEConstants.LineHeight);
             }
+
+            count++;
         }
         GUI.EndScrollView();
         

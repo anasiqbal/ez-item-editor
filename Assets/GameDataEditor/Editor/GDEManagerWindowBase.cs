@@ -97,6 +97,31 @@ public abstract class GDEManagerWindowBase : EditorWindow {
 
         ResetToTop();
 
+        // Process page up/down press & home/end press
+        if (Event.current.isKey)
+        {
+            if (Event.current.keyCode == KeyCode.PageDown)
+            {
+                verticalScrollbarPosition.y += scrollViewHeight/2f;
+                Event.current.Use();
+            }
+            else if (Event.current.keyCode == KeyCode.PageUp)
+            {
+                verticalScrollbarPosition.y -= scrollViewHeight/2f;
+                Event.current.Use();
+            }
+            else if (Event.current.keyCode == KeyCode.Home)
+            {
+                verticalScrollbarPosition.y = 0;
+                Event.current.Use();
+            }
+            else if (Event.current.keyCode == KeyCode.End)
+            {
+                verticalScrollbarPosition.y = CalculateGroupHeightsTotal()-GDEConstants.LineHeight-scrollViewY;
+                Event.current.Use();
+            }
+        }
+
         DrawHeaderLabel();
         DrawHeader();
 
@@ -416,20 +441,13 @@ public abstract class GDEManagerWindowBase : EditorWindow {
 
     protected virtual void SetAllFoldouts(bool state, string[] forKeys)
     {
-        if (!state)
-            entryFoldoutState.Clear();
-        else
-        {
-            foreach(string key in forKeys)
-            {
-                SetFoldout(state, key);
-            }
-        }
+        foreach(string key in forKeys)        
+            SetFoldout(state, key);
     }
 
     protected virtual void SetFoldout(bool state, string forKey)
     {
-        if (state)
+        if (state)        
             entryFoldoutState.Add(forKey);
         else
         {
