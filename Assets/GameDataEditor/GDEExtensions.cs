@@ -162,6 +162,24 @@ namespace GameDataEditor.GDEExtensionMethods
             }
             return result;
         }
+
+        public static bool TryGetBool<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out bool value)
+        {
+            bool result = true;
+            value = false;
+
+            try
+            {
+                TValue origValue;
+                variable.TryGetValue(key, out origValue);
+                value = Convert.ToBoolean(origValue);
+            }
+            catch
+            {
+                result = false;
+            }
+            return result;
+        }
         
         public static bool TryGetString<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out string value)
         {
@@ -216,6 +234,31 @@ namespace GameDataEditor.GDEExtensionMethods
             }
             return result;
         }
+
+        public static bool TryGetVector2<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out Vector2 value)
+        {
+            bool result = true;
+            value = Vector2.zero;
+            
+            try
+            {
+                TValue temp;
+                Dictionary<string, object> vectorDict;
+                variable.TryGetValue(key, out temp);
+                
+                vectorDict = temp as Dictionary<string, object>;
+                if (vectorDict != null)
+                {
+                    value.x = Convert.ToSingle(vectorDict["x"]);
+                    value.y = Convert.ToSingle(vectorDict["y"]);
+                }
+            }
+            catch
+            {
+                result = false;
+            }
+            return result;
+        }
         
         public static bool TryGetVector3<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out Vector3 value)
         {
@@ -234,6 +277,33 @@ namespace GameDataEditor.GDEExtensionMethods
                     value.x = Convert.ToSingle(vectorDict["x"]);
                     value.y = Convert.ToSingle(vectorDict["y"]);
                     value.z = Convert.ToSingle(vectorDict["z"]);
+                }
+            }
+            catch
+            {
+                result = false;
+            }
+            return result;
+        }
+
+        public static bool TryGetVector4<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out Vector4 value)
+        {
+            bool result = true;
+            value = Vector4.zero;
+            
+            try
+            {
+                TValue temp;
+                Dictionary<string, object> vectorDict;
+                variable.TryGetValue(key, out temp);
+                
+                vectorDict = temp as Dictionary<string, object>;
+                if (vectorDict != null)
+                {
+                    value.x = Convert.ToSingle(vectorDict["x"]);
+                    value.y = Convert.ToSingle(vectorDict["y"]);
+                    value.z = Convert.ToSingle(vectorDict["z"]);
+                    value.w = Convert.ToSingle(vectorDict["w"]);
                 }
             }
             catch
