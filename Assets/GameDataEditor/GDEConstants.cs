@@ -42,8 +42,8 @@ namespace GameDataEditor
         public const string DefineDataColor = "#185e65";
         public const string HighlightColor = "#f15c25";
 
-        public const string CreateDataFile = "gde_data.json";
-        public const string DefineDataFile = "gde_schema.json";
+        public const string CreateDataFile = "gde_create.json";
+        public const string DefineDataFile = "gde_define.json";
         #endregion
     }
 }
