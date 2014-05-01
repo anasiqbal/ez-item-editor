@@ -312,6 +312,33 @@ namespace GameDataEditor.GDEExtensionMethods
             }
             return result;
         }
+
+        public static bool TryGetColor<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out Color value)
+        {
+            bool result = true;
+            value = Color.black;
+
+            try
+            {
+                TValue temp;
+                Dictionary<string, object> colorDict;
+                variable.TryGetValue(key, out temp);
+
+                colorDict = temp as Dictionary<string, object>;
+                if (colorDict != null)
+                {
+                    colorDict.TryGetFloat("r", out value.r);
+                    colorDict.TryGetFloat("g", out value.g);
+                    colorDict.TryGetFloat("b", out value.b);
+                    colorDict.TryGetFloat("a", out value.a);
+                }
+            }
+            catch
+            {
+                result = false;
+            }
+            return result;
+        }
         
         public static MethodInfo DeepCopyMethodInfo = typeof(DictionaryExtensions).GetMethod("DeepCopy");
         public static Dictionary<TKey, TValue> DeepCopy<TKey, TValue>(this Dictionary<TKey, TValue> variable)

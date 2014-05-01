@@ -20,7 +20,8 @@ namespace GameDataEditor
         String = 8,
         Vector2 = 16,
         Vector3 = 32,
-        Vector4 = 64
+        Vector4 = 64,
+        Color = 128
     }
 
     public class GDEItemManager

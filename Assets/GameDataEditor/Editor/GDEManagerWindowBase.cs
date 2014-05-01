@@ -905,6 +905,92 @@ public abstract class GDEManagerWindowBase : EditorWindow {
         }
     }
 
+    protected virtual void DrawColor(string fieldName, Dictionary<string, object> data, string label)
+    {
+        try
+        {
+            Color newValue;
+            Color currentValue = Color.white;
+            object temp;
+            Dictionary<string, object> colorDict;
+
+            if (data.TryGetValue(fieldName, out temp))
+            {
+                colorDict = temp as Dictionary<string, object>;  
+                colorDict.TryGetFloat("r", out currentValue.r);
+                colorDict.TryGetFloat("g", out currentValue.g);
+                colorDict.TryGetFloat("b", out currentValue.b);
+                colorDict.TryGetFloat("a", out currentValue.a);
+            }      
+
+            GUIContent content = new GUIContent(label);
+            Vector2 size = labelStyle.CalcSize(content);
+            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), size.x, StandardHeight()), content);
+            currentLinePosition += (size.x + 2);
+
+            float width = 230 - size.x;
+            newValue = EditorGUI.ColorField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), currentValue);
+            currentLinePosition += (width + 2);
+
+            if (newValue != currentValue)
+            {
+                colorDict.TryAddOrUpdateValue("r", newValue.r);
+                colorDict.TryAddOrUpdateValue("g", newValue.g);
+                colorDict.TryAddOrUpdateValue("b", newValue.b);
+                colorDict.TryAddOrUpdateValue("a", newValue.a);
+
+                SetNeedToSave(true);
+            }
+        }
+        catch(Exception ex)
+        {
+            // Don't log ExitGUIException here. This is a unity bug with ObjectField and ColorField.
+            if (!(ex is ExitGUIException))
+                Debug.LogException(ex);
+        }
+
+    }
+
+    protected virtual void DrawListColor(int index, Dictionary<string, object> value, List<object> colorList)
+    {
+        try
+        {
+            Color newValue;
+            Color currentValue = Color.white;
+            
+            value.TryGetFloat("r", out currentValue.r);
+            value.TryGetFloat("g", out currentValue.g);
+            value.TryGetFloat("b", out currentValue.b);
+            value.TryGetFloat("a", out currentValue.a);
+            
+            GUIContent content = new GUIContent(string.Format("{0}:", index));
+            Vector2 size = labelStyle.CalcSize(content);
+            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), size.x, StandardHeight()), content);
+            currentLinePosition += (size.x + 2);
+            
+            float width = 230 - size.x;
+            newValue = EditorGUI.ColorField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), currentValue);
+            currentLinePosition += (width + 2);
+            
+            if (newValue != currentValue)
+            {
+                value.TryAddOrUpdateValue("r", newValue.r);
+                value.TryAddOrUpdateValue("g", newValue.g);
+                value.TryAddOrUpdateValue("b", newValue.b);
+                value.TryAddOrUpdateValue("a", newValue.a);
+
+                colorList[index] = value;
+                SetNeedToSave(true);
+            }
+        } 
+        catch (Exception ex)
+        {
+            // Don't log ExitGUIException here. This is a unity bug with ObjectField and ColorField.
+            if (!(ex is ExitGUIException))
+                Debug.LogException(ex);
+        }
+    }
+
     protected virtual void DrawCustom(string fieldName, Dictionary<string, object> data, bool canEdit, List<string> possibleValues = null)
     {
         try
@@ -1081,6 +1167,16 @@ public abstract class GDEManagerWindowBase : EditorWindow {
         else if (type.IsSet(BasicFieldType.String))
         {
             defaultValue = "";
+        }
+        else if (type.IsSet(BasicFieldType.Color))
+        {
+            defaultValue = new Dictionary<string, object>()
+            {
+                {"r", 1f},
+                {"g", 1f},
+                {"b", 1f},
+                {"a", 0f},
+            };
         }
         else
             defaultValue = 0;

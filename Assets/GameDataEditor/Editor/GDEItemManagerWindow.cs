@@ -287,7 +287,8 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
             fieldTypeEnum = (BasicFieldType)Enum.Parse(typeof(BasicFieldType), fieldType);
             if (!fieldTypeEnum.Equals(BasicFieldType.Vector2) && 
                 !fieldTypeEnum.Equals(BasicFieldType.Vector3) && 
-                !fieldTypeEnum.Equals(BasicFieldType.Vector4))
+                !fieldTypeEnum.Equals(BasicFieldType.Vector4) &&
+                !fieldTypeEnum.Equals(BasicFieldType.Color))
                 fieldType = fieldType.ToLower();
         }
 
@@ -343,6 +344,12 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
                 NewLine(GDEConstants.VectorFieldBuffer+1);
                 break;
             }
+            case BasicFieldType.Color:
+            {
+                DrawColor(fieldKey, itemData, "Values:");
+                NewLine();
+                break;
+            }
                 
             default:
             {
@@ -372,7 +379,8 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
                 fieldTypeEnum = (BasicFieldType)Enum.Parse(typeof(BasicFieldType), fieldType);
                 if (!fieldTypeEnum.Equals(BasicFieldType.Vector2) && 
                     !fieldTypeEnum.Equals(BasicFieldType.Vector3) && 
-                    !fieldTypeEnum.Equals(BasicFieldType.Vector4))
+                    !fieldTypeEnum.Equals(BasicFieldType.Vector4) &&
+                    !fieldTypeEnum.Equals(BasicFieldType.Color))
                     fieldType = fieldType.ToLower();
 
                 defaultResizeValue = GetDefaultValueForType(fieldTypeEnum);
@@ -479,6 +487,12 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
                             DrawListVector4(i, list[i] as Dictionary<string, object>, list);
                             NewLine(GDEConstants.VectorFieldBuffer+1);
                             break; 
+                        }
+                        case BasicFieldType.Color:
+                        {
+                            DrawListColor(i, list[i] as Dictionary<string, object>, list);
+                            NewLine();
+                            break;
                         }
                         default:
                         {

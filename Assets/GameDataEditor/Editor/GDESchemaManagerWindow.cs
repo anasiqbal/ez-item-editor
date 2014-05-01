@@ -408,7 +408,8 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
             fieldTypeEnum = (BasicFieldType)Enum.Parse(typeof(BasicFieldType), fieldType);
             if (!fieldTypeEnum.Equals(BasicFieldType.Vector2) && 
                 !fieldTypeEnum.Equals(BasicFieldType.Vector3) && 
-                !fieldTypeEnum.Equals(BasicFieldType.Vector4))
+                !fieldTypeEnum.Equals(BasicFieldType.Vector4) &&
+                !fieldTypeEnum.Equals(BasicFieldType.Color))
                 fieldType = fieldType.ToLower();
         }
 
@@ -443,7 +444,11 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
             case BasicFieldType.Vector4:
                 DrawVector4(fieldKey, schemaData, "Default Values:");
                 break;
-                
+            
+            case BasicFieldType.Color:
+                DrawColor(fieldKey, schemaData, "Default Values:");
+                break;
+
             default:
                 DrawCustom(fieldKey, schemaData, false);
                 break;
@@ -486,7 +491,8 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
                 fieldTypeEnum = (BasicFieldType)Enum.Parse(typeof(BasicFieldType), fieldType);
                 if (!fieldTypeEnum.Equals(BasicFieldType.Vector2) && 
                     !fieldTypeEnum.Equals(BasicFieldType.Vector3) && 
-                    !fieldTypeEnum.Equals(BasicFieldType.Vector4))                
+                    !fieldTypeEnum.Equals(BasicFieldType.Vector4) && 
+                    !fieldTypeEnum.Equals(BasicFieldType.Color))                
                     fieldType = fieldType.ToLower();
 
                 defaultResizeValue = GetDefaultValueForType(fieldTypeEnum);
@@ -594,6 +600,12 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
                         {
                             DrawListVector4(i, list[i] as Dictionary<string, object>, list);
                             NewLine(GDEConstants.VectorFieldBuffer+1);
+                            break;
+                        }
+                        case BasicFieldType.Color:
+                        {
+                            DrawListColor(i, list[i] as Dictionary<string, object>, list);
+                            NewLine();
                             break;
                         }
                         default:
