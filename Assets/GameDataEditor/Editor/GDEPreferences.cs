@@ -45,6 +45,7 @@ public class GDEPreferences : EditorWindow {
             string newDataFilePath = EditorUtility.OpenFilePanel("Open Data File", dataFilePath, "json");
             if (!string.IsNullOrEmpty(newDataFilePath) && !newDataFilePath.Equals(dataFilePath))
                 dataFilePath = newDataFilePath;
+            GUI.FocusControl("");
         }
         EditorGUILayout.EndHorizontal();
 
@@ -56,6 +57,7 @@ public class GDEPreferences : EditorWindow {
             string newDefineDataPath = EditorUtility.OpenFilePanel("Open Schema File", defineDataFilePath, "json");
             if (!string.IsNullOrEmpty(newDefineDataPath) && !newDefineDataPath.Equals(defineDataFilePath))
                 defineDataFilePath = newDefineDataPath;
+            GUI.FocusControl("");
         }
         EditorGUILayout.EndHorizontal();
 
