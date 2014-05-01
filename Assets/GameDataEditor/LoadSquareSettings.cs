@@ -8,8 +8,12 @@ public class LoadSquareSettings : MonoBehaviour {
     Vector3 minScale;
     Vector3 maxScale;
     Vector3 targetScale;
-
     float scaleSpeed;
+
+    Color startColor;
+    Color endColor;
+    Color targetColor;
+    float colorSpeed;
 
     //
     // Initialize Game Data 
@@ -25,15 +29,22 @@ public class LoadSquareSettings : MonoBehaviour {
         {
             Vector3 startPosition;
             squareData.TryGetVector3("position", out startPosition);
-            gameObject.transform.localPosition = startPosition;
+            transform.localPosition = startPosition;
 
             squareData.TryGetVector3("minScale", out minScale);
-            gameObject.transform.localScale = minScale;
+            transform.localScale = minScale;
 
             squareData.TryGetVector3("maxScale", out maxScale);
             targetScale = maxScale;
 
             squareData.TryGetFloat("scaleSpeed", out scaleSpeed);
+
+            squareData.TryGetColor("startColor", out startColor);
+            renderer.material.color = startColor;
+
+            squareData.TryGetColor("endColor", out endColor);
+
+            squareData.TryGetFloat("colorSpeed", out colorSpeed);
         }
 	}
 	
@@ -57,5 +68,23 @@ public class LoadSquareSettings : MonoBehaviour {
         }
 
         transform.localScale = Vector3.MoveTowards(transform.localScale, targetScale, scaleSpeed * Time.deltaTime);
+
+
+        // If we have reached the endColor, set the target Color to startColor
+        // If we have reached the startColor, set the target Color to endColor
+        if (renderer.material.color.r.NearlyEqual(endColor.r) &&
+            renderer.material.color.g.NearlyEqual(endColor.g) &&
+            renderer.material.color.b.NearlyEqual(endColor.b))
+        {
+            targetColor = startColor;
+        }
+        else if(renderer.material.color.r.NearlyEqual(startColor.r) &&
+                renderer.material.color.g.NearlyEqual(startColor.g) &&
+                renderer.material.color.b.NearlyEqual(startColor.b))
+        {
+            targetColor = endColor;
+        }
+
+        renderer.material.color = Color.Lerp(renderer.material.color, targetColor, colorSpeed * Time.deltaTime);
 	}
 }
