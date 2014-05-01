@@ -11,7 +11,12 @@ public class LoadSquareSettings : MonoBehaviour {
 
     float scaleSpeed;
 
-	// Use this for initialization
+    //
+    // Initialize Game Data 
+    //
+    // Game Data can be initialized in the Start method. 
+    // Start is called on the frame when the script is enabled.
+    // 
 	void Start () {
         Dictionary<string, object> squareData;
         GDEDataManager.Instance.Init(Application.dataPath + "/GameDataEditor/Scenes/celeste_test_data.json");
@@ -35,6 +40,9 @@ public class LoadSquareSettings : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
+        // If we have reached the maxScale, set the target Scale to minScale
+        // to start shrinking the square. If we have reached the minScale, set the target
+        // to the maxScale to start expanding the square.
         if (transform.localScale.x.NearlyEqual(maxScale.x) &&
             transform.localScale.y.NearlyEqual(maxScale.y) &&
             transform.localScale.z.NearlyEqual(maxScale.z))

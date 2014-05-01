@@ -37,13 +37,18 @@ namespace GameDataEditor
         #endregion
 
         #region Init Methods
-        // Loads the data file from path in PlayerSettings
+        /// <summary>
+        /// Loads the data file from path in PlayerSettings
+        /// </summary>
         public bool Init()
         {
             return true;
         }
 
-        // Loads the specified data file
+        /// <summary>
+        /// Loads the specified data file
+        /// </summary>
+        /// <param name="filePath">Data file path.</param>
         public bool Init(string filePath)
         {
             bool result = true;
@@ -67,6 +72,11 @@ namespace GameDataEditor
         #endregion
 
         #region Data Access Methods
+        /// <summary>
+        /// Get the data associated with the specified key in a Dictionar<string, object>
+        /// </summary>
+        /// <param name="key">Key</param>
+        /// <param name="data">Data</param>
         public bool Get(string key, out Dictionary<string, object> data)
         {
             if (dataDictionary == null)
