@@ -747,7 +747,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         List<string> items = GDEItemManager.GetItemsOfSchemaType(key);
         bool shouldDelete = true;
 
-        if (items.Count > 0)
+        if (items!= null && items.Count > 0)
         {
             string itemWord = items.Count == 1 ? "item" : "items";
             shouldDelete = EditorUtility.DisplayDialog(string.Format("{0} {1} will be deleted!", items.Count, itemWord), "Are you sure you want to delete this schema?", "Delete Schema", "Cancel");

@@ -448,6 +448,23 @@ namespace GameDataEditor.GDEExtensionMethods
             
             return new Color32(r, g, b, 1);
         }
+
+        public static bool NearlyEqual(this Color variable, Color other)
+        {
+            return  variable.r.NearlyEqual(other.r) &&
+                    variable.g.NearlyEqual(other.g) &&
+                    variable.b.NearlyEqual(other.b);
+        }
+    }
+
+    public static class VectorExtensions
+    {
+        public static bool NearlyEqual(this Vector3 variable, Vector3 other)
+        {
+            return  variable.x.NearlyEqual(other.x) &&
+                    variable.y.NearlyEqual(other.y) &&
+                    variable.z.NearlyEqual(other.z);
+        }
     }
 }
 

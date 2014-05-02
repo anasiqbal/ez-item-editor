@@ -1,0 +1,107 @@
+{
+    "headerText": {
+        "text": "Square Example",
+        "_gdeType_text": "String",
+        "size": 32,
+        "_gdeType_size": "Int",
+        "_gdeSchema": "GuiText",
+        "position": {
+            "x": 0.27,
+            "y": 1,
+            "z": 0
+        },
+        "_gdeType_position": "Vector3",
+        "color": {
+            "r": 1,
+            "g": 1,
+            "b": 1,
+            "a": 1
+        },
+        "_gdeType_color": "Color"
+    },
+    "square": {
+        "_gdeType_minScale": "Vector3",
+        "maxScale": {
+            "x": 10,
+            "y": 10,
+            "z": 1
+        },
+        "_gdeType_maxScale": "Vector3",
+        "position": {
+            "x": 0.6,
+            "y": 4,
+            "z": 0
+        },
+        "minScale": {
+            "x": 6,
+            "y": 6,
+            "z": 1
+        },
+        "_gdeType_position": "Vector3",
+        "_gdeType_scaleSpeed": "Float",
+        "scaleSpeed": 1,
+        "colorSpeed": 3,
+        "_gdeType_colorSpeed": "Float",
+        "colors": [
+            {
+                "r": 1,
+                "g": 0,
+                "b": 0,
+                "a": 1
+            },
+            {
+                "r": 1,
+                "g": 0.348096669,
+                "b": 0,
+                "a": 1
+            },
+            {
+                "r": 1,
+                "g": 0.977916062,
+                "b": 0.00274711847,
+                "a": 1
+            },
+            {
+                "r": 0.04727906,
+                "g": 1,
+                "b": 0.0006096959,
+                "a": 1
+            },
+            {
+                "r": 0,
+                "g": 0.6779468,
+                "b": 1,
+                "a": 1
+            },
+            {
+                "r": 0.00775951147,
+                "g": 0.03984958,
+                "b": 1,
+                "a": 1
+            }
+        ],
+        "_gdeType_colors": "Color",
+        "_gdeIsList_colors": true,
+        "_gdeSchema": "Object"
+    },
+    "footerText": {
+        "text": "Feel free to play with the Data Settings.\nLoad the Data File at: {0} \nin the Create Game Data Window.",
+        "_gdeType_text": "String",
+        "size": 16,
+        "_gdeType_size": "Int",
+        "position": {
+            "x": 0.27,
+            "y": 0.16,
+            "z": 0
+        },
+        "_gdeType_position": "Vector3",
+        "color": {
+            "r": 1,
+            "g": 1,
+            "b": 1,
+            "a": 1
+        },
+        "_gdeType_color": "Color",
+        "_gdeSchema": "GuiText"
+    }
+}

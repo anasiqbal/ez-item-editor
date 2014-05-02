@@ -4,6 +4,7 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using GameDataEditor.MiniJSON;
+using GameDataEditor.GDEExtensionMethods;
 
 namespace GameDataEditor
 {
@@ -34,6 +35,16 @@ namespace GameDataEditor
 
         #region Data Collections
         private Dictionary<string, object> dataDictionary = null;
+        private Dictionary<string, List<string>> dataKeysBySchema = null;
+        #endregion
+
+        #region Properties
+        private string _dataFilePath;
+        public string DataFilePath
+        {
+            private set { _dataFilePath = value; }
+            get { return _dataFilePath; }
+        }
         #endregion
 
         #region Init Methods
@@ -58,8 +69,13 @@ namespace GameDataEditor
 
             try
             {
-                string json = File.ReadAllText(filePath);
+                DataFilePath = filePath;
+
+                string json = File.ReadAllText(DataFilePath);
                 dataDictionary = Json.Deserialize(json) as Dictionary<string, object>;
+
+                BuildDataKeysBySchemaList();
+
                 isInitialized = true;
             }
             catch (Exception ex)
@@ -68,6 +84,34 @@ namespace GameDataEditor
                 result = false;
             }
             return result;
+        }
+
+        /// <summary>
+        /// Builds the data keys by schema list for lookups by schema.
+        /// </summary>
+        private void BuildDataKeysBySchemaList()
+        {
+            dataKeysBySchema = new Dictionary<string, List<string>>();
+            foreach(KeyValuePair<string, object> pair in dataDictionary)
+            {
+                // Get the schema for the current data set
+                string schema;
+                Dictionary<string, object> currentDataSet = pair.Value as Dictionary<string, object>;
+                currentDataSet.TryGetString(GDEConstants.SchemaKey, out schema);
+
+                // Add it to the list of data keys by type
+                List<string> dataKeyList;
+                if (dataKeysBySchema.TryGetValue(schema, out dataKeyList))                
+                {
+                    dataKeyList.Add(pair.Key);
+                }
+                else
+                {
+                    dataKeyList = new List<string>();
+                    dataKeyList.Add(pair.Key);
+                    dataKeysBySchema.Add(schema, dataKeyList);
+                }
+            }
         }
         #endregion
 
@@ -92,6 +136,50 @@ namespace GameDataEditor
             data = temp as Dictionary<string, object>;
 
             return result;
+        }
+
+        /// <summary>
+        /// Returns a list of all data sets by the given schema
+        /// </summary>
+        /// <returns><c>true</c>, if the given schema exists <c>false</c> otherwise.</returns>
+        /// <param name="type">Schema.</param>
+        /// <param name="dataList">Data Set list.</param>
+        public bool GetAllDataBySchema(string schema, out List<Dictionary<string, object>> dataList)
+        {
+            if (dataDictionary == null)
+            {
+                dataList = null;
+                return false;
+            }
+
+            List<string> dataKeys;
+            bool result = true;
+            dataList = new List<Dictionary<string, object>>();
+
+            if (dataKeysBySchema.TryGetValue(schema, out dataKeys))
+            {
+                foreach(string dataKey in dataKeys)
+                {
+                    Dictionary<string, object> currentDataSet;
+                    if (Get(dataKey, out currentDataSet))
+                        dataList.Add(currentDataSet);
+                }
+            }
+            else
+               result = false;
+
+            return result;
+        }
+
+        public bool GetAllDataKeysBySchema(string schema, out List<string> dataKeys)
+        {
+            if (dataDictionary == null)
+            {
+                dataKeys = null;
+                return false;
+            }
+
+            return dataKeysBySchema.TryGetValue(schema, out dataKeys);
         }
         #endregion
     }
