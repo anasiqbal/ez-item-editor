@@ -88,13 +88,14 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         float width = 100;
         EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Schema Name:");
         currentLinePosition += (width + 2);
-        
+
         width = 120;
         newSchemaName = EditorGUI.TextField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), newSchemaName);
         currentLinePosition += (width + 2);
-        
-        width = 120;
-        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Create New Schema"))
+
+        GUIContent content = new GUIContent("Create New Schema");
+        width = GUI.skin.button.CalcSize(content).x;
+        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content))
         {
             if (Create(newSchemaName))
             {
@@ -181,8 +182,9 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         else if (!isBasicListTemp && isBasicList.Contains(schemaKey))
             isBasicList.Remove(schemaKey);
 
-        width = 65;
-        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Add Field"))
+        GUIContent content = new GUIContent("Add Field");
+        width = GUI.skin.button.CalcSize(content).x;
+        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content))
         {
             if (AddBasicField(GDEItemManager.BasicFieldTypes[basicFieldTypeIndex], schemaKey, schemaData, newBasicFieldNameText, isBasicListTemp))
             {
@@ -264,8 +266,9 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         else if(!isCustomListTemp && isCustomList.Contains(schemaKey))
             isCustomList.Remove(schemaKey);
 
-        width = 110;
-        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Add Custom Field"))
+        content.text = "Add Custom Field";
+        width = GUI.skin.button.CalcSize(content).x;
+        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content))
         {
             if (!customTypes.IsValidIndex(customSchemaTypeIndex) || customTypes.Length.Equals(0))
             {
@@ -382,8 +385,9 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
             
             NewLine(2f);
 
-            float width = 45;
-            if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Delete"))
+            GUIContent content = new GUIContent("Delete");
+            float width = GUI.skin.button.CalcSize(content).x;
+            if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content))
                 deletedSchemas.Add(schemaKey);
 
             NewLine();
@@ -454,19 +458,20 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
                 break;
         }
 
-        width = 45;
+        GUIContent content = new GUIContent("Delete");
+        width = GUI.skin.button.CalcSize(content).x;
         if (fieldTypeEnum.Equals(BasicFieldType.Vector2) ||
             fieldTypeEnum.Equals(BasicFieldType.Vector3) ||
             fieldTypeEnum.Equals(BasicFieldType.Vector4))
         {
-            if (GUI.Button(new Rect(currentLinePosition, VerticalMiddleOfLine(), width, StandardHeight()), "Delete"))
+            if (GUI.Button(new Rect(currentLinePosition, VerticalMiddleOfLine(), width, StandardHeight()), content))
                 deletedFields.Add(fieldKey);
 
             NewLine(GDEConstants.VectorFieldBuffer+1);
         }
         else
         {
-            if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Delete"))
+            if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content))
                 deletedFields.Add(fieldKey);
 
             NewLine();
@@ -539,16 +544,19 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
             currentLinePosition += (width + 2);
 
             newListCountDict[listCountKey] = newListCount;
-            width = 50;
+
+            GUIContent content = new GUIContent("Resize");
+            width = GUI.skin.button.CalcSize(content).x;
             if (newListCount != list.Count)
             {
-                if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Resize"))
+                if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content))
                     ResizeList(list, newListCount, defaultResizeValue);
                 currentLinePosition += (width + 2);
             }
                  
-            width = 45;
-            if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Delete"))
+            content.text = "Delete";
+            width = GUI.skin.button.CalcSize(content).x;
+            if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content))
                 deletedFields.Add(fieldKey);
 
             NewLine();

@@ -108,9 +108,10 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
         width = 180;
         newItemName = EditorGUI.TextField(new Rect(currentLinePosition, TopOfLine(), width, TextBoxHeight()), newItemName);
         currentLinePosition += (width + 2);
-        
-        width = 100;
-        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Create New Item"))
+
+        GUIContent content = new GUIContent("Create New Item");
+        width = GUI.skin.button.CalcSize(content).x;
+        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content))
         {
             if (GDEItemManager.SchemaKeyArray.IsValidIndex(schemaIndex))
             {
@@ -245,8 +246,9 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
 
             NewLine(0.5f);
 
-            float width = 50;
-            if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Delete"))
+            GUIContent content = new GUIContent("Delete");
+            float width = GUI.skin.button.CalcSize(content).x;
+            if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content))
                 deletedItems.Add(key);
 
             NewLine();
@@ -430,9 +432,10 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
             newListCount = EditorGUI.IntField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), newListCount);
             currentLinePosition += (width + 4);
 
-            width = 50;
+            GUIContent content = new GUIContent("Resize");
+            width = GUI.skin.button.CalcSize(content).x;
             newListCountDict[listCountKey] = newListCount;
-            if (newListCount != list.Count && GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Resize"))            
+            if (newListCount != list.Count && GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content))            
             {
                 ResizeList(list, newListCount, defaultResizeValue);
                 newListCountDict[listCountKey] = newListCount;

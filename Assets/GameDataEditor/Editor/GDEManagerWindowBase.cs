@@ -364,8 +364,9 @@ public abstract class GDEManagerWindowBase : EditorWindow {
             
             if (!newValue.Equals(editableLabel))
             {
-                width = 55;
-                if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Rename") && doRename != null)
+                GUIContent content = new GUIContent("Rename");
+                width = GUI.skin.button.CalcSize(content).x;
+                if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content) && doRename != null)
                 {
                     string error;
                     if (doRename(editableLabel, newValue, data, out error))
@@ -378,9 +379,10 @@ public abstract class GDEManagerWindowBase : EditorWindow {
                         EditorUtility.DisplayDialog("Error!", string.Format("Couldn't rename {0} to {1}: {2}", editableLabel, newValue, error), "Ok");
                 }
                 currentLinePosition += (width + 2);
-                
-                width = 50;
-                if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Cancel"))
+
+                content.text = "Cancel";
+                width = GUI.skin.button.CalcSize(content).x;
+                if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content))
                 {
                     editingFields.Remove(editFieldKey);
                     editFieldTextDict.Remove(editFieldKey);                    
@@ -390,8 +392,9 @@ public abstract class GDEManagerWindowBase : EditorWindow {
             }
             else
             {
-                width = 50;
-                if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Cancel"))
+                GUIContent content = new GUIContent("Cancel");
+                width = GUI.skin.button.CalcSize(content).x;
+                if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content))
                 {
                     editingFields.Remove(editFieldKey);
                     editFieldTextDict.Remove(editFieldKey);                    
