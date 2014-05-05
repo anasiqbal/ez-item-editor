@@ -215,6 +215,10 @@ namespace GameDataEditor
         {
             List<string> itemList;
             ItemListBySchema.TryGetValue(schemaType, out itemList);
+
+            if (itemList == null)
+                itemList = new List<string>();
+
             return itemList;
         }
 
