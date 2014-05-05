@@ -188,7 +188,8 @@ public abstract class GDEManagerWindowBase : EditorWindow {
 
         DrawSectionSeparator();
         
-        DrawFilterSection();
+        if (DrawFilterSection())
+            ClearSearch();
 
         DrawSectionSeparator();
     }
@@ -1078,23 +1079,34 @@ public abstract class GDEManagerWindowBase : EditorWindow {
     #endregion
 
     #region Filter/Sorting Methods
-    protected virtual void DrawFilterSection()
+    protected virtual bool DrawFilterSection()
     {
         string labelText = string.Format("<color={0}>Search:</color>", headerColor);
-        GUIContent labelContent = new GUIContent(labelText);
-        Vector2 size = subHeaderStyle.CalcSize(labelContent);
+        GUIContent content = new GUIContent(labelText);
+        Vector2 size = subHeaderStyle.CalcSize(content);
         float width = size.x;
         float height = size.y;
         
         NewLine(0.25f);
         
-        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, height), labelContent, subHeaderStyle);
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, height), content, subHeaderStyle);
         currentLinePosition += (width + 8);
 
         // Text search
         width = 180;
         filterText = EditorGUI.TextField(new Rect(currentLinePosition, TopOfLine()+(height-GDEConstants.LineHeight+2), width, TextBoxHeight()), filterText);
         currentLinePosition += (width + 2);
+
+        // Clear search Button
+        content.text = "Clear Search";
+        size = GUI.skin.button.CalcSize(content);
+        width = size.x;
+        height = size.y;
+
+        bool clearSearch = GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content);
+        currentLinePosition += (width + 2);
+
+        return clearSearch;
     }
 
     protected virtual int NumberOfItemsBeingShown(Dictionary<string, Dictionary<string, object>> data)
@@ -1108,6 +1120,12 @@ public abstract class GDEManagerWindowBase : EditorWindow {
         }
         
         return resultCount;
+    }
+
+    protected virtual void ClearSearch()
+    {
+        filterText = "";
+        GUI.FocusControl("");
     }
     #endregion
 

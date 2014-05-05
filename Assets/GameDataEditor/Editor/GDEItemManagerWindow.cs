@@ -132,9 +132,9 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
 
         DrawSectionSeparator();
     }
-    protected override void DrawFilterSection()
+    protected override bool DrawFilterSection()
     {
-        base.DrawFilterSection();
+        bool clearSearch = base.DrawFilterSection();
 
         float width = 200;
 
@@ -160,6 +160,8 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
         filterSchemaIndex = EditorGUI.Popup(new Rect(currentLinePosition, PopupTop(), width, StandardHeight()), filterSchemaIndex, GDEItemManager.FilterSchemaKeyArray);
 
         NewLine();
+
+        return clearSearch;
     }
 
     protected override void DrawEntry(string key, Dictionary<string, object> data)
@@ -566,6 +568,12 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
             return true;
 
         return false;
+    }
+
+    protected override void ClearSearch()
+    {
+        base.ClearSearch();
+        filterSchemaIndex = GDEItemManager.FilterSchemaKeyArray.ToList().IndexOf("_All");
     }
     #endregion
 

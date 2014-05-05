@@ -639,9 +639,9 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         return false;
     }
 
-    protected override void DrawFilterSection()
+    protected override bool DrawFilterSection()
     {
-        base.DrawFilterSection();
+        bool clearSearch = base.DrawFilterSection();
         
         float width = 200;
         
@@ -655,6 +655,8 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         }
         
         NewLine();
+
+        return clearSearch;
     }
     #endregion
 
