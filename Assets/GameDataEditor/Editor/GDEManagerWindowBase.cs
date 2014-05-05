@@ -161,7 +161,7 @@ public abstract class GDEManagerWindowBase : EditorWindow {
 
         GUIContent filePath = new GUIContent(FilePath());
         Vector2 size = labelStyle.CalcSize(filePath);
-        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), size.x, size.y), filePath);
+        EditorGUI.SelectableLabel(new Rect(currentLinePosition, TopOfLine(), size.x, size.y), filePath.text);
         currentLinePosition += (size.x + 2);
 
         NewLine(buttonHeightMultiplier+.1f);
