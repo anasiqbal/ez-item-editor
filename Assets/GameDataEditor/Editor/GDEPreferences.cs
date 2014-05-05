@@ -120,7 +120,7 @@ public class GDEPreferences : EditorWindow {
         EditorPrefs.SetString(GDEConstants.DefineDataColorKey, "#" + defineDataColor.ToHexString());
         EditorPrefs.SetString(GDEConstants.HighlightColorKey, "#" + highlightColor.ToHexString());
 
-        GDEItemManager.Load();
+        GDEItemManager.Load(true);
     }
 }
 

@@ -27,6 +27,7 @@ namespace GameDataEditor
     public class GDEItemManager
     {
         #region Item Dictionary
+        private static string _itemDataFileMD5;
         public static bool ItemsNeedSave;
         public static string ItemFilePath 
         {
@@ -53,6 +54,7 @@ namespace GameDataEditor
         #endregion
 
         #region Schema Dictionary
+        private static string _schemaFileMD5;
         public static bool SchemasNeedSave;
         public static string SchemaFilePath
         {
@@ -408,10 +410,13 @@ namespace GameDataEditor
         #endregion
 
         #region Save/Load Methods    
-        public static void Load()
+        public static void Load(bool forceLoad = false)
         {
-            LoadSchemas();
-            LoadItems();
+            if (forceLoad || SchemasNeedSave || FileChangedOnDisk(SchemaFilePath, _schemaFileMD5))
+                LoadSchemas();
+
+            if (forceLoad || ItemsNeedSave || FileChangedOnDisk(ItemFilePath, _itemDataFileMD5))
+                LoadItems();
         }
 
         public static void Save()
@@ -461,6 +466,8 @@ namespace GameDataEditor
                 CreateFileIfMissing(ItemFilePath);
 
                 string json = File.ReadAllText(ItemFilePath);
+                _itemDataFileMD5 = json.Md5Sum();
+
                 Dictionary<string, object> data = Json.Deserialize(json) as Dictionary<string, object>;
 
                 AllItems.Clear();
@@ -486,6 +493,8 @@ namespace GameDataEditor
                 CreateFileIfMissing(SchemaFilePath);
 
                 string json = File.ReadAllText(SchemaFilePath);
+                _schemaFileMD5 = json.Md5Sum();
+
                 Dictionary<string, object> data = Json.Deserialize(json) as Dictionary<string, object>;
 
                 // Clear all schema related lists
@@ -534,6 +543,23 @@ namespace GameDataEditor
 
             return result;
 
+        }
+
+        private static bool FileChangedOnDisk(string filePath, string cachedMD5)
+        {
+            bool hasChanged = true;
+
+            try
+            {
+                string currentMD5 = File.ReadAllText(filePath).Md5Sum();
+                hasChanged = cachedMD5 != currentMD5;
+            }
+            catch(Exception ex)
+            {
+                Debug.LogException(ex);
+            }
+
+            return hasChanged;
         }
         #endregion
 

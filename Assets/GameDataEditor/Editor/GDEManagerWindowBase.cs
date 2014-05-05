@@ -156,7 +156,10 @@ public abstract class GDEManagerWindowBase : EditorWindow {
         float buttonHeightMultiplier = 1.5f;
 
         if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()*buttonHeightMultiplier), "Load", loadButtonStyle))
+        {
             Load();
+            GUI.FocusControl("");
+        }
         currentLinePosition += (width + 2);
 
         GUIContent filePath = new GUIContent(FilePath());

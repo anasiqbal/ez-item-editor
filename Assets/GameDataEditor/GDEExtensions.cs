@@ -1,9 +1,11 @@
 using UnityEngine;
 using System;
+using System.Text;
 using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 
 namespace GameDataEditor.GDEExtensionMethods
 {
@@ -428,6 +430,26 @@ namespace GameDataEditor.GDEExtensionMethods
                 highlightedString = variable.Clone() as string;
             
             return highlightedString;
+        }
+
+        public static string Md5Sum(this string strToEncrypt)
+        {
+            UTF8Encoding ue = new UTF8Encoding();
+            byte[] bytes = ue.GetBytes(strToEncrypt);
+            
+            // encrypt bytes
+            MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
+            byte[] hashBytes = md5.ComputeHash(bytes);
+            
+            // Convert the encrypted bytes back to a string (base 16)
+            string hashString = "";
+            
+            for (int i = 0; i < hashBytes.Length; i++)
+            {
+                hashString += Convert.ToString(hashBytes[i], 16).PadLeft(2, '0');
+            }
+            
+            return hashString.PadLeft(32, '0');
         }
     }
     
