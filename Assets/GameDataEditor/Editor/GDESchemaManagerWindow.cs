@@ -523,8 +523,9 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
             if (schemaData.TryGetValue(fieldKey, out temp))
                 list = temp as List<object>;
 
-            width = 70;
-            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Default Size:");
+            GUIContent content = new GUIContent("Default Size:");
+            width = GUI.skin.label.CalcSize(content).x;
+            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content);
             currentLinePosition += (width + 2);
 
             int newListCount;
@@ -545,7 +546,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
 
             newListCountDict[listCountKey] = newListCount;
 
-            GUIContent content = new GUIContent("Resize");
+            content.text = "Resize";
             width = GUI.skin.button.CalcSize(content).x;
             if (newListCount != list.Count)
             {

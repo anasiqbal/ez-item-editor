@@ -412,8 +412,9 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
             if (itemData.TryGetValue(fieldKey, out temp))
                 list = temp as List<object>;
 
-            width = 40;
-            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Size:");
+            GUIContent content = new GUIContent("Size:");
+            width = GUI.skin.label.CalcSize(content).x;
+            EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content);
             currentLinePosition += (width + 2);
 
             int newListCount;
@@ -432,7 +433,7 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
             newListCount = EditorGUI.IntField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), newListCount);
             currentLinePosition += (width + 4);
 
-            GUIContent content = new GUIContent("Resize");
+            content.text = "Resize";
             width = GUI.skin.button.CalcSize(content).x;
             newListCountDict[listCountKey] = newListCount;
             if (newListCount != list.Count && GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content))            
