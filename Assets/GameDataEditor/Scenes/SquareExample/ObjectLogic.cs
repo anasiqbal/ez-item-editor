@@ -67,8 +67,8 @@ public class ObjectLogic : MonoBehaviour {
 	void Update () {
 
         // If we have reached the maxScale, set the target Scale to minScale
-        // to start shrinking the square. If we have reached the minScale, set the target
-        // to the maxScale to start expanding the square.
+        // to start shrinking the gameobject. If we have reached the minScale, set the target
+        // to the maxScale to start expanding the gameobject.
         if (transform.localScale.NearlyEqual(maxScale))        
             targetScale = minScale;
         else if (transform.localScale.NearlyEqual(minScale))        
