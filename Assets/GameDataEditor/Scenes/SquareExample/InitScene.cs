@@ -17,7 +17,7 @@ public class InitScene : MonoBehaviour {
     // with our game data.
     //
 	void Start () {        
-        if (GDEDataManager.Instance.Init(Application.dataPath + DataFilePath))
+        if (GDEDataManager.Instance.Init(DataFilePath))
         {
             Dictionary<string, object> objectData;
 

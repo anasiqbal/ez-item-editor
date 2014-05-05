@@ -70,8 +70,9 @@ namespace GameDataEditor
             try
             {
                 DataFilePath = filePath;
-
-                string json = File.ReadAllText(DataFilePath);
+               
+                TextAsset dataAsset = Resources.Load(DataFilePath) as TextAsset;
+                string json = dataAsset.text;
                 dataDictionary = Json.Deserialize(json) as Dictionary<string, object>;
 
                 BuildDataKeysBySchemaList();
