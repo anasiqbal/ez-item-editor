@@ -5,7 +5,7 @@ using GameDataEditor.GDEExtensionMethods;
 
 public class ObjectLogic : MonoBehaviour {
 
-    public string DataKey;
+    public string DataKey = "";
 
     Vector3 minScale;
     Vector3 maxScale;

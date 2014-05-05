@@ -5,7 +5,7 @@ using GameDataEditor.GDEExtensionMethods;
 
 public class GUITextSettings : MonoBehaviour {
 
-    public string DataKey;
+    public string DataKey = "";
 
     //
     // Initialize the GUIText from the values in game data manager
