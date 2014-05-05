@@ -19,28 +19,33 @@ public class InitScene : MonoBehaviour {
 	void Start () {        
         if (GDEDataManager.Instance.Init(Application.dataPath + DataFilePath))
         {
-            List<string> dataKeys;
+            Dictionary<string, object> objectData;
+
+            // Get the square's data
+            GDEDataManager.Instance.Get("square", out objectData);
+            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            ObjectLogic cubeLogic = cube.AddComponent<ObjectLogic>();
+            cubeLogic.Data = objectData;
+            cubeLogic.Init();
+
+            // Get the circle's data
+            GDEDataManager.Instance.Get("circle", out objectData);
+            GameObject circle = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            ObjectLogic circleLogic = circle.AddComponent<ObjectLogic>();
+            circleLogic.Data = objectData;
+            circleLogic.Init();
 
             // Init all of our GUITexts
-            GDEDataManager.Instance.GetAllDataKeysBySchema("GuiText", out dataKeys);
-            foreach(string dataKey in dataKeys)
+            List<Dictionary<string, object>> guiTextDataList;
+            GDEDataManager.Instance.GetAllDataBySchema("GuiText", out guiTextDataList);
+            foreach(Dictionary<string, object> data in guiTextDataList)
             {
-                GameObject guiText = new GameObject(dataKey);
+                GameObject guiText = new GameObject("GUIText");
                 guiText.AddComponent<GUIText>();
 
                 GUITextSettings textSettings = guiText.AddComponent<GUITextSettings>();
-                textSettings.DataKey = dataKey;
+                textSettings.Data = data;
                 textSettings.Init();
-            }
-
-            // Init all of our Objects
-            GDEDataManager.Instance.GetAllDataKeysBySchema("Object", out dataKeys);
-            foreach(string dataKey in dataKeys)
-            {
-                GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                ObjectLogic logic = cube.AddComponent<ObjectLogic>();
-                logic.DataKey = dataKey;
-                logic.Init();
             }
         }
         else

@@ -5,7 +5,7 @@ using GameDataEditor.GDEExtensionMethods;
 
 public class ObjectLogic : MonoBehaviour {
 
-    public string DataKey = "";
+    public Dictionary<string, object> Data;
 
     Vector3 minScale;
     Vector3 maxScale;
@@ -22,28 +22,26 @@ public class ObjectLogic : MonoBehaviour {
     //
     public void Init()
     {    
-        Dictionary<string, object> squareData;
-        
-        if (GDEDataManager.Instance.Get(DataKey, out squareData))
+        if (Data != null)
         {
             Vector3 startPosition;
-            squareData.TryGetVector3("position", out startPosition);
+            Data.TryGetVector3("position", out startPosition);
             transform.localPosition = startPosition;
             
-            squareData.TryGetVector3("minScale", out minScale);
+            Data.TryGetVector3("minScale", out minScale);
             transform.localScale = minScale;
             
-            squareData.TryGetVector3("maxScale", out maxScale);
+            Data.TryGetVector3("maxScale", out maxScale);
             targetScale = maxScale;
             
-            squareData.TryGetFloat("scaleSpeed", out scaleSpeed);
+            Data.TryGetFloat("scaleSpeed", out scaleSpeed);
             
-            squareData.TryGetFloat("colorSpeed", out colorSpeed);
+            Data.TryGetFloat("colorSpeed", out colorSpeed);
             
             
             // Load the color list
             object temp;
-            squareData.TryGetValue("colors", out temp);
+            Data.TryGetValue("colors", out temp);
             
             colors = new List<Color>();
             List<object> colorDicts = temp as List<object>;
@@ -59,6 +57,9 @@ public class ObjectLogic : MonoBehaviour {
                 
                 colors.Add(c);
             }
+
+            if (colors != null && colors.Count > 0)
+                renderer.material.color = colors[0];
         }
     }	
 
@@ -77,10 +78,13 @@ public class ObjectLogic : MonoBehaviour {
 
 
         // Rotate through the colors
-        if (renderer.material.color.NearlyEqual(colors[currentColorIndex]))        
-            currentColorIndex = GetNextColorIndex();
+        if (colors != null && colors.Count > 0 && colorSpeed > 0)
+        {
+            if (renderer.material.color.NearlyEqual(colors[currentColorIndex]))        
+                currentColorIndex = GetNextColorIndex();
 
-        renderer.material.color = Color.Lerp(renderer.material.color, colors[currentColorIndex], colorSpeed * Time.deltaTime);
+            renderer.material.color = Color.Lerp(renderer.material.color, colors[currentColorIndex], colorSpeed * Time.deltaTime);
+        }
 	}
 
     int GetNextColorIndex()

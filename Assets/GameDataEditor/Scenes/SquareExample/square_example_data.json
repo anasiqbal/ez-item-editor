@@ -6,7 +6,7 @@
         "_gdeType_size": "Int",
         "_gdeSchema": "GuiText",
         "position": {
-            "x": 0.27,
+            "x": 0,
             "y": 1,
             "z": 0
         },
@@ -22,13 +22,13 @@
     "square": {
         "_gdeType_minScale": "Vector3",
         "maxScale": {
-            "x": 10,
-            "y": 10,
+            "x": 6,
+            "y": 6,
             "z": 1
         },
         "_gdeType_maxScale": "Vector3",
         "position": {
-            "x": 0.6,
+            "x": -10,
             "y": 4,
             "z": 0
         },
@@ -39,8 +39,8 @@
         },
         "_gdeType_position": "Vector3",
         "_gdeType_scaleSpeed": "Float",
-        "scaleSpeed": 1,
-        "colorSpeed": 3,
+        "scaleSpeed": 0,
+        "colorSpeed": 8,
         "_gdeType_colorSpeed": "Float",
         "colors": [
             {
@@ -90,7 +90,7 @@
         "size": 16,
         "_gdeType_size": "Int",
         "position": {
-            "x": 0.27,
+            "x": 0,
             "y": 0.16,
             "z": 0
         },
@@ -103,5 +103,40 @@
         },
         "_gdeType_color": "Color",
         "_gdeSchema": "GuiText"
+    },
+    "circle": {
+        "_gdeType_minScale": "Vector3",
+        "maxScale": {
+            "x": 10,
+            "y": 10,
+            "z": 1
+        },
+        "_gdeType_maxScale": "Vector3",
+        "position": {
+            "x": 10,
+            "y": 4,
+            "z": 0
+        },
+        "minScale": {
+            "x": 6,
+            "y": 6,
+            "z": 1
+        },
+        "_gdeType_position": "Vector3",
+        "_gdeType_scaleSpeed": "Float",
+        "scaleSpeed": 4,
+        "colorSpeed": 0,
+        "_gdeType_colorSpeed": "Float",
+        "colors": [
+            {
+                "r": 0.09803922,
+                "g": 0.09803922,
+                "b": 0.09803922,
+                "a": 1
+            }
+        ],
+        "_gdeType_colors": "Color",
+        "_gdeIsList_colors": true,
+        "_gdeSchema": "Object"
     }
 }

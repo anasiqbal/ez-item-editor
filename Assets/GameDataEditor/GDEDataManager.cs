@@ -171,6 +171,12 @@ namespace GameDataEditor
             return result;
         }
 
+        /// <summary>
+        /// Gets all data keys by schema.
+        /// </summary>
+        /// <returns><c>true</c>, if the given schema exists <c>false</c> otherwise.</returns>
+        /// <param name="schema">Schema.</param>
+        /// <param name="dataKeys">Data Key List.</param>
         public bool GetAllDataKeysBySchema(string schema, out List<string> dataKeys)
         {
             if (dataDictionary == null)
