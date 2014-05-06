@@ -8,8 +8,7 @@ public class GUITextSettings : MonoBehaviour {
     public Dictionary<string, object> Data;
 
     //
-    // Initialize the GUIText from the values in game data manager
-    // specified by the DataKey.
+    // Initialize the GUIText from the values in the Data dictionary
     //
     public void Init () {
         

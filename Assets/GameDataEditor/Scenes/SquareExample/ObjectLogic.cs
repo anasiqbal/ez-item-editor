@@ -17,8 +17,7 @@ public class ObjectLogic : MonoBehaviour {
     float colorSpeed;
 
     //
-    // Initialize the Game Object from the values in game data manager
-    // specified by the DataKey.
+    // Initialize the GameObject from the values in the Data dictionary
     //
     public void Init()
     {    
