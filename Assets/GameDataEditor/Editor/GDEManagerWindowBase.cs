@@ -37,7 +37,7 @@ public abstract class GDEManagerWindowBase : EditorWindow {
     protected GUIStyle mainHeaderStyle = null;
     protected GUIStyle subHeaderStyle = null;
 
-    protected string saveButtonText = "Save";
+    protected string saveButtonText = GDEStrings.SaveBtn;
 
     protected string headerColor = "red";
     protected string mainHeaderText = "Oops";
@@ -155,7 +155,7 @@ public abstract class GDEManagerWindowBase : EditorWindow {
         float width = 60;
         float buttonHeightMultiplier = 1.5f;
 
-        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()*buttonHeightMultiplier), "Load", loadButtonStyle))
+        if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()*buttonHeightMultiplier), GDEStrings.LoadBtn, loadButtonStyle))
         {
             Load();
             GUI.FocusControl("");
@@ -174,14 +174,14 @@ public abstract class GDEManagerWindowBase : EditorWindow {
             width = 110;
             saveButtonStyle.normal.textColor = Color.red;
             saveButtonStyle.fontStyle = FontStyle.Bold;
-            saveButtonText = "Save Needed";
+            saveButtonText = GDEStrings.SaveNeededBtn;
         }
         else
         {
             width = 60;
             saveButtonStyle.normal.textColor = GUI.skin.button.normal.textColor;
             saveButtonStyle.fontStyle = FontStyle.Normal;
-            saveButtonText = "Save";
+            saveButtonText = GDEStrings.SaveBtn;
         }
 
         if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()*buttonHeightMultiplier), saveButtonText, saveButtonStyle))
@@ -367,7 +367,7 @@ public abstract class GDEManagerWindowBase : EditorWindow {
             
             if (!newValue.Equals(editableLabel))
             {
-                GUIContent content = new GUIContent("Rename");
+                GUIContent content = new GUIContent(GDEStrings.RenameBtn);
                 width = GUI.skin.button.CalcSize(content).x;
                 if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content) && doRename != null)
                 {
@@ -379,11 +379,11 @@ public abstract class GDEManagerWindowBase : EditorWindow {
                         GUI.FocusControl("");
                     }
                     else
-                        EditorUtility.DisplayDialog("Error!", string.Format("Couldn't rename {0} to {1}: {2}", editableLabel, newValue, error), "Ok");
+                        EditorUtility.DisplayDialog(GDEStrings.ErrorLbl, string.Format("Couldn't rename {0} to {1}: {2}", editableLabel, newValue, error), GDEStrings.OkLbl);
                 }
                 currentLinePosition += (width + 2);
 
-                content.text = "Cancel";
+                content.text = GDEStrings.CancelBtn;
                 width = GUI.skin.button.CalcSize(content).x;
                 if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content))
                 {
@@ -395,7 +395,7 @@ public abstract class GDEManagerWindowBase : EditorWindow {
             }
             else
             {
-                GUIContent content = new GUIContent("Cancel");
+                GUIContent content = new GUIContent(GDEStrings.CancelBtn);
                 width = GUI.skin.button.CalcSize(content).x;
                 if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content))
                 {
@@ -433,9 +433,9 @@ public abstract class GDEManagerWindowBase : EditorWindow {
 
         string label;
         if (currentFoldoutAllState)
-            label = "Collapse All";
+            label = GDEStrings.CollapseAllLbl;
         else
-            label = "Expand All";
+            label = GDEStrings.ExpandAllLbl;
 
         float width = 80;
         bool newFoldAllState = EditorGUI.Foldout(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), currentFoldoutAllState, label, true);
@@ -1014,7 +1014,7 @@ public abstract class GDEManagerWindowBase : EditorWindow {
             {
                 currentIndex = possibleValues.IndexOf(currentValue as string);
 
-                GUIContent content = new GUIContent("Value:");
+                GUIContent content = new GUIContent(GDEStrings.ValueLbl);
                 width = labelStyle.CalcSize(content).x;
                 EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content);
                 currentLinePosition += (width + 2);
@@ -1031,7 +1031,7 @@ public abstract class GDEManagerWindowBase : EditorWindow {
             }
             else
             {
-                GUIContent content = new GUIContent("Default Value: null");
+                GUIContent content = new GUIContent(GDEStrings.DefaultValueLbl + " null");
                 width = labelStyle.CalcSize(content).x;
                 EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content);
                 currentLinePosition += (width + 4);
@@ -1087,7 +1087,7 @@ public abstract class GDEManagerWindowBase : EditorWindow {
     #region Filter/Sorting Methods
     protected virtual bool DrawFilterSection()
     {
-        string labelText = string.Format("<color={0}>Search:</color>", headerColor);
+        string labelText = string.Format("<color={0}>{1}</color>", headerColor, GDEStrings.SearchHeader);
         GUIContent content = new GUIContent(labelText);
         Vector2 size = subHeaderStyle.CalcSize(content);
         float width = size.x;
@@ -1104,7 +1104,7 @@ public abstract class GDEManagerWindowBase : EditorWindow {
         currentLinePosition += (width + 2);
 
         // Clear search Button
-        content.text = "Clear Search";
+        content.text = GDEStrings.ClearSearchBtn;
         size = GUI.skin.button.CalcSize(content);
         width = size.x;
         height = size.y;

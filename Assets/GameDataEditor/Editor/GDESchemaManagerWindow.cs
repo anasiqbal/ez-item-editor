@@ -35,12 +35,12 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
     #region OnGUI/Header Methods
     protected override void OnGUI()
     {
-        mainHeaderText = "Define Game Data";
+        mainHeaderText = GDEStrings.DefineDataHeader;
         headerColor = EditorPrefs.GetString(GDEConstants.DefineDataColorKey, GDEConstants.DefineDataColor);
 
         base.OnGUI();
 
-        DrawExpandCollapseAllFoldout(GDEItemManager.AllSchemas.Keys.ToArray(), "Schema List");
+        DrawExpandCollapseAllFoldout(GDEItemManager.AllSchemas.Keys.ToArray(), GDEStrings.SchemaListHeader);
 
         float currentGroupHeightTotal = CalculateGroupHeightsTotal();
         scrollViewHeight = HeightToBottomOfWindow();
@@ -74,7 +74,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         foreach(KeyValuePair<string, string> pair in renamedSchemas)
         {
             if (!GDEItemManager.RenameSchema(pair.Key, pair.Value, out error))
-                EditorUtility.DisplayDialog("Error!", string.Format("Couldn't rename {0} to {1}: {2}", pair.Key, pair.Value, error), "Ok");
+                EditorUtility.DisplayDialog(GDEStrings.ErrorLbl, string.Format("Couldn't rename {0} to {1}: {2}", pair.Key, pair.Value, error), GDEStrings.OkLbl);
         }
         renamedSchemas.Clear();
     }
@@ -83,17 +83,17 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
     #region Draw Methods
     protected override void DrawCreateSection()
     {
-        DrawSubHeader("Create a New Schema");
+        DrawSubHeader(GDEStrings.CreateNewSchemaHeader);
 
         float width = 100;
-        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Schema Name:");
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), GDEStrings.SchemaNameLbl);
         currentLinePosition += (width + 2);
 
         width = 120;
         newSchemaName = EditorGUI.TextField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), newSchemaName);
         currentLinePosition += (width + 2);
 
-        GUIContent content = new GUIContent("Create New Schema");
+        GUIContent content = new GUIContent(GDEStrings.CreateNewSchemaBtn);
         width = GUI.skin.button.CalcSize(content).x;
         if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content))
         {
@@ -113,7 +113,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
     {
         currentLinePosition += GDEConstants.Indent;
 
-        string newFieldLabelText = string.Format("<b><color={0}>Add a new field</color></b>", headerColor);
+        string newFieldLabelText = string.Format("<b><color={0}>{1}</color></b>", headerColor, GDEStrings.NewFieldHeader);
         GUIContent newFieldLabelContent = new GUIContent(newFieldLabelText);
         float width = labelStyle.CalcSize(newFieldLabelContent).x;
         EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), newFieldLabelContent, labelStyle);
@@ -124,7 +124,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
 
         // ***** Basic Field Type Group ***** //
         width = 120;
-        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Basic Field Type:");
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), GDEStrings.BasicFieldTypeLbl);
         currentLinePosition += (width + 2);
 
         // Basic field type selected
@@ -155,7 +155,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         }
 
         width = 70;
-        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Field Name:");
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), GDEStrings.FieldNameLbl);
         currentLinePosition += (width + 2);
 
         width = 120;
@@ -170,7 +170,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         bool isBasicListTemp = isBasicList.Contains(schemaKey);
 
         width = 38;
-        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Is List:");
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), GDEStrings.IsListLbl);
         currentLinePosition += (width + 2);
 
         width = 15;
@@ -182,7 +182,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         else if (!isBasicListTemp && isBasicList.Contains(schemaKey))
             isBasicList.Remove(schemaKey);
 
-        GUIContent content = new GUIContent("Add Field");
+        GUIContent content = new GUIContent(GDEStrings.AddFieldBtn);
         width = GUI.skin.button.CalcSize(content).x;
         if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content))
         {
@@ -203,7 +203,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         currentLinePosition += GDEConstants.Indent;
 
         width = 120;
-        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Custom Field Type:");
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), GDEStrings.CustomFieldTypeLbl);
         currentLinePosition += (width + 2);
 
         List<string> customTypeList = GDEItemManager.AllSchemas.Keys.ToList();
@@ -239,7 +239,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         }
 
         width = 70;
-        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Field Name:");
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), GDEStrings.FieldNameLbl);
         currentLinePosition += (width + 2);
 
         width = 120;
@@ -254,7 +254,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         bool isCustomListTemp = isCustomList.Contains(schemaKey);
 
         width = 38;
-        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Is List:");
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), GDEStrings.IsListLbl);
         currentLinePosition += (width + 2);
 
         width = 15;
@@ -266,13 +266,13 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         else if(!isCustomListTemp && isCustomList.Contains(schemaKey))
             isCustomList.Remove(schemaKey);
 
-        content.text = "Add Custom Field";
+        content.text = GDEStrings.AddCustomFieldBtn;
         width = GUI.skin.button.CalcSize(content).x;
         if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content))
         {
             if (!customTypes.IsValidIndex(customSchemaTypeIndex) || customTypes.Length.Equals(0))
             {
-                EditorUtility.DisplayDialog("Error!", "Invalid custom field type selected.", "Ok");
+                EditorUtility.DisplayDialog(GDEStrings.ErrorLbl, GDEStrings.InvalidCustomFieldType, GDEStrings.OkLbl);
             }
             else if (AddCustomField(customTypes[customSchemaTypeIndex], schemaKey, schemaData, newCustomFieldNameText, isCustomListTemp))
             {
@@ -293,7 +293,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         float beginningHeight = CurrentHeight();
 
         // Start drawing below
-        if (DrawFoldout("Schema: ", schemaKey, schemaKey, schemaKey, RenameSchema))
+        if (DrawFoldout(GDEStrings.SchemaLbl + " ", schemaKey, schemaKey, schemaKey, RenameSchema))
         {
             bool shouldDrawSpace = false;
             bool didDrawSpaceForSection = false;
@@ -375,7 +375,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
                 oldFieldKey = pair.Key[0];
                 newFieldKey = pair.Key[1];
                 if (!GDEItemManager.RenameSchemaField(oldFieldKey, newFieldKey, schemaKey, pair.Value, out error))
-                    EditorUtility.DisplayDialog("Error!", string.Format("Couldn't rename {0} to {1}: {2}", oldFieldKey, newFieldKey, error), "Ok");
+                    EditorUtility.DisplayDialog(GDEStrings.ErrorLbl, string.Format("Couldn't rename {0} to {1}: {2}", oldFieldKey, newFieldKey, error), GDEStrings.OkLbl);
             }
             renamedFields.Clear();
 
@@ -385,7 +385,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
             
             NewLine(2f);
 
-            GUIContent content = new GUIContent("Delete");
+            GUIContent content = new GUIContent(GDEStrings.DeleteBtn);
             float width = GUI.skin.button.CalcSize(content).x;
             if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content))
                 deletedSchemas.Add(schemaKey);
@@ -427,30 +427,30 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         switch(fieldTypeEnum)
         {
             case BasicFieldType.Bool:
-                DrawBool(fieldKey, schemaData, "Default Value:");
+                DrawBool(fieldKey, schemaData, GDEStrings.DefaultValueLbl);
                 break;
             case BasicFieldType.Int:
-                DrawInt(fieldKey, schemaData, "Default Value:");
+                DrawInt(fieldKey, schemaData, GDEStrings.DefaultValueLbl);
                 break;
             case BasicFieldType.Float:
-                DrawFloat(fieldKey, schemaData, "Default Value:");
+                DrawFloat(fieldKey, schemaData, GDEStrings.DefaultValueLbl);
                 break;
             case BasicFieldType.String:
-                DrawString(fieldKey, schemaData, "Default Value:");
+                DrawString(fieldKey, schemaData, GDEStrings.DefaultValueLbl);
                 break;
 
             case BasicFieldType.Vector2:
-                DrawVector2(fieldKey, schemaData, "Default Values:");
+                DrawVector2(fieldKey, schemaData, GDEStrings.DefaultValuesLbl);
                 break;
             case BasicFieldType.Vector3:
-                DrawVector3(fieldKey, schemaData, "Default Values:");
+                DrawVector3(fieldKey, schemaData, GDEStrings.DefaultValuesLbl);
                 break;
             case BasicFieldType.Vector4:
-                DrawVector4(fieldKey, schemaData, "Default Values:");
+                DrawVector4(fieldKey, schemaData, GDEStrings.DefaultValuesLbl);
                 break;
             
             case BasicFieldType.Color:
-                DrawColor(fieldKey, schemaData, "Default Values:");
+                DrawColor(fieldKey, schemaData, GDEStrings.DefaultValuesLbl);
                 break;
 
             default:
@@ -458,7 +458,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
                 break;
         }
 
-        GUIContent content = new GUIContent("Delete");
+        GUIContent content = new GUIContent(GDEStrings.DeleteBtn);
         width = GUI.skin.button.CalcSize(content).x;
         if (fieldTypeEnum.Equals(BasicFieldType.Vector2) ||
             fieldTypeEnum.Equals(BasicFieldType.Vector3) ||
@@ -523,7 +523,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
             if (schemaData.TryGetValue(fieldKey, out temp))
                 list = temp as List<object>;
 
-            GUIContent content = new GUIContent("Default Size:");
+            GUIContent content = new GUIContent(GDEStrings.DefaultSizeLbl);
             width = GUI.skin.label.CalcSize(content).x;
             EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content);
             currentLinePosition += (width + 2);
@@ -546,7 +546,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
 
             newListCountDict[listCountKey] = newListCount;
 
-            content.text = "Resize";
+            content.text = GDEStrings.ResizeBtn;
             width = GUI.skin.button.CalcSize(content).x;
             if (newListCount != list.Count)
             {
@@ -555,7 +555,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
                 currentLinePosition += (width + 2);
             }
                  
-            content.text = "Delete";
+            content.text = GDEStrings.DeleteBtn;
             width = GUI.skin.button.CalcSize(content).x;
             if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content))
                 deletedFields.Add(fieldKey);
@@ -680,7 +680,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
             SetNeedToSave(true);
         else
         {
-            EditorUtility.DisplayDialog("Error creating field!", error, "Ok");
+            EditorUtility.DisplayDialog(GDEStrings.ErrorCreatingField, error, GDEStrings.OkLbl);
             result = false;
         }
 
@@ -696,7 +696,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
             SetNeedToSave(true);
         else
         {
-            EditorUtility.DisplayDialog("Error creating field!", error, "Ok");
+            EditorUtility.DisplayDialog(GDEStrings.ErrorCreatingField, error, GDEStrings.OkLbl);
             result = false;
         }
 
@@ -745,7 +745,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         }
         else
         {
-            EditorUtility.DisplayDialog("Error creating Schema!", error, "Ok");
+            EditorUtility.DisplayDialog(GDEStrings.ErrorCreatingSchema, error, GDEStrings.OkLbl);
             result = false;
         }
 
@@ -761,7 +761,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
         if (items!= null && items.Count > 0)
         {
             string itemWord = items.Count == 1 ? "item" : "items";
-            shouldDelete = EditorUtility.DisplayDialog(string.Format("{0} {1} will be deleted!", items.Count, itemWord), "Are you sure you want to delete this schema?", "Delete Schema", "Cancel");
+            shouldDelete = EditorUtility.DisplayDialog(string.Format("{0} {1} will be deleted!", items.Count, itemWord), GDEStrings.SureDeleteSchema, GDEStrings.DeleteSchemaBtn, GDEStrings.CancelBtn);
         }
 
         if (shouldDelete)

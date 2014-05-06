@@ -28,12 +28,12 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
     #region OnGUI Method
     protected override void OnGUI()
     {
-        mainHeaderText = "Create Game Data";
+        mainHeaderText = GDEStrings.GameDataHeader;
         headerColor = EditorPrefs.GetString(GDEConstants.CreateDataColorKey, GDEConstants.CreateDataColor);
 
         base.OnGUI();
 
-        DrawExpandCollapseAllFoldout(GDEItemManager.AllItems.Keys.ToArray(), "Item List");
+        DrawExpandCollapseAllFoldout(GDEItemManager.AllItems.Keys.ToArray(), GDEStrings.ItemListHeader);
 
 
         float currentGroupHeightTotal = CalculateGroupHeightsTotal();
@@ -81,7 +81,7 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
         foreach(KeyValuePair<string, string> pair in renamedItems)
         {
             if (!GDEItemManager.RenameItem(pair.Key, pair.Value, null, out error))
-                EditorUtility.DisplayDialog("Error!", string.Format("Couldn't rename {0} to {1}: {2}", pair.Key, pair.Value, error), "Ok");
+                EditorUtility.DisplayDialog(GDEStrings.ErrorLbl, string.Format("Couldn't rename {0} to {1}: {2}", pair.Key, pair.Value, error), GDEStrings.OkLbl);
         }
 
         renamedItems.Clear();
@@ -91,10 +91,10 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
     #region Draw Methods
     protected override void DrawCreateSection()
     {
-        DrawSubHeader("Create a New Item");
+        DrawSubHeader(GDEStrings.CreateNewItemHeader);
         
         float width = 60;
-        GUI.Label(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Schema:");
+        GUI.Label(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), GDEStrings.SchemaLbl);
         currentLinePosition += (width + 2);
         
         width = 100;
@@ -102,14 +102,14 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
         currentLinePosition += (width + 6);
         
         width = 65;
-        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Item Name:");
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), GDEStrings.ItemNameLbl);
         currentLinePosition += (width + 2);
         
         width = 180;
         newItemName = EditorGUI.TextField(new Rect(currentLinePosition, TopOfLine(), width, TextBoxHeight()), newItemName);
         currentLinePosition += (width + 2);
 
-        GUIContent content = new GUIContent("Create New Item");
+        GUIContent content = new GUIContent(GDEStrings.CreateNewItemBtn);
         width = GUI.skin.button.CalcSize(content).x;
         if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content))
         {
@@ -126,7 +126,7 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
                 }
             }
             else
-                EditorUtility.DisplayDialog("Error creating item!", "No schema or invalid schema selected.", "Ok");
+                EditorUtility.DisplayDialog(GDEStrings.ErrorCreatingItem, GDEStrings.NoOrInvalidSchema, GDEStrings.OkLbl);
         }
 
         NewLine();
@@ -152,9 +152,9 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
         NewLine(1.25f);
         
         // Filter dropdown
-        GUIContent content = new GUIContent("Show Items Containing Schema:");
+        GUIContent content = new GUIContent(GDEStrings.FilterBySchemaLbl);
         width = labelStyle.CalcSize(content).x;
-        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), "Show Items Containing Schema:");
+        EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content.text);
         currentLinePosition += (width + 8);
 
         width = 100;
@@ -246,7 +246,7 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
 
             NewLine(0.5f);
 
-            GUIContent content = new GUIContent("Delete");
+            GUIContent content = new GUIContent(GDEStrings.DeleteBtn);
             float width = GUI.skin.button.CalcSize(content).x;
             if (GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content))
                 deletedItems.Add(key);
@@ -308,49 +308,49 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
         {
             case BasicFieldType.Bool:
             {
-                DrawBool(fieldKey, itemData, "Value:");
+                DrawBool(fieldKey, itemData, GDEStrings.ValueLbl);
                 NewLine();
                 break;
             }
             case BasicFieldType.Int:
             {
-                DrawInt(fieldKey, itemData, "Value:");
+                DrawInt(fieldKey, itemData, GDEStrings.ValueLbl);
                 NewLine();
                 break;
             }
             case BasicFieldType.Float:
             {
-                DrawFloat(fieldKey, itemData, "Value:");
+                DrawFloat(fieldKey, itemData, GDEStrings.ValueLbl);
                 NewLine();
                 break;
             }
             case BasicFieldType.String:
             {
-                DrawString(fieldKey, itemData, "Value:");
+                DrawString(fieldKey, itemData, GDEStrings.ValueLbl);
                 NewLine();
                 break;
             }
             case BasicFieldType.Vector2:
             {
-                DrawVector2(fieldKey, itemData, "Values:");
+                DrawVector2(fieldKey, itemData, GDEStrings.ValuesLbl);
                 NewLine(GDEConstants.VectorFieldBuffer+1);
                 break;
             }
             case BasicFieldType.Vector3:
             {
-                DrawVector3(fieldKey, itemData, "Values:");
+                DrawVector3(fieldKey, itemData, GDEStrings.ValuesLbl);
                 NewLine(GDEConstants.VectorFieldBuffer+1);
                 break;
             }
             case BasicFieldType.Vector4:
             {
-                DrawVector4(fieldKey, itemData, "Values:");
+                DrawVector4(fieldKey, itemData, GDEStrings.ValuesLbl);
                 NewLine(GDEConstants.VectorFieldBuffer+1);
                 break;
             }
             case BasicFieldType.Color:
             {
-                DrawColor(fieldKey, itemData, "Values:");
+                DrawColor(fieldKey, itemData, GDEStrings.ValuesLbl);
                 NewLine();
                 break;
             }
@@ -412,7 +412,7 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
             if (itemData.TryGetValue(fieldKey, out temp))
                 list = temp as List<object>;
 
-            GUIContent content = new GUIContent("Size:");
+            GUIContent content = new GUIContent(GDEStrings.SizeLbl);
             width = GUI.skin.label.CalcSize(content).x;
             EditorGUI.LabelField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content);
             currentLinePosition += (width + 2);
@@ -433,7 +433,7 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
             newListCount = EditorGUI.IntField(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), newListCount);
             currentLinePosition += (width + 4);
 
-            content.text = "Resize";
+            content.text = GDEStrings.ResizeBtn;
             width = GUI.skin.button.CalcSize(content).x;
             newListCountDict[listCountKey] = newListCount;
             if (newListCount != list.Count && GUI.Button(new Rect(currentLinePosition, TopOfLine(), width, StandardHeight()), content))            
@@ -610,13 +610,13 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
             else
             {
                 result = false;
-                EditorUtility.DisplayDialog("Error Creating Item!", error, "Ok");
+                EditorUtility.DisplayDialog(GDEStrings.ErrorCreatingItem, error, GDEStrings.OkLbl);
             }
         }
         else
         {
             result = false;
-            EditorUtility.DisplayDialog("Error!", "Schema data not found: " + schemaKey, "Ok");
+            EditorUtility.DisplayDialog(GDEStrings.ErrorLbl, GDEStrings.SchemaNotFound + ": " + schemaKey, GDEStrings.OkLbl);
         }
 
         return result;
