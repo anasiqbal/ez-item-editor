@@ -24,22 +24,27 @@ public class ObjectLogic : MonoBehaviour {
     {    
         if (Data != null)
         {
+            // Pull out the position value from Game Data
             Vector3 startPosition;
             Data.TryGetVector3("position", out startPosition);
             transform.localPosition = startPosition;
             
+            // Pull out the minScale value from Game Data
             Data.TryGetVector3("minScale", out minScale);
             transform.localScale = minScale;
             
+            // Pull out the maxScale value from Game Data
             Data.TryGetVector3("maxScale", out maxScale);
             targetScale = maxScale;
             
+            // Pull out the scaleSpeed value from Game Data
             Data.TryGetFloat("scaleSpeed", out scaleSpeed);
             
+            // Pull out the colorSpeed value from Game Data
             Data.TryGetFloat("colorSpeed", out colorSpeed);
             
             
-            // Load the color list
+            // Pull out the colors list from Game Data
             object temp;
             Data.TryGetValue("colors", out temp);
             
@@ -63,8 +68,8 @@ public class ObjectLogic : MonoBehaviour {
         }
     }	
 
-	// Update is called once per frame
-	void Update () {
+    // Update is called once per frame
+    void Update () {
 
         // If we have reached the maxScale, set the target Scale to minScale
         // to start shrinking the gameobject. If we have reached the minScale, set the target
@@ -85,7 +90,7 @@ public class ObjectLogic : MonoBehaviour {
 
             renderer.material.color = Color.Lerp(renderer.material.color, colors[currentColorIndex], colorSpeed * Time.deltaTime);
         }
-	}
+    }
 
     int GetNextColorIndex()
     {
