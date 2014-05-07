@@ -1213,6 +1213,16 @@ public abstract class GDEManagerWindowBase : EditorWindow {
     protected virtual void Load()
     {
         GDEItemManager.Load();
+
+        entryFoldoutState.Clear();
+        listFieldFoldoutState.Clear();
+        currentFoldoutAllState = false;
+        newListCountDict.Clear();
+        filterText = "";
+        groupHeights.Clear();
+        groupHeightBySchema.Clear();
+        editingFields.Clear();
+        editFieldTextDict.Clear();
     }
 
     protected virtual void Save()

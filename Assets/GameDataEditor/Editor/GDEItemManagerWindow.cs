@@ -585,7 +585,12 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
     protected override void Load()
     {
         base.Load();
-        groupHeights.Clear();
+
+        newItemName = "";
+        schemaIndex = 0;
+        filterSchemaIndex = 0;
+        deletedItems.Clear();
+        renamedItems.Clear();
     }
 
     protected override bool Create(object data)

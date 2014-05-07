@@ -715,8 +715,19 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
     #region Load/Save Schema Methods
     protected override void Load()
     {
-        GDEItemManager.Load();
-        groupHeights.Clear();
+        base.Load();
+
+        newSchemaName = "";
+        basicFieldTypeSelectedDict.Clear();
+        customSchemaTypeSelectedDict.Clear();
+        newBasicFieldName.Clear();
+        isBasicList.Clear();
+        newCustomFieldName.Clear();
+        isCustomList.Clear();
+        deletedFields.Clear();
+        renamedFields.Clear();
+        deletedSchemas.Clear();
+        renamedSchemas.Clear();
     }
 
     protected override bool NeedToSave()
