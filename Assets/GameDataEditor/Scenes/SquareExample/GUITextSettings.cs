@@ -21,7 +21,7 @@ public class GUITextSettings : MonoBehaviour {
             Data.TryGetString("text", out text);
 
             if (text.Contains("{0}"))
-                guiText.text = string.Format(text, Application.dataPath + "/GameDataEditor/Scenes/SquareExample/Resources/" + GDEDataManager.Instance.DataFilePath + ".json");
+                guiText.text = string.Format(text, "/GameDataEditor/Scenes/SquareExample/Resources/" + GDEDataManager.Instance.DataFilePath + ".json");
             else
                 guiText.text = text;
 
