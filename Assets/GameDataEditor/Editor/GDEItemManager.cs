@@ -416,9 +416,11 @@ namespace GameDataEditor
         #region Save/Load Methods    
         public static void Load(bool forceLoad = false)
         {
+            CreateFileIfMissing(SchemaFilePath);
             if (forceLoad || SchemasNeedSave || FileChangedOnDisk(SchemaFilePath, _schemaFileMD5))
                 LoadSchemas();
 
+            CreateFileIfMissing(ItemFilePath);
             if (forceLoad || ItemsNeedSave || FileChangedOnDisk(ItemFilePath, _itemDataFileMD5))
                 LoadItems();
         }
@@ -467,8 +469,6 @@ namespace GameDataEditor
         {
             try
             {
-                CreateFileIfMissing(ItemFilePath);
-
                 string json = File.ReadAllText(ItemFilePath);
                 _itemDataFileMD5 = json.Md5Sum();
 
@@ -494,8 +494,6 @@ namespace GameDataEditor
         {
             try
             {
-                CreateFileIfMissing(SchemaFilePath);
-
                 string json = File.ReadAllText(SchemaFilePath);
                 _schemaFileMD5 = json.Md5Sum();
 
