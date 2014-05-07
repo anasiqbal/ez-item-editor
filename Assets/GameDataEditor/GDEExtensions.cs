@@ -64,12 +64,17 @@ namespace GameDataEditor.GDEExtensionMethods
     {
         public static bool IsValidIndex(this Array variable, int index)
         {
-            return index > -1 && index < variable.Length;
+            return index > -1 && variable != null && index < variable.Length;
         }
     }
     
     public static class ListExtensions
     {
+        public static bool IsValidIndex<T>(this List<T> variable, int index)
+        {
+            return index > -1 && variable != null && index < variable.Count;
+        }
+
         public static MethodInfo DeepCopyMethodInfo = typeof(ListExtensions).GetMethod("DeepCopy");
         public static List<T> DeepCopy<T>(this List<T> variable)
         {
@@ -165,6 +170,25 @@ namespace GameDataEditor.GDEExtensionMethods
             return result;
         }
 
+        public static bool TryGetList<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out List<object> value)
+        {
+            bool result = true;
+            value = null;
+            
+            try
+            {
+                TValue temp;
+                variable.TryGetValue(key, out temp);
+                value = temp as List<object>;
+            }
+            catch
+            {
+                result = false;
+            }
+            
+            return result;
+        }
+
         public static bool TryGetBool<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out bool value)
         {
             bool result = true;
@@ -180,6 +204,25 @@ namespace GameDataEditor.GDEExtensionMethods
             {
                 result = false;
             }
+            return result;
+        }
+
+        public static bool TryGetBoolList<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out List<bool> value)
+        {
+            bool result = true;
+            value = null;
+
+            try
+            {
+                List<object> tempList;
+                if (variable.TryGetList(key, out tempList))                
+                    value = tempList.ConvertAll(obj => Convert.ToBoolean(obj));
+            }
+            catch
+            {
+                result = false;
+            }
+
             return result;
         }
         
@@ -200,7 +243,26 @@ namespace GameDataEditor.GDEExtensionMethods
             }
             return result;
         }
-        
+
+        public static bool TryGetStringList<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out List<string> value)
+        {
+            bool result = true;
+            value = null;
+            
+            try
+            {
+                List<object> tempList;
+                if (variable.TryGetList(key, out tempList))                
+                    value = tempList.ConvertAll(obj => obj.ToString());
+            }
+            catch
+            {
+                result = false;
+            }
+            
+            return result;
+        }
+
         public static bool TryGetFloat<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out float value)
         {
             bool result = true;
@@ -218,7 +280,26 @@ namespace GameDataEditor.GDEExtensionMethods
             }
             return result;
         }
-        
+
+        public static bool TryGetFloatList<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out List<float> value)
+        {
+            bool result = true;
+            value = null;
+            
+            try
+            {
+                List<object> tempList;
+                if (variable.TryGetList(key, out tempList))                
+                    value = tempList.ConvertAll(obj => Convert.ToSingle(obj));
+            }
+            catch
+            {
+                result = false;
+            }
+            
+            return result;
+        }
+
         public static bool TryGetInt<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out int value)
         {
             bool result = true;
@@ -234,6 +315,25 @@ namespace GameDataEditor.GDEExtensionMethods
             {
                 result = false;
             }
+            return result;
+        }
+
+        public static bool TryGetInList<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out List<int> value)
+        {
+            bool result = true;
+            value = null;
+            
+            try
+            {
+                List<object> tempList;
+                if (variable.TryGetList(key, out tempList))                
+                    value = tempList.ConvertAll(obj => Convert.ToInt32(obj));
+            }
+            catch
+            {
+                result = false;
+            }
+            
             return result;
         }
 
@@ -261,6 +361,42 @@ namespace GameDataEditor.GDEExtensionMethods
             }
             return result;
         }
+
+        public static bool TryGetVector2List<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out List<Vector2> value)
+        {
+            bool result = true;
+            value = null;
+            
+            try
+            {
+                List<object> tempList;
+                if (variable.TryGetList(key, out tempList))
+                {
+                    Vector2 vect;
+                    value = new List<Vector2>();
+                    foreach(object vec2 in tempList)
+                    {
+                        Dictionary<string, object> vectDict = vec2 as Dictionary<string, object>;
+
+                        vect = new Vector2();
+
+                        if (vectDict != null)
+                        {
+                            vectDict.TryGetFloat("x", out vect.x);
+                            vectDict.TryGetFloat("y", out vect.y);
+                        }
+
+                        value.Add(vect);
+                    }
+                }
+            }
+            catch
+            {
+                result = false;
+            }
+            
+            return result;
+        }
         
         public static bool TryGetVector3<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out Vector3 value)
         {
@@ -285,6 +421,43 @@ namespace GameDataEditor.GDEExtensionMethods
             {
                 result = false;
             }
+            return result;
+        }
+
+        public static bool TryGetVector3List<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out List<Vector3> value)
+        {
+            bool result = true;
+            value = null;
+            
+            try
+            {
+                List<object> tempList;
+                if (variable.TryGetList(key, out tempList))
+                {
+                    Vector3 vect;
+                    value = new List<Vector3>();
+                    foreach(object vec3 in tempList)
+                    {
+                        Dictionary<string, object> vectDict = vec3 as Dictionary<string, object>;
+                        
+                        vect = new Vector3();
+
+                        if (vectDict != null)
+                        {
+                            vectDict.TryGetFloat("x", out vect.x);
+                            vectDict.TryGetFloat("y", out vect.y);
+                            vectDict.TryGetFloat("z", out vect.z);
+                        }
+                        
+                        value.Add(vect);
+                    }
+                }
+            }
+            catch
+            {
+                result = false;
+            }
+            
             return result;
         }
 
@@ -315,6 +488,44 @@ namespace GameDataEditor.GDEExtensionMethods
             return result;
         }
 
+        public static bool TryGetVector4List<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out List<Vector4> value)
+        {
+            bool result = true;
+            value = null;
+            
+            try
+            {
+                List<object> tempList;
+                if (variable.TryGetList(key, out tempList))
+                {
+                    Vector4 vect;
+                    value = new List<Vector4>();
+                    foreach(object vec4 in tempList)
+                    {
+                        Dictionary<string, object> vectDict = vec4 as Dictionary<string, object>;
+                        
+                        vect = new Vector4();
+
+                        if (vectDict != null)
+                        {
+                            vectDict.TryGetFloat("x", out vect.x);
+                            vectDict.TryGetFloat("y", out vect.y);
+                            vectDict.TryGetFloat("z", out vect.z);
+                            vectDict.TryGetFloat("w", out vect.w);
+                        }
+                        
+                        value.Add(vect);
+                    }
+                }
+            }
+            catch
+            {
+                result = false;
+            }
+            
+            return result;
+        }
+
         public static bool TryGetColor<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out Color value)
         {
             bool result = true;
@@ -339,6 +550,43 @@ namespace GameDataEditor.GDEExtensionMethods
             {
                 result = false;
             }
+            return result;
+        }
+
+        public static bool TryGetColorList<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out List<Color> value)
+        {
+            bool result = true;
+            value = null;
+            
+            try
+            {
+                List<object> tempList;
+                if (variable.TryGetList(key, out tempList))
+                {
+                    Color col;
+                    value = new List<Color>();
+                    foreach(object color in tempList)
+                    {
+                        Dictionary<string, object> colorDict = color as Dictionary<string, object>;
+                        
+                        col = new Color();
+                        if (colorDict != null)
+                        {
+                            colorDict.TryGetFloat("r", out col.r);
+                            colorDict.TryGetFloat("g", out col.g);
+                            colorDict.TryGetFloat("b", out col.b);
+                            colorDict.TryGetFloat("a", out col.a);
+                        }
+                        
+                        value.Add(col);
+                    }
+                }
+            }
+            catch
+            {
+                result = false;
+            }
+            
             return result;
         }
         

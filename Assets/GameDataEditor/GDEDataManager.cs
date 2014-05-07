@@ -36,6 +36,14 @@ namespace GameDataEditor
         #region Data Collections
         private Dictionary<string, object> dataDictionary = null;
         private Dictionary<string, List<string>> dataKeysBySchema = null;
+
+        public Dictionary<string, object> DataDictionary
+        {
+            get
+            {
+                return dataDictionary;
+            }
+        }
         #endregion
 
         #region Properties
@@ -140,22 +148,22 @@ namespace GameDataEditor
         }
 
         /// <summary>
-        /// Returns a list of all data sets by the given schema
+        /// Returns a subset of the data containing only data sets by the given schema
         /// </summary>
         /// <returns><c>true</c>, if the given schema exists <c>false</c> otherwise.</returns>
         /// <param name="type">Schema.</param>
-        /// <param name="dataList">Data Set list.</param>
-        public bool GetAllDataBySchema(string schema, out List<Dictionary<string, object>> dataList)
+        /// <param name="data">Subset of the Data Set list containing entries with the specified schema.</param>
+        public bool GetAllDataBySchema(string schema, out Dictionary<string, object> data)
         {
             if (dataDictionary == null)
             {
-                dataList = null;
+                data = null;
                 return false;
             }
 
             List<string> dataKeys;
             bool result = true;
-            dataList = new List<Dictionary<string, object>>();
+            data = new Dictionary<string, object>();
 
             if (dataKeysBySchema.TryGetValue(schema, out dataKeys))
             {
@@ -163,7 +171,7 @@ namespace GameDataEditor
                 {
                     Dictionary<string, object> currentDataSet;
                     if (Get(dataKey, out currentDataSet))
-                        dataList.Add(currentDataSet);
+                        data.Add(dataKey.Clone().ToString(), currentDataSet.DeepCopy());
                 }
             }
             else

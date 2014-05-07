@@ -36,15 +36,15 @@ public class InitScene : MonoBehaviour {
             circleLogic.Init();
 
             // Init all of our GUITexts
-            List<Dictionary<string, object>> guiTextDataList;
+            Dictionary<string, object> guiTextDataList;
             GDEDataManager.Instance.GetAllDataBySchema("GuiText", out guiTextDataList);
-            foreach(Dictionary<string, object> data in guiTextDataList)
+            foreach(KeyValuePair<string, object> pair in guiTextDataList)
             {
-                GameObject guiText = new GameObject("GUIText");
+                GameObject guiText = new GameObject(pair.Key);
                 guiText.AddComponent<GUIText>();
 
                 GUITextSettings textSettings = guiText.AddComponent<GUITextSettings>();
-                textSettings.Data = data;
+                textSettings.Data = pair.Value as Dictionary<string, object>;
                 textSettings.Init();
             }
         }
