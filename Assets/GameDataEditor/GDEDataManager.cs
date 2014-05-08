@@ -57,14 +57,6 @@ namespace GameDataEditor
 
         #region Init Methods
         /// <summary>
-        /// Loads the data file from path in PlayerSettings
-        /// </summary>
-        public bool Init()
-        {
-            return true;
-        }
-
-        /// <summary>
         /// Loads the specified data file
         /// </summary>
         /// <param name="filePath">Data file path.</param>
