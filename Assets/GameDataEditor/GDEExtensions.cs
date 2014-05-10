@@ -133,7 +133,12 @@ namespace GameDataEditor.GDEExtensionMethods
     
     public static class DictionaryExtensions
     {
-        // Adds the value if the key does not exist, otherwise it updates the value for the given key
+        /// <summary>
+        /// Adds the value if the key does not exist, otherwise it updates the value for the given key
+        /// </summary>
+        /// <returns><c>true</c>, if add or update suceeded, <c>false</c> otherwise.</returns>
+        /// <param name="key">Key of the value we are adding or updating.</param>
+        /// <param name="value">Value to add or use to set as the current value for the Key.</param>
         public static bool TryAddOrUpdateValue<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, TValue value)
         {
             bool result;
@@ -170,6 +175,12 @@ namespace GameDataEditor.GDEExtensionMethods
             return result;
         }
 
+        /// <summary>
+        /// Reads the Value for Key and converts it to a List<object>
+        /// </summary>
+        /// <returns><c>true</c>, if the value was successfully converted, <c>false</c> otherwise.</returns>
+        /// <param name="key">Key.</param>
+        /// <param name="value">Converted value</param>
         public static bool TryGetList<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out List<object> value)
         {
             bool result = true;
@@ -189,6 +200,12 @@ namespace GameDataEditor.GDEExtensionMethods
             return result;
         }
 
+        /// <summary>
+        /// Reads the value for Key and converts it to a bool
+        /// </summary>
+        /// <returns><c>true</c>, if the value was successfully converted, <c>false</c> otherwise.</returns>
+        /// <param name="key">Key.</param>
+        /// <param name="value">Converted value</param>
         public static bool TryGetBool<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out bool value)
         {
             bool result = true;
@@ -207,6 +224,12 @@ namespace GameDataEditor.GDEExtensionMethods
             return result;
         }
 
+        /// <summary>
+        /// Reads the value for Key and converts it to a List<bool>
+        /// </summary>
+        /// <returns><c>true</c>, if the value was successfully converted, <c>false</c> otherwise.</returns>
+        /// <param name="key">Key.</param>
+        /// <param name="value">Converted value</param>
         public static bool TryGetBoolList<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out List<bool> value)
         {
             bool result = true;
@@ -225,7 +248,13 @@ namespace GameDataEditor.GDEExtensionMethods
 
             return result;
         }
-        
+
+        /// <summary>
+        /// Reads the value for Key and converts it to a string
+        /// </summary>
+        /// <returns><c>true</c>, if the value was successfully converted, <c>false</c> otherwise.</returns>
+        /// <param name="key">Key.</param>
+        /// <param name="value">Converted value</param>
         public static bool TryGetString<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out string value)
         {
             bool result = true;
@@ -244,6 +273,12 @@ namespace GameDataEditor.GDEExtensionMethods
             return result;
         }
 
+        /// <summary>
+        /// Reads the value for Key and converts it to a List<string>
+        /// </summary>
+        /// <returns><c>true</c>, if the value was successfully converted, <c>false</c> otherwise.</returns>
+        /// <param name="key">Key.</param>
+        /// <param name="value">Converted value</param>
         public static bool TryGetStringList<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out List<string> value)
         {
             bool result = true;
@@ -262,7 +297,13 @@ namespace GameDataEditor.GDEExtensionMethods
             
             return result;
         }
-
+        
+        /// <summary>
+        /// Reads the value for Key and converts it to a float
+        /// </summary>
+        /// <returns><c>true</c>, if the value was successfully converted, <c>false</c> otherwise.</returns>
+        /// <param name="key">Key.</param>
+        /// <param name="value">Converted value</param>
         public static bool TryGetFloat<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out float value)
         {
             bool result = true;
@@ -280,7 +321,13 @@ namespace GameDataEditor.GDEExtensionMethods
             }
             return result;
         }
-
+        
+        /// <summary>
+        /// Reads the value for Key and converts it to a List<float>
+        /// </summary>
+        /// <returns><c>true</c>, if the value was successfully converted, <c>false</c> otherwise.</returns>
+        /// <param name="key">Key.</param>
+        /// <param name="value">Converted value</param>
         public static bool TryGetFloatList<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out List<float> value)
         {
             bool result = true;
@@ -299,7 +346,13 @@ namespace GameDataEditor.GDEExtensionMethods
             
             return result;
         }
-
+        
+        /// <summary>
+        /// Reads the value for Key and converts it to a int (Int32)
+        /// </summary>
+        /// <returns><c>true</c>, if the value was successfully converted, <c>false</c> otherwise.</returns>
+        /// <param name="key">Key.</param>
+        /// <param name="value">Converted value</param>
         public static bool TryGetInt<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out int value)
         {
             bool result = true;
@@ -317,8 +370,14 @@ namespace GameDataEditor.GDEExtensionMethods
             }
             return result;
         }
-
-        public static bool TryGetInList<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out List<int> value)
+        
+        /// <summary>
+        /// Reads the value for Key and converts it to a List<int>
+        /// </summary>
+        /// <returns><c>true</c>, if the value was successfully converted, <c>false</c> otherwise.</returns>
+        /// <param name="key">Key.</param>
+        /// <param name="value">Converted value</param>
+        public static bool TryGetIntList<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out List<int> value)
         {
             bool result = true;
             value = null;
@@ -336,7 +395,13 @@ namespace GameDataEditor.GDEExtensionMethods
             
             return result;
         }
-
+        
+        /// <summary>
+        /// Reads the value for Key and converts it to a Vector2
+        /// </summary>
+        /// <returns><c>true</c>, if the value was successfully converted, <c>false</c> otherwise.</returns>
+        /// <param name="key">Key.</param>
+        /// <param name="value">Converted value</param>
         public static bool TryGetVector2<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out Vector2 value)
         {
             bool result = true;
@@ -361,7 +426,13 @@ namespace GameDataEditor.GDEExtensionMethods
             }
             return result;
         }
-
+        
+        /// <summary>
+        /// Reads the value for Key and converts it to a List<Vector2>
+        /// </summary>
+        /// <returns><c>true</c>, if the value was successfully converted, <c>false</c> otherwise.</returns>
+        /// <param name="key">Key.</param>
+        /// <param name="value">Converted value</param>
         public static bool TryGetVector2List<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out List<Vector2> value)
         {
             bool result = true;
@@ -398,6 +469,12 @@ namespace GameDataEditor.GDEExtensionMethods
             return result;
         }
         
+        /// <summary>
+        /// Reads the value for Key and converts it to a Vector3
+        /// </summary>
+        /// <returns><c>true</c>, if the value was successfully converted, <c>false</c> otherwise.</returns>
+        /// <param name="key">Key.</param>
+        /// <param name="value">Converted value</param>
         public static bool TryGetVector3<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out Vector3 value)
         {
             bool result = true;
@@ -423,7 +500,13 @@ namespace GameDataEditor.GDEExtensionMethods
             }
             return result;
         }
-
+        
+        /// <summary>
+        /// Reads the value for Key and converts it to a List<Vector3>
+        /// </summary>
+        /// <returns><c>true</c>, if the value was successfully converted, <c>false</c> otherwise.</returns>
+        /// <param name="key">Key.</param>
+        /// <param name="value">Converted value</param>
         public static bool TryGetVector3List<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out List<Vector3> value)
         {
             bool result = true;
@@ -460,7 +543,13 @@ namespace GameDataEditor.GDEExtensionMethods
             
             return result;
         }
-
+        
+        /// <summary>
+        /// Reads the value for Key and converts it to a Vector4
+        /// </summary>
+        /// <returns><c>true</c>, if the value was successfully converted, <c>false</c> otherwise.</returns>
+        /// <param name="key">Key.</param>
+        /// <param name="value">Converted value</param>
         public static bool TryGetVector4<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out Vector4 value)
         {
             bool result = true;
@@ -487,7 +576,13 @@ namespace GameDataEditor.GDEExtensionMethods
             }
             return result;
         }
-
+        
+        /// <summary>
+        /// Reads the value for Key and converts it to a List<Vector4>
+        /// </summary>
+        /// <returns><c>true</c>, if the value was successfully converted, <c>false</c> otherwise.</returns>
+        /// <param name="key">Key.</param>
+        /// <param name="value">Converted value</param>
         public static bool TryGetVector4List<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out List<Vector4> value)
         {
             bool result = true;
@@ -525,7 +620,13 @@ namespace GameDataEditor.GDEExtensionMethods
             
             return result;
         }
-
+        
+        /// <summary>
+        /// Reads the value for Key and converts it to a Color
+        /// </summary>
+        /// <returns><c>true</c>, if the value was successfully converted, <c>false</c> otherwise.</returns>
+        /// <param name="key">Key.</param>
+        /// <param name="value">Converted value</param>
         public static bool TryGetColor<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out Color value)
         {
             bool result = true;
@@ -552,7 +653,13 @@ namespace GameDataEditor.GDEExtensionMethods
             }
             return result;
         }
-
+        
+        /// <summary>
+        /// Reads the value for Key and converts it to a List<Color>
+        /// </summary>
+        /// <returns><c>true</c>, if the value was successfully converted, <c>false</c> otherwise.</returns>
+        /// <param name="key">Key.</param>
+        /// <param name="value">Converted value</param>
         public static bool TryGetColorList<TKey, TValue>(this Dictionary<TKey, TValue> variable, TKey key, out List<Color> value)
         {
             bool result = true;
@@ -658,8 +765,13 @@ namespace GameDataEditor.GDEExtensionMethods
     
     public static class StringExtensions
     {
-        // Returns a new string that hightlights the first instance of substring with html color tag
-        // Ex. "The sky is <color=blue>blue</color>!"
+        /// <summary>
+        /// Returns a new string that hightlights the first instance of substring with html color tag
+        /// Ex. "The sky is <color=blue>blue</color>!"
+        /// </summary>
+        /// <returns>A new string formatted with the color tag around the first instance of substring.</returns>
+        /// <param name="substring">Substring to highlight</param>
+        /// <param name="color">Color to specify in the color tag</param>
         public static string HighlightSubstring(this string variable, string substring, string color)
         {
             string highlightedString = "";
@@ -680,6 +792,10 @@ namespace GameDataEditor.GDEExtensionMethods
             return highlightedString;
         }
 
+        /// <summary>
+        /// Returns the Md5 Sum of a string.
+        /// </summary>
+        /// <returns>The Md5 sum.</returns>
         public static string Md5Sum(this string strToEncrypt)
         {
             UTF8Encoding ue = new UTF8Encoding();
