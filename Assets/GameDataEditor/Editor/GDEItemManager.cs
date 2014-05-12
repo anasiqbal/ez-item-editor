@@ -408,7 +408,9 @@ namespace GameDataEditor
         #region Save/Load Methods    
         public static void Load(bool forceLoad = false)
         {
-            CreateFileIfMissing(DataFilePath);
+            if (!CreateFileIfMissing(DataFilePath))
+                return;
+
             bool fileChangedOnDisk = FileChangedOnDisk(DataFilePath, _dataFileMD5);
 
             if (forceLoad || SchemasNeedSave || fileChangedOnDisk)
@@ -507,14 +509,26 @@ namespace GameDataEditor
             }
         }
 
-        private static void CreateFileIfMissing(string path)
+        private static bool CreateFileIfMissing(string path)
         {
-            if (!File.Exists(path))
+            bool result = true;
+
+            try
             {
-                StreamWriter writer = File.CreateText(path);
-                writer.WriteLine("{}");
-                writer.Close();
+                if (!File.Exists(path))
+                {
+                    StreamWriter writer = File.CreateText(path);
+                    writer.WriteLine("{}");
+                    writer.Close();
+                }
             }
+            catch(DirectoryNotFoundException)
+            {
+                EditorUtility.DisplayDialog(GDEStrings.ErrorLbl, string.Format(GDEStrings.DirectoryNotFound, path), GDEStrings.OkLbl);
+                result = false;
+            }
+
+            return result;
         }
 
         private static bool SchemaExistsForItem(string itemKey, Dictionary<string, object> itemData)

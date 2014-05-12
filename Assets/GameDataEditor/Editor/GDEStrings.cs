@@ -59,6 +59,7 @@ namespace GameDataEditor
         public static string ErrorCreatingField = "Error creating field!";
         public static string ErrorCreatingSchema = "Error creating Schema!";
         public static string SureDeleteSchema = "Are you sure you want to delete this schema?";
+        public static string DirectoryNotFound = "Could not find part of the path: {0}";
         #endregion
     }
 }

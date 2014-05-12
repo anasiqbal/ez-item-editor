@@ -93,6 +93,8 @@ public class GDEPreferences : EditorWindow {
         defineDataColor = GDEConstants.DefineDataColor.ToColor();
         highlightColor = GDEConstants.HighlightColor.ToColor();
 
+        GUI.FocusControl("");
+
         SavePreferences();
     }
 
@@ -103,6 +105,8 @@ public class GDEPreferences : EditorWindow {
         EditorPrefs.SetString(GDEConstants.CreateDataColorKey, "#" + createDataColor.ToHexString());
         EditorPrefs.SetString(GDEConstants.DefineDataColorKey, "#" + defineDataColor.ToHexString());
         EditorPrefs.SetString(GDEConstants.HighlightColorKey, "#" + highlightColor.ToHexString());
+
+        GUI.FocusControl("");
 
         GDEItemManager.Load(true);
     }
