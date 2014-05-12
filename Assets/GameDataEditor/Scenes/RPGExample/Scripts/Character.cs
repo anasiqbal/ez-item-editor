@@ -13,8 +13,6 @@ public enum StatType
 
 public class Character 
 {
-    public string Name;
-
     private int baseHP = 0;
     private int baseMana = 0;
     private int baseDamage = 0;
@@ -22,6 +20,12 @@ public class Character
     private int bonusHP = 0;
     private int bonusMana = 0;
     private int bonusDamage = 0;
+
+    //
+    // Character's public Properties that are defined by the data that
+    // gets pulled in from the Game Data Editor.
+    //
+    public string Name;
 
     public int HP
     {
@@ -47,30 +51,58 @@ public class Character
 
     public List<Buff> Buffs;
 
+    //
+    // Constructor that takes the data returned by the
+    // GDEDataManager.Get() method and will now pull out the
+    // individual fields using the TryGet() methods.
+    //
     public Character(Dictionary<string, object> data)
     {
         if (data != null)
         {
-            // Load our stats from the data
+            // Pull out the individual fields and load our Character stats.
             data.TryGetString("name", out Name);
             data.TryGetInt("hp", out baseHP);
             data.TryGetInt("mana", out baseMana);
             data.TryGetInt("damage", out baseDamage);
 
+            //
+            // Get the Buff list 
+            //
+            // First get a string list of the buffs using TryGetStringList
             List<string> buffKeyList;
             if (data.TryGetStringList("buffs", out buffKeyList))
             {
+                //
+                // Spin through each of the Buff names and pull out
+                // the data with the GDEDataManager.Get() method.
+                //
                 Buffs = new List<Buff>();
                 foreach(string buffKey in buffKeyList)
                 {
+                    //
+                    // Pull out Buff data with Get() method and pass
+                    // it down to the Buff classes constructor where
+                    // it will pull out the individual fields and set
+                    // it's properties.
+                    //
                     Buff curBuff;
                     Dictionary<string, object> curBuffData;
                     GDEDataManager.Instance.Get(buffKey, out curBuffData);
 
+                    //
+                    // For each Buff in the string list create a new
+                    // object passing it the data from the Get()
+                    // method and add it to the Buff's list.
+                    //
                     curBuff = new Buff(curBuffData);
                     Buffs.Add(curBuff);
-
-                    // Add the bonus' from the buff
+                    
+                    //
+                    // Now that the Buff's properties have been set
+                    // from the data in the Buff's constructor add the
+                    // bonuses to the HP, Mana, and Damage. 
+                    //
                     bonusHP += curBuff.HPDelta;
                     bonusMana += curBuff.ManaDelta;
                     bonusDamage += curBuff.DamageDelta;
@@ -79,6 +111,10 @@ public class Character
         }
     }
 
+
+    // 
+    // Pretty print the Stats (HP, Mana, Damage) and Bonuses in the Scene
+    // 
     public string FormatStat(StatType type)
     {
         string formattedStat;

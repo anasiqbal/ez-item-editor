@@ -16,7 +16,10 @@ public class InitScene : MonoBehaviour {
     // Here we will instantiate all our objects in the scene and populate them
     // with our game data.
     //
-	void Start () {        
+    void Start () 
+    {        
+        // Initialize with the file path which is a resource in the
+        // Unity Scene hence the no json file extension.
         if (GDEDataManager.Instance.Init(DataFilePath))
         {
             Dictionary<string, object> objectData;
@@ -50,5 +53,5 @@ public class InitScene : MonoBehaviour {
         }
         else
             Debug.Log("GDEManager not initialized!");
-	}
+    }
 }

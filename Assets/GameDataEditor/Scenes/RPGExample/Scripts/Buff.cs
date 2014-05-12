@@ -6,11 +6,15 @@ using GameDataEditor.GDEExtensionMethods;
 public class Buff 
 {
     public readonly string Name;
-
     public readonly int HPDelta;
     public readonly int ManaDelta;
     public readonly int DamageDelta;
 
+    //
+    // Constructor that takes the data returned by the
+    // GDEDataManager.Get() method and will now pull out the
+    // individual fields using the TryGet() methods.
+    //
     public Buff(Dictionary<string, object> data)
     {
         if (data != null)
@@ -22,6 +26,9 @@ public class Buff
         }
     }
 
+    // 
+    // Pretty print the Buff properties
+    // 
     public override string ToString()
     {
         bool needsComma = false;

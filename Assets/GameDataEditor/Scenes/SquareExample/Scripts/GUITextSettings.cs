@@ -8,7 +8,8 @@ public class GUITextSettings : MonoBehaviour {
     public Dictionary<string, object> Data;
 
     //
-    // Initialize the GUIText from the values in the Data dictionary
+    // Initialize the GUIText from the values in the GDEDataManager
+    // using the TryGet() methods.
     //
     public void Init () {
         
