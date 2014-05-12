@@ -41,35 +41,10 @@ public class ObjectLogic : MonoBehaviour {
             Data.TryGetFloat("scaleSpeed", out scaleSpeed);
             
             // Pull out the colorSpeed value from Game Data
-            Data.TryGetFloat("colorSpeed", out colorSpeed);
+            Data.TryGetFloat("colorSpeed", out colorSpeed);            
             
-            
-            // Pull out the colors list from Game Data and assign it
-            // to a temporary object variable.
-            object temp;
-            Data.TryGetValue("colors", out temp);
-            
-            //
-            // Cast the temp object into a List<object> since each
-            // Color type is made up of a red, green, blue, and alpha
-            // field.
-            //
-            colors = new List<Color>();
-            List<object> colorDicts = temp as List<object>;
-            foreach(object colorData in colorDicts)
-            {
-                //
-                // Spin through each Color and pull out it's red, green, blue, and alpha fields. 
-                Dictionary<string, object> colorDictionary = colorData as Dictionary<string, object>;
-                Color c = new Color();
-                
-                colorDictionary.TryGetFloat("r", out c.r);
-                colorDictionary.TryGetFloat("g", out c.g);
-                colorDictionary.TryGetFloat("b", out c.b);
-                colorDictionary.TryGetFloat("a", out c.a);
-                
-                colors.Add(c);
-            }
+            // Pull out the colors list from Game Data
+            Data.TryGetColorList("colors", out colors);
 
             if (colors != null && colors.Count > 0)
                 renderer.material.color = colors[0];
