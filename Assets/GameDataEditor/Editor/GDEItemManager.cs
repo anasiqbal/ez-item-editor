@@ -27,13 +27,13 @@ namespace GameDataEditor
     public class GDEItemManager
     {
         #region Item Dictionary
-        private static string _itemDataFileMD5;
+        private static string _dataFileMD5;
         public static bool ItemsNeedSave;
-        public static string ItemFilePath 
+        public static string DataFilePath 
         {
             get
             {
-                return EditorPrefs.GetString(GDEConstants.CreateDataFileKey, GDEConstants.CreateDataFile);
+                return EditorPrefs.GetString(GDEConstants.DataFileKey, GDEConstants.DataFile);
             }
         }
         private static Dictionary<string, Dictionary<string, object>> _allItems;
@@ -54,15 +54,7 @@ namespace GameDataEditor
         #endregion
 
         #region Schema Dictionary
-        private static string _schemaFileMD5;
         public static bool SchemasNeedSave;
-        public static string SchemaFilePath
-        {
-            get
-            {
-                return EditorPrefs.GetString(GDEConstants.DefineDataFileKey, GDEConstants.DefineDataFile);
-            }
-        }
         private static Dictionary<string, Dictionary<string, object>> _schema;
         public static Dictionary<string, Dictionary<string, object>> AllSchemas
         {
@@ -416,47 +408,33 @@ namespace GameDataEditor
         #region Save/Load Methods    
         public static void Load(bool forceLoad = false)
         {
-            CreateFileIfMissing(SchemaFilePath);
-            if (forceLoad || SchemasNeedSave || FileChangedOnDisk(SchemaFilePath, _schemaFileMD5))
+            CreateFileIfMissing(DataFilePath);
+            bool fileChangedOnDisk = FileChangedOnDisk(DataFilePath, _dataFileMD5);
+
+            if (forceLoad || SchemasNeedSave || fileChangedOnDisk)
                 LoadSchemas();
 
-            CreateFileIfMissing(ItemFilePath);
-            if (forceLoad || ItemsNeedSave || FileChangedOnDisk(ItemFilePath, _itemDataFileMD5))
+            if (forceLoad || ItemsNeedSave || fileChangedOnDisk)
                 LoadItems();
         }
 
         public static void Save()
         {
-            SaveSchemas();
-            SaveItems();
-        }
-
-        private static void SaveItems()
-        {
             try
             {
-                string rawJson = Json.Serialize(AllItems);
+                Dictionary<string, object> allData = new Dictionary<string, object>();
+                foreach(KeyValuePair<string, Dictionary<string, object>> schema in AllSchemas)
+                    allData.Add(string.Format(GDEConstants.MetaDataFormat, GDEConstants.SchemaPrefix, schema.Key), schema.Value);
+
+                foreach(KeyValuePair<string, Dictionary<string, object>> item in AllItems)
+                    allData.Add(item.Key, item.Value);
+
+                string rawJson = Json.Serialize(allData);
                 string prettyJson = JsonHelper.FormatJson(rawJson);
-
-                File.WriteAllText(ItemFilePath, prettyJson);
-
+                
+                File.WriteAllText(DataFilePath, prettyJson);
+                
                 ItemsNeedSave = false;
-            }
-            catch(Exception ex)
-            {
-                Debug.LogException(ex);
-            }
-        }
-
-        private static void SaveSchemas()
-        {
-            try
-            {
-                string rawJson = Json.Serialize(AllSchemas);
-                string prettyJson = JsonHelper.FormatJson(rawJson);
-
-                File.WriteAllText(SchemaFilePath, prettyJson);
-
                 SchemasNeedSave = false;
             }
             catch(Exception ex)
@@ -469,8 +447,8 @@ namespace GameDataEditor
         {
             try
             {
-                string json = File.ReadAllText(ItemFilePath);
-                _itemDataFileMD5 = json.Md5Sum();
+                string json = File.ReadAllText(DataFilePath);
+                _dataFileMD5 = json.Md5Sum();
 
                 Dictionary<string, object> data = Json.Deserialize(json) as Dictionary<string, object>;
 
@@ -479,6 +457,9 @@ namespace GameDataEditor
                 string error;
                 foreach(KeyValuePair<string, object> pair in data)
                 {
+                    if (pair.Key.StartsWith(GDEConstants.SchemaPrefix))
+                        continue;
+
                     AddItem(pair.Key, pair.Value as Dictionary<string, object>, out error);
                 }
 
@@ -494,8 +475,8 @@ namespace GameDataEditor
         {
             try
             {
-                string json = File.ReadAllText(SchemaFilePath);
-                _schemaFileMD5 = json.Md5Sum();
+                string json = File.ReadAllText(DataFilePath);
+                _dataFileMD5 = json.Md5Sum();
 
                 Dictionary<string, object> data = Json.Deserialize(json) as Dictionary<string, object>;
 
@@ -507,10 +488,15 @@ namespace GameDataEditor
                 SchemaKeyArray = null;
 
                 string error;
+                string schemaName;
                 foreach(KeyValuePair<string, object> pair in data)
                 {
+                    if (!pair.Key.StartsWith(GDEConstants.SchemaPrefix))
+                        continue;
+
                     Dictionary<string, object> schemaData = pair.Value as Dictionary<string, object>;
-                    AddSchema(pair.Key, schemaData, out error);
+                    schemaName = pair.Key.Replace(GDEConstants.SchemaPrefix, "");
+                    AddSchema(schemaName, schemaData, out error);
                 }
 
                 SchemasNeedSave = false;

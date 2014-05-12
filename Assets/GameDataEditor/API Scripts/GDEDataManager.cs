@@ -95,6 +95,9 @@ namespace GameDataEditor
             dataKeysBySchema = new Dictionary<string, List<string>>();
             foreach(KeyValuePair<string, object> pair in dataDictionary)
             {
+                if (pair.Key.StartsWith(GDEConstants.SchemaPrefix))
+                    continue;
+
                 // Get the schema for the current data set
                 string schema;
                 Dictionary<string, object> currentDataSet = pair.Value as Dictionary<string, object>;

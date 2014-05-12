@@ -6,9 +6,10 @@ namespace GameDataEditor
         #region Metadata Constants
         public const string MetaDataFormat = "{0}{1}"; //{0} is the metadata prefix, {1} is the field the metadata is for
 
-        // Field metadata prefixes
+        // Metadata prefixes
         public const string TypePrefix = "_gdeType_";
         public const string IsListPrefix = "_gdeIsList_";
+        public const string SchemaPrefix = "_gdeSchema_";       
         #endregion
 
         #region Item Metadata Constants
@@ -32,8 +33,7 @@ namespace GameDataEditor
         public const string DefineDataColorKey = "gde_definedatacolor";
         public const string HighlightColorKey = "gde_highlightcolor";
 
-        public const string CreateDataFileKey = "gde_createdatafile";
-        public const string DefineDataFileKey = "gde_definedatafile";
+        public const string DataFileKey = "gde_datafile";
         #endregion
 
         #region Default Preference Settings
@@ -41,8 +41,7 @@ namespace GameDataEditor
         public const string DefineDataColor = "#185e65";
         public const string HighlightColor = "#f15c25";
 
-        public const string CreateDataFile = "gde_create.json";
-        public const string DefineDataFile = "gde_define.json";
+        public const string DataFile = "gde_data.json";
         #endregion
     }
 }

@@ -798,7 +798,7 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
 
     protected override string FilePath()
     {
-        return GDEItemManager.SchemaFilePath;
+        return GDEItemManager.DataFilePath;
     }
     #endregion
 

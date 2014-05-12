@@ -14,7 +14,6 @@ public class GDEPreferences : EditorWindow {
     private Color32 highlightColor;
 
     private string dataFilePath;
-    private string defineDataFilePath;
 
     [MenuItem(menuItemLocation, false, GDEManagerWindowBase.menuItemStartPriority)]
     private static void showEditor()
@@ -49,18 +48,6 @@ public class GDEPreferences : EditorWindow {
         }
         EditorGUILayout.EndHorizontal();
 
-        EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField("Define Data File", GUILayout.Width(100));
-        defineDataFilePath = EditorGUILayout.TextField(defineDataFilePath);
-        if (GUILayout.Button("Browse ...", GUILayout.Width(70)))
-        {
-            string newDefineDataPath = EditorUtility.OpenFilePanel("Open Schema File", defineDataFilePath, "json");
-            if (!string.IsNullOrEmpty(newDefineDataPath) && !newDefineDataPath.Equals(defineDataFilePath))
-                defineDataFilePath = newDefineDataPath;
-            GUI.FocusControl("");
-        }
-        EditorGUILayout.EndHorizontal();
-
         GUILayout.Space(20);
 
         content.text = "Colors";
@@ -86,9 +73,8 @@ public class GDEPreferences : EditorWindow {
 
     void LoadPreferences()
     {
-        dataFilePath = EditorPrefs.GetString(GDEConstants.CreateDataFileKey, Application.dataPath + "/" + GDEConstants.CreateDataFile);
-        defineDataFilePath = EditorPrefs.GetString(GDEConstants.DefineDataFileKey, Application.dataPath + "/" + GDEConstants.DefineDataFile);
-        
+        dataFilePath = EditorPrefs.GetString(GDEConstants.DataFileKey, Application.dataPath + "/" + GDEConstants.DataFile);
+
         string color = EditorPrefs.GetString(GDEConstants.CreateDataColorKey, GDEConstants.CreateDataColor);
         createDataColor = color.ToColor();
         
@@ -101,8 +87,7 @@ public class GDEPreferences : EditorWindow {
 
     void LoadDefaults()
     {
-        dataFilePath = Application.dataPath + "/" + GDEConstants.CreateDataFile;
-        defineDataFilePath = Application.dataPath + "/" + GDEConstants.DefineDataFile;
+        dataFilePath = Application.dataPath + "/" + GDEConstants.DataFile;
 
         createDataColor = GDEConstants.CreateDataColor.ToColor();
         defineDataColor = GDEConstants.DefineDataColor.ToColor();
@@ -113,8 +98,7 @@ public class GDEPreferences : EditorWindow {
 
     void SavePreferences()
     {
-        EditorPrefs.SetString(GDEConstants.CreateDataFileKey, dataFilePath);
-        EditorPrefs.SetString(GDEConstants.DefineDataFileKey, defineDataFilePath);
+        EditorPrefs.SetString(GDEConstants.DataFileKey, dataFilePath);
 
         EditorPrefs.SetString(GDEConstants.CreateDataColorKey, "#" + createDataColor.ToHexString());
         EditorPrefs.SetString(GDEConstants.DefineDataColorKey, "#" + defineDataColor.ToHexString());

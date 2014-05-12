@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 using System;
 using System.Collections;
@@ -683,7 +683,7 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
 
     protected override string FilePath()
     {
-        return GDEItemManager.ItemFilePath;
+        return GDEItemManager.DataFilePath;
     }
     #endregion
 

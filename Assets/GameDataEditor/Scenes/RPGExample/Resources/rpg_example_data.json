@@ -1,4 +1,31 @@
 {
+    "_gdeSchema_Character": {
+        "hp": 0,
+        "_gdeType_hp": "Int",
+        "mana": 0,
+        "_gdeType_mana": "Int",
+        "damage": 0,
+        "_gdeType_damage": "Int",
+        "buffs": [
+            null,
+            null,
+            null
+        ],
+        "_gdeType_buffs": "Buff",
+        "_gdeIsList_buffs": true,
+        "name": "",
+        "_gdeType_name": "String"
+    },
+    "_gdeSchema_Buff": {
+        "_gdeType_hp_delta": "Int",
+        "mana_delta": 0,
+        "_gdeType_mana_delta": "Int",
+        "damage_delta": 0,
+        "_gdeType_damage_delta": "Int",
+        "name": "",
+        "hp_delta": 0,
+        "_gdeType_name": "String"
+    },
     "warrior": {
         "hp": 200,
         "_gdeType_hp": "Int",
