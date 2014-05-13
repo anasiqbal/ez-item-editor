@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using System;
+using System.IO;
 using GameDataEditor;
 using GameDataEditor.GDEExtensionMethods;
 
@@ -100,15 +101,21 @@ public class GDEPreferences : EditorWindow {
 
     void SavePreferences()
     {
-        EditorPrefs.SetString(GDEConstants.DataFileKey, dataFilePath);
-
         EditorPrefs.SetString(GDEConstants.CreateDataColorKey, "#" + createDataColor.ToHexString());
         EditorPrefs.SetString(GDEConstants.DefineDataColorKey, "#" + defineDataColor.ToHexString());
         EditorPrefs.SetString(GDEConstants.HighlightColorKey, "#" + highlightColor.ToHexString());
 
-        GUI.FocusControl("");
-
-        GDEItemManager.Load(true);
+        string dataFileDirectory = dataFilePath.Replace(Path.GetFileName(dataFilePath), "");
+        if (Directory.Exists(dataFileDirectory))
+        {
+            EditorPrefs.SetString(GDEConstants.DataFileKey, dataFilePath);
+            GDEItemManager.Load(true);
+            GUI.FocusControl("");
+        }
+        else
+        {
+            EditorUtility.DisplayDialog(GDEStrings.ErrorLbl, string.Format(GDEStrings.DirectoryNotFound, dataFileDirectory), GDEStrings.OkLbl);
+        }
     }
 }
 
