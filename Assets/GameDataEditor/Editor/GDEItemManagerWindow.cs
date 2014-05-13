@@ -46,6 +46,10 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
         int count = 0;
         foreach (KeyValuePair<string, Dictionary<string, object>> item in GDEItemManager.AllItems)
         {
+            // If we are filtered out, continue
+            if (ShouldFilter(item.Key, item.Value))
+                continue;
+
             float currentGroupHeight;
             groupHeights.TryGetValue(item.Key, out currentGroupHeight);
 
@@ -167,10 +171,6 @@ public class GDEItemManagerWindow : GDEManagerWindowBase
 
     protected override void DrawEntry(string key, Dictionary<string, object> data)
     {
-        // If we are filtered out, return
-        if (ShouldFilter(key, data))
-            return;
-
         float beginningHeight = CurrentHeight();
         string schemaType = "<unknown>";
         object temp;

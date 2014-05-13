@@ -51,6 +51,10 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
 
         foreach(KeyValuePair<string, Dictionary<string, object>> schema in GDEItemManager.AllSchemas)
         {   
+            // If we are filtered out, return
+            if (ShouldFilter(schema.Key, schema.Value))
+                continue;
+
             float currentGroupHeight;
             if (!groupHeights.TryGetValue(schema.Key, out currentGroupHeight))
                 currentGroupHeight = GDEConstants.LineHeight;
@@ -286,10 +290,6 @@ public class GDESchemaManagerWindow : GDEManagerWindowBase {
 
     protected override void DrawEntry(string schemaKey, Dictionary<string, object> schemaData)
     {
-        // If we are filtered out, return
-        if (ShouldFilter(schemaKey, schemaData))
-            return;
-
         float beginningHeight = CurrentHeight();
 
         // Start drawing below
