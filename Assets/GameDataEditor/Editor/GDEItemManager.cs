@@ -8,9 +8,6 @@ using System.Collections.Generic;
 using GameDataEditor.MiniJSON;
 using GameDataEditor.GDEExtensionMethods;
 
-using System.Diagnostics;
-using Debug = UnityEngine.Debug;
-
 namespace GameDataEditor
 {
     [Flags]
@@ -416,22 +413,13 @@ namespace GameDataEditor
             if (!CreateFileIfMissing(DataFilePath))
                 return;
 
-            Stopwatch sw = Stopwatch.StartNew();
             bool fileChangedOnDisk = FileChangedOnDisk(DataFilePath, _dataFileMD5);
-            sw.Stop();
-            Debug.Log(string.Format("FileChangedOnDisk: {0}", sw.ElapsedMilliseconds));
 
-            sw = Stopwatch.StartNew();
             if (forceLoad || SchemasNeedSave || fileChangedOnDisk)
                 LoadSchemas();
-            sw.Stop();
-            Debug.Log(string.Format("LoadSchemas: {0}", sw.ElapsedMilliseconds));
 
-            sw = Stopwatch.StartNew();
             if (forceLoad || ItemsNeedSave || fileChangedOnDisk)
                 LoadItems();
-            sw.Stop();
-            Debug.Log(string.Format("LoadItems: {0}", sw.ElapsedMilliseconds));
         }
 
         public static void Save()
@@ -514,12 +502,9 @@ namespace GameDataEditor
                     schemaName = pair.Key.Replace(GDEConstants.SchemaPrefix, "");
                     AddSchema(schemaName, schemaData, out error, false);
                 }
-                SchemaKeyArray = BuildSchemaKeyArray();
 
-                Stopwatch sw = Stopwatch.StartNew();
+                SchemaKeyArray = BuildSchemaKeyArray();
                 FilterSchemaKeyArray = BuildSchemaFilterKeyArray();
-                sw.Stop();
-                Debug.Log("BuildSchemaFilterKeyArray: "+sw.ElapsedMilliseconds);
 
                 SchemasNeedSave = false;
             }
