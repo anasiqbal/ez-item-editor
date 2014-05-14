@@ -8,6 +8,9 @@ using System.Collections.Generic;
 using GameDataEditor.MiniJSON;
 using GameDataEditor.GDEExtensionMethods;
 
+using System.Diagnostics;
+using Debug = UnityEngine.Debug;
+
 namespace GameDataEditor
 {
     [Flags]
@@ -163,8 +166,7 @@ namespace GameDataEditor
         {
             List<string> temp = GDEItemManager.AllSchemas.Keys.ToList();
             temp.Add("_All");
-            temp.Sort();
-                
+            temp.Sort();                
             return temp.ToArray();
         }
 
@@ -353,7 +355,7 @@ namespace GameDataEditor
             return CustomFieldKeys(key, dict, true);
         }
 
-        private static void BuildSortingAndLookupListFor(string schemaKey, Dictionary<string, object> schemaData)
+        private static void BuildSortingAndLookupListFor(string schemaKey, Dictionary<string, object> schemaData, bool rebuildArrays = true)
         {
             // Parse and add to list by field name
             foreach(KeyValuePair<string, object> field in schemaData)
@@ -369,8 +371,11 @@ namespace GameDataEditor
             // Create empty list for the Item by Schema list
             ItemListBySchema.Add(schemaKey, new List<string>());
 
-            SchemaKeyArray = BuildSchemaKeyArray();
-            FilterSchemaKeyArray = BuildSchemaFilterKeyArray();
+            if (rebuildArrays)
+            {
+                SchemaKeyArray = BuildSchemaKeyArray();
+                FilterSchemaKeyArray = BuildSchemaFilterKeyArray();
+            }
         }
 
         private static void AddFieldToListByFieldName(string fieldKey, string schemaKey)
@@ -405,19 +410,28 @@ namespace GameDataEditor
         }
         #endregion
 
-        #region Save/Load Methods    
+        #region Save/Load Methods
         public static void Load(bool forceLoad = false)
         {
             if (!CreateFileIfMissing(DataFilePath))
                 return;
 
+            Stopwatch sw = Stopwatch.StartNew();
             bool fileChangedOnDisk = FileChangedOnDisk(DataFilePath, _dataFileMD5);
+            sw.Stop();
+            Debug.Log(string.Format("FileChangedOnDisk: {0}", sw.ElapsedMilliseconds));
 
+            sw = Stopwatch.StartNew();
             if (forceLoad || SchemasNeedSave || fileChangedOnDisk)
                 LoadSchemas();
+            sw.Stop();
+            Debug.Log(string.Format("LoadSchemas: {0}", sw.ElapsedMilliseconds));
 
+            sw = Stopwatch.StartNew();
             if (forceLoad || ItemsNeedSave || fileChangedOnDisk)
                 LoadItems();
+            sw.Stop();
+            Debug.Log(string.Format("LoadItems: {0}", sw.ElapsedMilliseconds));
         }
 
         public static void Save()
@@ -498,8 +512,14 @@ namespace GameDataEditor
 
                     Dictionary<string, object> schemaData = pair.Value as Dictionary<string, object>;
                     schemaName = pair.Key.Replace(GDEConstants.SchemaPrefix, "");
-                    AddSchema(schemaName, schemaData, out error);
+                    AddSchema(schemaName, schemaData, out error, false);
                 }
+                SchemaKeyArray = BuildSchemaKeyArray();
+
+                Stopwatch sw = Stopwatch.StartNew();
+                FilterSchemaKeyArray = BuildSchemaFilterKeyArray();
+                sw.Stop();
+                Debug.Log("BuildSchemaFilterKeyArray: "+sw.ElapsedMilliseconds);
 
                 SchemasNeedSave = false;
             }
@@ -601,7 +621,7 @@ namespace GameDataEditor
             ItemsNeedSave = true;
         }
 
-        public static bool AddSchema(string name, Dictionary<string, object> data, out string error)
+        public static bool AddSchema(string name, Dictionary<string, object> data, out string error, bool rebuildArrays = true)
         {
             bool result = true;
 
@@ -612,7 +632,7 @@ namespace GameDataEditor
 
             if (result)
             {
-                BuildSortingAndLookupListFor(name, data);
+                BuildSortingAndLookupListFor(name, data, rebuildArrays);
                 SchemasNeedSave = true;
             }
 
