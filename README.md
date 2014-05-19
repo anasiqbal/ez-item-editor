@@ -1,21 +1,13 @@
-Game Data Editor 
-==============
+#Game Data Editor
 
-The Game Data Editor is a Unity plugin that allows you to define &
-create a data set for your game all within an inspector window. This
-is for game settings that need to be tweaked during development or any
-settings you want to store without hand editing files. We provide an
-API to retrieve the settings during runtime of the game.
+The Game Data Editor is a Unity plugin that allows you to define & create data sets for your game within Unity. It makes managing game data easier, especially for non programmers or anyone that doesn't want hand edit json/XML files. It is ideal for prototyping and tweaking whatever data your game has without having to touch code or raw data files.
 
-There are two tabs to the plugin, one to Define the dataset and one to
-Create the dataset.  This allows you to specify the data types and
-variable names for the data on the Define tab.  It supports all the
-basic data types including lists.
 
-On the Create tab you use the schemas that you made on the Define tab
-to create instances of the data.  Under the covers, the dataset is
-stored in a json file which is then consumed during the runtime of
-your game using our API (link here).
+##Tuitorials
 
-## Some Sample Code of consuming an Item ## 
+You can find our screencast tuitorials on the Stay At Home Devs YouTube channel [here](http://www.youtube.com/channel/UCvGTTE0qXdtnyroX2n9PFzQ).
 
+
+##Contact
+
+Send any questions, suggestions, or issues to <mailto:celeste@stayathomedevs.com>.
