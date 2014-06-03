@@ -1,0 +1,13 @@
+I have a project that I'm getting ready to release to the Unity Asset Store and I need some promo art for it. I attached some really ugly mockups of what we are looking for. We need:
+
+1 large art piece: The name of the Asset will be across the top. On the left side there will be json data text that will be appear to be being sucked into the character. Then comes the character. And on the right side of the character, a simple list of his stats (like a super simple RPG style character view in a game). The character can be simple; just a dude with a sword. Nothing too elaborate. See the large green square in the mockup.
+
+1 medium art piece: This will be a smaller representation of the larger art piece. For instance, this will have the json data and the character with nothing else. See the smaller green square in the mockup.
+
+1 icon: The icon will be simple. We were thinking greater than signs like the one in the icon png attached (the one in the red square). We were also thinking this icon can appear in the large art piece between the json data and the character.
+
+Does this sound like something you can help us with? If so, send us a quote. Let me know if you have any questions or need clarification on anything.
+
+Thanks!
+Celeste Burke
+www.stayathomedevs.com

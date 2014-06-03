@@ -1,0 +1,7 @@
+The Game Data Editor allows you to define & create data sets for your game within Unity. It makes managing game data easier; especially for non programmers or anyone that doesn't want hand edit json/XML files. It is ideal for prototyping and tweaking whatever data your game has without having to touch code or raw data files.
+<br><br>
+You can find our API Tuitorial <a href="http://www.stayathomedevs.com/game-data-editor-plugin">here</a>.
+<br><br>
+You can find our screencast tuitorials on the <a href="http://www.youtube.com/channel/UCvGTTE0qXdtnyroX2n9PFzQ">Stay At Home Devs YouTube channel</a>.
+<br><br>
+Send any questions, suggestions, or issues <a href="mailto:celeste@stayathomedevs.com">here</a>.
