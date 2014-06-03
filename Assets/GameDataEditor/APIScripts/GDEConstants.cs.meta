@@ -1,5 +1,17 @@
 fileFormatVersion: 2
 guid: 315360298473c4d1f978690d81b12828
+labels:
+- editor
+- data
+- playtest
+- game
+- configuration
+- management
+- level
+- manage
+- stats
+- items
+- config
 MonoImporter:
   serializedVersion: 2
   defaultReferences: []
