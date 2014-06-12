@@ -10,22 +10,23 @@ namespace HutongGames.PlayMaker.Actions
         [RequiredField]
         [UIHint(UIHint.FsmString)]
         [Tooltip("GDE Data File Name")]
-        public FsmString gdeDataFileName;
+        public FsmString GDEDataFileName;
 
         public override void Reset()
         {
-            gdeDataFileName = null;
+            GDEDataFileName = null;
         }
         
         public override void OnEnter()
         {
             try
             {
-                GDEDataManager.Instance.Init(gdeDataFileName.Value);
+                if (!GDEDataManager.Instance.Init(GDEDataFileName.Value))
+                    LogError("GDE Data Manager not initialized! " + GDEDataFileName.Value);
             }
             catch(UnityException ex)
             {
-                Debug.LogException(ex);
+                LogError(ex.ToString());
             }
             finally
             {
