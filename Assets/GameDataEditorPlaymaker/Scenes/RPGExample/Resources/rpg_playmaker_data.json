@@ -32,15 +32,15 @@
         "_gdeType_mana": "Int",
         "damage": 35,
         "_gdeType_damage": "Int",
-        "buff3": "dmg_surge_1",
+        "buff3": "warrior_aura_1",
         "_gdeType_buff2": "Buff",
-        "buff2": "life_surge_1",
+        "buff2": "dmg_surge_1",
         "_gdeSchema": "Character",
         "name": "Sylrich",
         "_gdeType_name": "String",
         "_gdeType_buff3": "Buff",
         "_gdeType_buff1": "Buff",
-        "buff1": "warrior_aura_1"
+        "buff1": "life_surge_1"
     },
     "life_surge_1": {
         "_gdeType_hp_delta": "Int",
