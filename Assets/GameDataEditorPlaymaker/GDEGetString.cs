@@ -31,7 +31,7 @@ namespace HutongGames.PlayMaker.Actions
                 }
                 else
                 {
-                    LogError(string.Format("Could not load string from item:{0}, field name:{1}!", ItemName.Value, FieldName.Value));
+                    LogError(string.Format(GDEConstants.ErrorLoadingValue, "string", ItemName.Value, FieldName.Value));
                 }
             }
             catch(UnityException ex)

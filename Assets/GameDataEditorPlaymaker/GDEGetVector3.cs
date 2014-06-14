@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 using GameDataEditor;
 using GameDataEditor.GDEExtensionMethods;
@@ -6,18 +6,18 @@ using GameDataEditor.GDEExtensionMethods;
 namespace HutongGames.PlayMaker.Actions
 {
     [ActionCategory("Game Data Editor")]
-    [Tooltip("Gets a Int from a GDE Item")]
-    public class GDEGetInt : GDEActionBase
-    {	
-        [UIHint(UIHint.FsmInt)]
-        public FsmInt StoreResult;
-
+    [Tooltip("Gets a Vector3 from a GDE Item")]
+    public class GDEGetVector3 : GDEActionBase
+    {   
+        [UIHint(UIHint.FsmVector3)]
+        public FsmVector3 StoreResult;
+        
         public override void Reset()
         {
             base.Reset();
             StoreResult = null;
         }
-
+        
         public override void OnEnter()
         {
             try
@@ -25,13 +25,13 @@ namespace HutongGames.PlayMaker.Actions
                 Dictionary<string, object> data;
                 if (GameDataEditor.GDEDataManager.Instance.Get(ItemName.Value, out data))
                 {
-                    int val;
-                    data.TryGetInt(FieldName.Value, out val);
+                    Vector3 val;
+                    data.TryGetVector3(FieldName.Value, out val);
                     StoreResult.Value = val;
                 }
                 else
                 {
-                    LogError(string.Format(GDEConstants.ErrorLoadingValue, "int", ItemName.Value, FieldName.Value));
+                    LogError(string.Format(GDEConstants.ErrorLoadingValue, "Vector3", ItemName.Value, FieldName.Value));
                 }
             }
             catch(UnityException ex)
@@ -45,3 +45,5 @@ namespace HutongGames.PlayMaker.Actions
         }
     }
 }
+
+
