@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using GameDataEditor;
 
+#if GDE_PLAYMAKER_SUPPORT
+
 namespace HutongGames.PlayMaker.Actions
 {
     [ActionCategory("Game Data Editor")]
@@ -35,3 +37,5 @@ namespace HutongGames.PlayMaker.Actions
         }
     }
 }
+
+#endif

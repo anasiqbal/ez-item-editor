@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using GameDataEditor;
 using GameDataEditor.GDEExtensionMethods;
 
+#if GDE_PLAYMAKER_SUPPORT
+
 namespace HutongGames.PlayMaker.Actions
 {
     [ActionCategory("Game Data Editor")]
@@ -45,3 +47,5 @@ namespace HutongGames.PlayMaker.Actions
         }
     }
 }
+
+#endif
