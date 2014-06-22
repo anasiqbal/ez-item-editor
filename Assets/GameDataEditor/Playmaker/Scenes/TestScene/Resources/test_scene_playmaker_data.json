@@ -1,0 +1,120 @@
+{
+    "_gdeSchema_Test": {
+        "bool_field": 0,
+        "_gdeType_bool_field": "Bool",
+        "int_field": 0,
+        "_gdeType_int_field": "Int",
+        "float_field": 0,
+        "_gdeType_float_field": "Float",
+        "string_field": "",
+        "_gdeType_string_field": "String",
+        "vector2_field": {
+            "x": 0,
+            "y": 0
+        },
+        "_gdeType_vector2_field": "Vector2",
+        "vector3_field": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "_gdeType_vector3_field": "Vector3",
+        "color_field": {
+            "r": 1,
+            "g": 1,
+            "b": 1,
+            "a": 0
+        },
+        "_gdeType_color_field": "Color",
+        "custom_field": "null",
+        "_gdeType_custom_field": "Custom"
+    },
+    "_gdeSchema_Custom": {
+        "_gdeType_string_field": "String",
+        "bool_field": 0,
+        "string_field": "This is a custom type",
+        "_gdeType_bool_field": "Bool",
+        "int_field": 0,
+        "_gdeType_int_field": "Int",
+        "float_field": 0,
+        "_gdeType_float_field": "Float",
+        "vector2_field": {
+            "x": 1.2,
+            "y": 3.4
+        },
+        "_gdeType_vector2_field": "Vector2",
+        "vector3_field": {
+            "x": 5.6,
+            "y": 7.8,
+            "z": 9.101
+        },
+        "_gdeType_vector3_field": "Vector3",
+        "color_field": {
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 0
+        },
+        "_gdeType_color_field": "Color"
+    },
+    "test_data": {
+        "bool_field": true,
+        "_gdeType_bool_field": "Bool",
+        "int_field": 1,
+        "_gdeType_int_field": "Int",
+        "float_field": 1.259,
+        "_gdeType_float_field": "Float",
+        "string_field": "This is a string field!",
+        "_gdeType_string_field": "String",
+        "vector2_field": {
+            "x": 1,
+            "y": 2
+        },
+        "_gdeType_vector2_field": "Vector2",
+        "vector3_field": {
+            "x": 1.2,
+            "y": 2.3,
+            "z": 3.4
+        },
+        "_gdeType_vector3_field": "Vector3",
+        "color_field": {
+            "r": 0,
+            "g": 0,
+            "b": 1,
+            "a": 1
+        },
+        "_gdeType_color_field": "Color",
+        "custom_field": "custom_data_1",
+        "_gdeType_custom_field": "Custom",
+        "_gdeSchema": "Test"
+    },
+    "custom_data_1": {
+        "_gdeType_string_field": "String",
+        "bool_field": 0,
+        "_gdeSchema": "Custom",
+        "string_field": "This is a custom data string.",
+        "_gdeType_bool_field": "Bool",
+        "int_field": 35,
+        "_gdeType_int_field": "Int",
+        "float_field": 46.789,
+        "_gdeType_float_field": "Float",
+        "vector2_field": {
+            "x": 1.2,
+            "y": 3.4
+        },
+        "_gdeType_vector2_field": "Vector2",
+        "vector3_field": {
+            "x": 5.6,
+            "y": 7.8,
+            "z": 9.101
+        },
+        "_gdeType_vector3_field": "Vector3",
+        "color_field": {
+            "r": 1,
+            "g": 0,
+            "b": 0,
+            "a": 1
+        },
+        "_gdeType_color_field": "Color"
+    }
+}

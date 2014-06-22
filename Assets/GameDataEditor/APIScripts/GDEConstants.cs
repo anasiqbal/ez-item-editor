@@ -43,5 +43,9 @@ namespace GameDataEditor
 
         public const string DataFile = "gde_data.json";
         #endregion
+
+        #region Error Strings
+        public const string ErrorLoadingValue = "Could not load {0} value from item name:{1}, field name:{2}!";
+        #endregion
     }
 }
