@@ -2,7 +2,7 @@
 <html lang="en-US"><!--
  Archive processed by SingleFile 
  url: http://stayathomedevs.com/game-data-editor-plugin/ 
- saved date: Tue Jun 10 2014 21:08:42 GMT-0400 (EDT) 
+ saved date: Wed Jun 25 2014 11:31:08 GMT-0400 (EDT) 
 --><head profile="http://gmpg.org/xfn/11">
 
 <title>Game Data Editor Plugin | Stay at Home Devs</title>
@@ -986,7 +986,7 @@ body.single-portfolio #slides.gallery .slides_container img, #gallery img  { pad
 .lastUnit {float:none;_position:relative; _left:-3px; _margin-right: -3px;width:auto;}
 /* extending grids to allow a unit that takes the width of its content */
 .media{width:auto;}</style>
-
+<style type="text/css"></style>
 
 
 
@@ -1657,12 +1657,12 @@ a[href^="mailto"]:hover:after { content: " > " attr(title); }
     padding: 0 0 0 15px;
 }
 </style>
-		<style type="text/css"></style>
+		
 	
 
 <link type="image/x-icon" rel="shortcut icon" href="data:image/gif;base64,R0lGODlhAQABAIAAAP///////yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></head>
 
-<body class="page page-id-116 page-template-default chrome alt-style-default layout-left-content" data-pinterest-extension-installed="cr1.3.1">
+<body class="page page-id-116 page-template-default chrome alt-style-default layout-left-content" data-pinterest-extension-installed="cr1.3.2">
 
 <div id="wrapper">
 
@@ -1754,6 +1754,31 @@ foreach(string buffKey in buffKeyList)
 <ul>
 <li>First get the list of string keys for the list field you want to read. Then spin through the list of keys and get the data as you would get the data for any other field.</li>
 </ul>
+<h2>Playmaker Support</h2>
+<p>Our custom playmaker actions provide an easy way to access your Game Data in your FSMs. There are a couple of steps you need to take before you can access your data.</p>
+<ol>
+<li><b>Enable Playmaker Support:</b> Go to “Build Settings -&gt; Player Settings” for the platform you are using and add “GDE_PLAYMAKER_SUPPORT” to the Scripting Define Symbols.</li>
+<li><b>Initialize GDE Manager:</b> Before you can read your data, you must initialize the GDE Manager. To do this, add the GDE Manager Init action to your FSM. Set the GDEData File Name field to the name of your data file (without the extension).</li>
+<li><b>That’s it!</b> You are now ready to access your data in game!</li>
+</ol>
+<p>The complete list of available playmaker actions are:</p>
+<div class="codebox"><code>GDEManager Init: Initializes the GDE Manager with your data file.<br>
+GDEGet Bool<br>
+GDEGet Color<br>
+GDEGet Float<br>
+GDEGet Int<br>
+GDEGet String<br>
+GDEGet Vector2<br>
+GDEGet Vector3</code></div>
+<p>These custom actions read data from a Custom GDE Data Type. For example, if you have a Warrior item that contains a Weapon custom type. You can read the fields from that Warrior Weapon custom type by using the actions below.</p>
+<div class="codebox"><code>GDEGet Custom Bool<br>
+GDEGet Custom Color<br>
+GDEGet Custom Float<br>
+GDEGet Custom Int<br>
+GDEGet Custom String<br>
+GDEGet Custom Vector2<br>
+GDEGet Custom Vector3</code></div>
+<p>Also check out the <a href="http://youtu.be/QppchuZJ96s" title="Game Data Editor Playmaker Screencast tutorial" target="_blank">Game Data Editor Playmaker Screencast tutorial</a>.</p>
 
 					               	</div><!-- /.entry -->
 
@@ -1796,4 +1821,4 @@ contact@stayathomedevs.com</a></div></div><div id="enhancedtextwidget-2" class="
 	</div><!-- /#footer-container -->
 </div><!-- /#wrapper -->
 
-<span style="height: 20px; width: 40px; min-height: 20px; min-width: 40px; position: absolute; opacity: 0.85; z-index: 8675309; display: none; cursor: pointer; background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAUCAYAAAD/Rn+7AAADU0lEQVR42s2WXUhTYRjHz0VEVPRFUGmtVEaFUZFhHxBhsotCU5JwBWEf1EWEEVHQx4UfFWYkFa2biPJiXbUta33OXFtuUXMzJ4bK3Nqay7m5NeZq6h/tPQ+xU20zugjOxR/+7/O8539+5znnwMtNTExwJtMb3L/fiLv3botCSmUjeCaejTOb39AiFothfHxcFIrHY8RksZjBsckJcOIRMfFsHD/SsbExUYpnI8DR0dGUGjSb0byhEJp5Uqg5CTSzc2CQleJbMEj9/ywBcGRkJEk9DQqouEVQT1sK444yWI9UonmTjGqauVLEIlHa9x8lAMbj8SSpp0rwKGMVvg8P46vbg0C7na8z8JsMcgHe7jlEa+edRhiLy8n/TUMfu6EvLElk+U0WtGwrTrdfAGQf5J8iiK4LVzDU28t8JtMSocf8E+l68myaNFXm/6rXslLK7ay5TOunuRvZWpJuvwAYjUaTpOIWoquuAZ219RTaxKYp9BbjycoN5FvL9qH9TBX5rvoGdJythvXYSTxdtRnWylO/ZdqrLsGwszzhWQ593z2KlAwCYCQSSZJ6ehZ0W7bD9VBLgN0NCqr3qR7R2rBrL3pu3Sb/7nDlz2uy6cG0OXk0GTbZXzNp8trsPAQdTj6frlWzN2DcXZGKQQAMh8NJ6rpyHe+PnkCr/CAFdZyvpfpjuvkifLF9wIt1Wwlo0OHie1RvWrKa93RjzfzliTzPKz3ltB0/Tevmwp14wGUgHAzSOoUEwFAolFaaBSuhnslPRkJexUJtZ6v5HtUeLswl33n1BgEY5fvhs9sJ3FAiT+QYyyvoAQJuD0KBAFRTJNAuz5/s3gJgMBhMJwrVFRThM5tY5zUF/A4X1f2fvQTRLCuBreoim0YmAbqNJryvPEXeeq46kaNdkQ/1HCncbJKPs9ZSv2VHGfWsZ2hfkhKAfr8/pdxWKx4wwD69PmVfNSOL+lr2w+gYqHpWDtXt1xQ8AMlWU0e1lqLd/APRHoP8AJqWrQG9gYxcPMsvSJUvAA4MDKTUJ7MZLaVy8v+qT21tcDx/OemePr0RTkNrur4A6PP5xCgBsL+/X4wiQDpuuVxOeL1eMYmYeDY6sOp0z+B0OuHxeEQhxkJMFosJiSO/UinOI/8Pc+l7KKArAT8AAAAASUVORK5CYII=);"></span></body></html>
+<span style="height: 20px; width: 40px; min-height: 20px; min-width: 40px; position: absolute; opacity: 0.85; z-index: 8675309; display: none; cursor: pointer; top: 282px; left: 1028px; background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAUCAYAAAD/Rn+7AAADU0lEQVR42s2WXUhTYRjHz0VEVPRFUGmtVEaFUZFhHxBhsotCU5JwBWEf1EWEEVHQx4UfFWYkFa2biPJiXbUta33OXFtuUXMzJ4bK3Nqay7m5NeZq6h/tPQ+xU20zugjOxR/+7/O8539+5znnwMtNTExwJtMb3L/fiLv3botCSmUjeCaejTOb39AiFothfHxcFIrHY8RksZjBsckJcOIRMfFsHD/SsbExUYpnI8DR0dGUGjSb0byhEJp5Uqg5CTSzc2CQleJbMEj9/ywBcGRkJEk9DQqouEVQT1sK444yWI9UonmTjGqauVLEIlHa9x8lAMbj8SSpp0rwKGMVvg8P46vbg0C7na8z8JsMcgHe7jlEa+edRhiLy8n/TUMfu6EvLElk+U0WtGwrTrdfAGQf5J8iiK4LVzDU28t8JtMSocf8E+l68myaNFXm/6rXslLK7ay5TOunuRvZWpJuvwAYjUaTpOIWoquuAZ219RTaxKYp9BbjycoN5FvL9qH9TBX5rvoGdJythvXYSTxdtRnWylO/ZdqrLsGwszzhWQ593z2KlAwCYCQSSZJ6ehZ0W7bD9VBLgN0NCqr3qR7R2rBrL3pu3Sb/7nDlz2uy6cG0OXk0GTbZXzNp8trsPAQdTj6frlWzN2DcXZGKQQAMh8NJ6rpyHe+PnkCr/CAFdZyvpfpjuvkifLF9wIt1Wwlo0OHie1RvWrKa93RjzfzliTzPKz3ltB0/Tevmwp14wGUgHAzSOoUEwFAolFaaBSuhnslPRkJexUJtZ6v5HtUeLswl33n1BgEY5fvhs9sJ3FAiT+QYyyvoAQJuD0KBAFRTJNAuz5/s3gJgMBhMJwrVFRThM5tY5zUF/A4X1f2fvQTRLCuBreoim0YmAbqNJryvPEXeeq46kaNdkQ/1HCncbJKPs9ZSv2VHGfWsZ2hfkhKAfr8/pdxWKx4wwD69PmVfNSOL+lr2w+gYqHpWDtXt1xQ8AMlWU0e1lqLd/APRHoP8AJqWrQG9gYxcPMsvSJUvAA4MDKTUJ7MZLaVy8v+qT21tcDx/OemePr0RTkNrur4A6PP5xCgBsL+/X4wiQDpuuVxOeL1eMYmYeDY6sOp0z+B0OuHxeEQhxkJMFosJiSO/UinOI/8Pc+l7KKArAT8AAAAASUVORK5CYII=);"></span></body></html>
