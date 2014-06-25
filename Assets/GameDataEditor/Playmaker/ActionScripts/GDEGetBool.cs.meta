@@ -1,5 +1,18 @@
 fileFormatVersion: 2
 guid: 240efdc51bcdb4d52895bdeac2a4aaeb
+labels:
+- playmaker
+- items
+- config
+- manage
+- stats
+- level
+- management
+- configuration
+- game
+- playtest
+- data
+- editor
 MonoImporter:
   serializedVersion: 2
   defaultReferences: []
